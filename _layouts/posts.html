@@ -25,7 +25,7 @@
   <div class="blog-masthead">
       <div class="container">
         <nav class="blog-nav">
-          <a class="blog-nav-item active" href="#">Home</a>
+          <a class="blog-nav-item" href="/">Home</a>
           <a class="blog-nav-item" href="#">About</a>
         </nav>
       </div>
@@ -39,7 +39,14 @@
 
     <div class="row">
       <div class="col-sm-8 blog-main">
-          {{ content }}
+          <div class="blog-post">   
+            <h2 class="blog-post-title">{{ page.title }}</h2>
+            <p class="blog-post-meta">Written {{ page.date | date: "%m.%d.%Y" }} by {{page.author}}</p>
+            <hr>
+            <div class="entry">
+              {{content}}
+            </div>
+          </div>
       </div>
 
     <div class="col-sm-3 col-sm-offset-1 blog-sidebar">

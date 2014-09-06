@@ -5,12 +5,12 @@ layout: default
 {% for post in site.posts %}
     <div class="blog-post">    
       
-      <h2 class="blog-post-title"><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
+      <h2 class="blog-post-title"><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
       <p class="blog-post-meta">Written {{ post.date | date: "%m.%d.%Y" }} by {{post.author}}</p>
       <div class="entry">
         {{ post.content | truncatewords:40}}
-      </div>
-      
+      </div>      
       <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
+      <hr>
     </div>
 {% endfor %}
