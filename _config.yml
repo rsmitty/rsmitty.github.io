@@ -1,3 +1,4 @@
 name: "Spencer's Blog"
 description: "Linux, and Cloud, and Web Technologies! Oh My!"
 about: "Hi, welcome to my personal blog. I plan to use this site to document interesting things I've learned on personal projects. I work extensively with OpenStack and Linux at work and tend to try new functionality at home. Because I'm forgetful, I'll write up the the cool things I find in order to keep from asking myself, \"How in the heck did I do that?!?!\" over and over again."
+highlighter: pygments
