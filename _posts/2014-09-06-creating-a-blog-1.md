@@ -4,7 +4,7 @@ author: Spencer
 title: Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 1
 ---
 
-As I wrote previously, I wanted to learn to use Github Pages to build a new blog and start keeping track of my personal projects and ideas. However, in getting started, I noticed that there really wasn't a straightforward way to move from Github's quick and dirty tutorial to actually creating a useful blog. So after combing through a lot of other people's pages and some Jekyll tutorials, I was finally able to get something presentable up and running. I figured I'd share the overall process I used as a first series of posts, in case someone else finds it useful.
+As I wrote previously, I wanted to learn to use Github Pages to build a new blog and start keeping track of my personal projects and ideas. However, in getting started, I noticed that there really wasn't a straightforward way to move from Github's quick and dirty tutorial to actually creating a useful blog. There's some tools like [Jekyll Bootstrap](http://jekyllbootstrap.com/), but it seems like it's been a while since it has been updated. So after combing through a lot of other people's pages and some Jekyll tutorials, I was finally able to get something presentable up and running. I figured I'd share the overall process I used as a first series of posts, in case someone else finds it useful.
 
 
 This first post will center around getting a development environment setup and creating a "Hello, World!" type page to demonstrate the basics. So without further ado...
@@ -21,7 +21,7 @@ This first post will center around getting a development environment setup and c
 
 * Now, let's clone our repo locally. This should be as simple as a ```git clone https://github.com/USERNAME/USERNAME.github.io.git``` in some place that you're comfortable with. If you change into that directory, you'll see it's currently empty, unless you created a README or LICENSE file as part of your repo creation.
 
-**Note: If you don't have git installed, issue ```sudo apt-get install git``` to install.**
+***Note: If you don't have git installed, issue ```sudo apt-get install git``` to install.***
 
 ###**Install The Basics**
 
@@ -35,9 +35,9 @@ This first post will center around getting a development environment setup and c
 
 There's a certain folder structure that Jekyll looks for in your repo. For example, all posts must live in the '_posts' folder and must be titled like YEAR-MONTH-DAY-TITLE.FORMAT. To help understand, the title of this post is 2014-09-06-creating-a-blog-1.md. Anyways, I wanted to get up and running with the absolute basic amount of stuff needed in my repo so here's what seemed to work.
 
-* Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front.
+* Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front. Issue ```mkdir _layouts _posts```
 
-* Let's also touch a couple of files that we'll use later on. ```touch _config.yml index.html```
+* Let's also touch a couple of files that we'll use later on. Issue ```touch _config.yml index.html```
 
 ###**Configure The Site**
 
@@ -85,7 +85,11 @@ Okay, so we've got our first official page. How do we get that out to Github? Tu
 * Push it to Github: ```git push origin master```
 
 * Give it a few seconds, and you should see your new page at your USERNAME.github.io address:
+<a href="/img/posts/2014-09-06-creating-a-blog-1/github-hello-world.png">
+  <img src="/img/posts/2014-09-06-creating-a-blog-1/github-hello-world.png" style="max-width:100%; border:solid 1px;"/>
+</a>
 
-
+###**Closing**
+That's it for part one of this tutorial. We've now got a development environment setup and know how to push our pages to Github. In [part two](../07/creating-a-blog-2.html), we'll explore how to use Bootstrap to setup a blog layout and create some custom layout pages so that our site looks clean and user friendly.
 
 

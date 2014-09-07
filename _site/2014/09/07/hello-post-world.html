@@ -6,10 +6,10 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
-    <title>{{ site.name }}</title>
+    <title>Test Blog</title>
 
-    <meta name="author" content="{{ site.name }}" />
-    <meta name="description" content="{{ site.description }}">
+    <meta name="author" content="Test Blog" />
+    <meta name="description" content="A snazzy new blog, just for me!">
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -32,17 +32,18 @@
 
   <div class="container">
     <div class="blog-header">
-      <h1 class="blog-title">{{site.name}}</h1>
-      <p class="lead blog-description">{{site.description}}</p>
+      <h1 class="blog-title">Test Blog</h1>
+      <p class="lead blog-description">A snazzy new blog, just for me!</p>
     </div>
 
     <div class="row">
       <div class="col-sm-9 blog-main">
           <div class="blog-post">   
-            <h2 class="blog-post-title">{{ page.title }}</h2>
-            <p class="blog-post-meta">Written {{ page.date | date: "%m.%d.%Y" }} by {{page.author}}</p>
+            <h2 class="blog-post-title">Hello, Post World!</h2>
+            <p class="blog-post-meta">Written 09.07.2014 by Spencer</p>
             <hr>
-              {{content}}
+              <p>Here’s some pretty incredible text to prove that it actually shows up in our index page and I’ll continue rambling here in hopes that I hit forty words and the post gets truncated. That will allow us to see the “Read More” link appear on our post.</p>
+
             <hr>
             <a href="/"><< Back</a>
           </div>
@@ -51,7 +52,7 @@
       <div class="col-sm-3 blog-sidebar">
         <div class="sidebar-module sidebar-module-inset">
           <h4>About</h4>
-          <p>{{site.about}}</p>
+          <p>Here's a bit of text that we'll put in an about section later on in our tutorial. I'm intentionally making it a little longer so that the section will look fuller later...</p>
         </div>
         <div class="sidebar-module sidebar-module-inset">
           <h4>Contact Info</h4>

@@ -6,10 +6,10 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
-    <title>Spencer's Blog</title>
+    <title>Test Blog</title>
 
-    <meta name="author" content="Spencer's Blog" />
-    <meta name="description" content="Linux, and Cloud, and Web Technologies! Oh My!">
+    <meta name="author" content="Test Blog" />
+    <meta name="description" content="A snazzy new blog, just for me!">
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -21,7 +21,7 @@
 
   <body>
 
-  <div class="blog-masthead">
+  <div class="blog-masthead navbar-fixed-top">
     <div class="container">
       <nav class="blog-nav">
         <a class="blog-nav-item" href="/">Home</a>
@@ -32,17 +32,17 @@
 
   <div class="container">
     <div class="blog-header">
-      <h1 class="blog-title">Spencer's Blog</h1>
-      <p class="lead blog-description">Linux, and Cloud, and Web Technologies! Oh My!</p>
+      <h1 class="blog-title">Test Blog</h1>
+      <p class="lead blog-description">A snazzy new blog, just for me!</p>
     </div>
 
     <div class="row">
-      <div class="col-sm-8 blog-main">
+      <div class="col-sm-9 blog-main">
           <div class="blog-post">   
             <h2 class="blog-post-title">Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 1</h2>
             <p class="blog-post-meta">Written 09.06.2014 by Spencer</p>
             <hr>
-              <p>As I wrote previously, I wanted to learn to use Github Pages to build a new blog and start keeping track of my personal projects and ideas. However, in getting started, I noticed that there really wasn’t a straightforward way to move from Github’s quick and dirty tutorial to actually creating a useful blog. So after combing through a lot of other people’s pages and some Jekyll tutorials, I was finally able to get something presentable up and running. I figured I’d share the overall process I used as a first series of posts, in case someone else finds it useful.</p>
+              <p>As I wrote previously, I wanted to learn to use Github Pages to build a new blog and start keeping track of my personal projects and ideas. However, in getting started, I noticed that there really wasn’t a straightforward way to move from Github’s quick and dirty tutorial to actually creating a useful blog. There’s some tools like <a href="http://jekyllbootstrap.com/">Jekyll Bootstrap</a>, but it seems like it’s been a while since it has been updated. So after combing through a lot of other people’s pages and some Jekyll tutorials, I was finally able to get something presentable up and running. I figured I’d share the overall process I used as a first series of posts, in case someone else finds it useful.</p>
 
 <p>This first post will center around getting a development environment setup and creating a “Hello, World!” type page to demonstrate the basics. So without further ado…</p>
 
@@ -62,7 +62,7 @@
   <li>Now, let’s clone our repo locally. This should be as simple as a <code>git clone https://github.com/USERNAME/USERNAME.github.io.git</code> in some place that you’re comfortable with. If you change into that directory, you’ll see it’s currently empty, unless you created a README or LICENSE file as part of your repo creation.</li>
 </ul>
 
-<p><strong>Note: If you don’t have git installed, issue <code>sudo apt-get install git</code> to install.</strong></p>
+<p><strong><em>Note: If you don’t have git installed, issue <code>sudo apt-get install git</code> to install.</em></strong></p>
 
 <h3 id="install-the-basics"><strong>Install The Basics</strong></h3>
 
@@ -84,10 +84,10 @@
 
 <ul>
   <li>
-    <p>Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front.</p>
+    <p>Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front. Issue <code>mkdir _layouts _posts</code></p>
   </li>
   <li>
-    <p>Let’s also touch a couple of files that we’ll use later on. <code>touch _config.yml index.html</code></p>
+    <p>Let’s also touch a couple of files that we’ll use later on. Issue <code>touch _config.yml index.html</code></p>
   </li>
 </ul>
 
@@ -148,9 +148,15 @@ Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
     <p>Push it to Github: <code>git push origin master</code></p>
   </li>
   <li>
-    <p>Give it a few seconds, and you should see your new page at your USERNAME.github.io address:</p>
+    <p>Give it a few seconds, and you should see your new page at your USERNAME.github.io address:
+<a href="/img/posts/2014-09-06-creating-a-blog-1/github-hello-world.png">
+<img src="/img/posts/2014-09-06-creating-a-blog-1/github-hello-world.png" style="max-width:100%; border:solid 1px;" />
+</a></p>
   </li>
 </ul>
+
+<h3 id="closing"><strong>Closing</strong></h3>
+<p>That’s it for part one of this tutorial. We’ve now got a development environment setup and know how to push our pages to Github. In <a href="../07/creating-a-blog-2.html">part two</a>, we’ll explore how to use Bootstrap to setup a blog layout and create some custom layout pages so that our site looks clean and user friendly.</p>
 
 
             <hr>
@@ -158,10 +164,10 @@ Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
           </div>
       </div>
 
-      <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+      <div class="col-sm-3 blog-sidebar">
         <div class="sidebar-module sidebar-module-inset">
           <h4>About</h4>
-          <p>Hi, welcome to my personal blog. I plan to use this site to document interesting things I've learned on personal projects. I work extensively with OpenStack and Linux at work and tend to try new functionality at home. Because I'm forgetful, I'll write up the the cool things I find in order to keep from asking myself, "How in the heck did I do that?!?!" over and over again.</p>
+          <p>Here's a bit of text that we'll put in an about section later on in our tutorial. I'm intentionally making it a little longer so that the section will look fuller later...</p>
         </div>
         <div class="sidebar-module sidebar-module-inset">
           <h4>Contact Info</h4>
