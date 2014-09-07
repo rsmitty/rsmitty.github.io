@@ -22,19 +22,19 @@
   <body>
 
   <div class="blog-masthead">
-      <div class="container">
-        <nav class="blog-nav">
-          <a class="blog-nav-item" href="/">Home</a>
-          <a class="blog-nav-item" href="#">About</a>
-        </nav>
-      </div>
-    </div>
-
     <div class="container">
-      <div class="blog-header">
-        <h1 class="blog-title">{{site.name}}</h1>
-        <p class="lead blog-description">{{site.description}}</p>
-      </div>
+      <nav class="blog-nav">
+        <a class="blog-nav-item" href="/">Home</a>
+        <a class="blog-nav-item" href="#">About</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="blog-header">
+      <h1 class="blog-title">{{site.name}}</h1>
+      <p class="lead blog-description">{{site.description}}</p>
+    </div>
 
     <div class="row">
       <div class="col-sm-8 blog-main">
@@ -42,28 +42,27 @@
             <h2 class="blog-post-title">{{ page.title }}</h2>
             <p class="blog-post-meta">Written {{ page.date | date: "%m.%d.%Y" }} by {{page.author}}</p>
             <hr>
-            <div class="entry">
               {{content}}
-            </div>
             <hr>
             <a href="/"><< Back</a>
           </div>
       </div>
 
-    <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
-      <div class="sidebar-module sidebar-module-inset">
-        <h4>About</h4>
-        <p>{{site.about}}</p>
+      <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+        <div class="sidebar-module sidebar-module-inset">
+          <h4>About</h4>
+          <p>{{site.about}}</p>
+        </div>
+        <div class="sidebar-module sidebar-module-inset">
+          <h4>Contact Info</h4>
+          <ol class="list-unstyled">
+            <li><a href="https://github.com/rsmitty" target="_blank">Github</a></li>
+            <li><a href="http://lnkd.in/feXbBV" target="_blank">LinkedIn</a></li>
+          </ol>
+        </div>
       </div>
-      <div class="sidebar-module sidebar-module-inset">
-        <h4>Contact Info</h4>
-        <ol class="list-unstyled">
-          <li><a href="https://github.com/rsmitty" target="_blank">Github</a></li>
-          <li><a href="http://lnkd.in/feXbBV" target="_blank">LinkedIn</a></li>
-        </ol>
-      </div>
+
     </div>
-  </div>
   </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>

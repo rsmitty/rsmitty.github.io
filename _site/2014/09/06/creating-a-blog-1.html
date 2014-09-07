@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <title>Spencer's Blog</title>
+
+    <meta name="author" content="Spencer's Blog" />
+    <meta name="description" content="Linux, and Cloud, and Web Technologies! Oh My!">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="http://getbootstrap.com/examples/blog/blog.css">
+    <link rel="stylesheet" href="/pygments.css">
+  </head>
+
+  <body>
+
+  <div class="blog-masthead">
+    <div class="container">
+      <nav class="blog-nav">
+        <a class="blog-nav-item" href="/">Home</a>
+        <a class="blog-nav-item" href="#">About</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="blog-header">
+      <h1 class="blog-title">Spencer's Blog</h1>
+      <p class="lead blog-description">Linux, and Cloud, and Web Technologies! Oh My!</p>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-8 blog-main">
+          <div class="blog-post">   
+            <h2 class="blog-post-title">Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 1</h2>
+            <p class="blog-post-meta">Written 09.06.2014 by Spencer</p>
+            <hr>
+              <p>As I wrote previously, I wanted to learn to use Github Pages to build a new blog and start keeping track of my personal projects and ideas. However, in getting started, I noticed that there really wasn’t a straightforward way to move from Github’s quick and dirty tutorial to actually creating a useful blog. So after combing through a lot of other people’s pages and some Jekyll tutorials, I was finally able to get something presentable up and running. I figured I’d share the overall process I used as a first series of posts, in case someone else finds it useful.</p>
+
+<p>This first post will center around getting a development environment setup and creating a “Hello, World!” type page to demonstrate the basics. So without further ado…</p>
+
+<p><strong>This guide assumes a standard Ubuntu installation and a pre-existing Github account.</strong></p>
+
+<h3 id="create-our-github-page"><strong>Create Our Github Page</strong></h3>
+
+<ul>
+  <li>First, we’ll want to create an empty repo out on Github. The naming here is quite important, so for a personal blog, you’ll want to name it like GITHUB_USERNAME.github.io. So login to Github and click “+ New Repository”. My repo info looked like this:</li>
+</ul>
+
+<p><a href="/img/posts/2014-09-06-creating-a-blog-1/create-repo.png">
+  <img src="/img/posts/2014-09-06-creating-a-blog-1/create-repo.png" style="max-width:100%; border:solid 1px;" />
+</a></p>
+
+<ul>
+  <li>Now, let’s clone our repo locally. This should be as simple as a <code>git clone https://github.com/USERNAME/USERNAME.github.io.git</code> in some place that you’re comfortable with. If you change into that directory, you’ll see it’s currently empty, unless you created a README or LICENSE file as part of your repo creation.</li>
+</ul>
+
+<p><strong>Note: If you don’t have git installed, issue <code>sudo apt-get install git</code> to install.</strong></p>
+
+<h3 id="install-the-basics"><strong>Install The Basics</strong></h3>
+
+<ul>
+  <li>
+    <p>Let’s grab some packages we need to serve our site locally. This will be useful when writing posts, so you don’t have to push to Github constantly just to see what it looks like. Issue <code>sudo apt-get install ruby ruby1.9.1-dev python-pip</code>.</p>
+  </li>
+  <li>
+    <p>We’ll need a Javascript parser and the Jekyll gem, so get NodeJS and Jekyll from rubygems: <code>sudo gem install nodejs jekyll</code></p>
+  </li>
+  <li>
+    <p>This step is optional for some, but I needed syntax highlighting for code blocks. So install the Pygments package for Python: <code>sudo pip install Pygments</code></p>
+  </li>
+</ul>
+
+<h3 id="create-our-folder-structure"><strong>Create Our Folder Structure</strong></h3>
+
+<p>There’s a certain folder structure that Jekyll looks for in your repo. For example, all posts must live in the ‘_posts’ folder and must be titled like YEAR-MONTH-DAY-TITLE.FORMAT. To help understand, the title of this post is 2014-09-06-creating-a-blog-1.md. Anyways, I wanted to get up and running with the absolute basic amount of stuff needed in my repo so here’s what seemed to work.</p>
+
+<ul>
+  <li>
+    <p>Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front.</p>
+  </li>
+  <li>
+    <p>Let’s also touch a couple of files that we’ll use later on. <code>touch _config.yml index.html</code></p>
+  </li>
+</ul>
+
+<h3 id="configure-the-site"><strong>Configure The Site</strong></h3>
+
+<ul>
+  <li>We could probably do this part much later in the tutorial, but let’s go ahead and put some basic info about our site in the _config.yml file. Feel free to edit these fields to your liking, with the exception of the ‘highlighter’ option. That is for our code highlighting.</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-text" data-lang="text">name: &quot;Test Blog&quot;
+
+description: &quot;A snazzy new blog, just for me!&quot;
+
+about: &quot;Here&#39;s a bit of text that we&#39;ll put in an about section later on in our tutorial. I&#39;m intentionally making it a little longer so that the section will look fuller later...&quot;
+
+highlighter: pygments</code></pre></div>
+
+<h3 id="test-our-local-server"><strong>Test Our Local Server</strong></h3>
+
+<ul>
+  <li>
+    <p>Now, what’s a tutorial without a “Hello, World!” portion? Let’s go ahead and edit index.html to say that. The “Hello, World!” text should be the only thing in the file.</p>
+  </li>
+  <li>
+    <p>In the root of your repo, let’s tell Jekyll to server our pages so we can see if everything works. Issue <code>jekyll serve --watch</code>. The watch flag will monitor the repo for changed files and regenerate automatically, so you don’t have to start/stop the process. However, I’ve noticed that’s not the case for certain files, namely _config.yml. Your terminal should look something like this when you start the process:</p>
+  </li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
+            Source: /home/rsmitty/Desktop/rsmitty.github.io
+       Destination: /home/rsmitty/Desktop/rsmitty.github.io/_site
+      Generating... 
+                    <span class="k">done</span>.
+ Auto-regeneration: enabled <span class="k">for</span> <span class="s1">&#39;/home/rsmitty/Desktop/rsmitty.github.io&#39;</span>
+Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
+    Server address: http://0.0.0.0:4000/
+  Server running... press ctrl-c to stop.</code></pre></div>
+
+<ul>
+  <li>Open the address http://localhost:4000 in a browser and you should see your “Hello, World!” text. Neat!
+<a href="/img/posts/2014-09-06-creating-a-blog-1/hello-world.png">
+<img src="/img/posts/2014-09-06-creating-a-blog-1/hello-world.png" style="max-width:100%; border:solid 1px;" />
+</a></li>
+</ul>
+
+<h3 id="check-it-out-on-github"><strong>Check It Out On Github</strong></h3>
+
+<p>Okay, so we’ve got our first official page. How do we get that out to Github? Turns out, it’s really easy, because we’ve already got everything laid out just right locally.</p>
+
+<ul>
+  <li>
+    <p>Add all of our files to be commited: <code>git add --all</code></p>
+  </li>
+  <li>
+    <p>Commit them with a helpful message: <code>git commit -m "Committing basic folder structure and Hello World page."</code></p>
+  </li>
+  <li>
+    <p>Push it to Github: <code>git push origin master</code></p>
+  </li>
+  <li>
+    <p>Give it a few seconds, and you should see your new page at your USERNAME.github.io address:</p>
+  </li>
+</ul>
+
+
+            <hr>
+            <a href="/"><< Back</a>
+          </div>
+      </div>
+
+      <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+        <div class="sidebar-module sidebar-module-inset">
+          <h4>About</h4>
+          <p>Hi, welcome to my personal blog. I plan to use this site to document interesting things I've learned on personal projects. I work extensively with OpenStack and Linux at work and tend to try new functionality at home. Because I'm forgetful, I'll write up the the cool things I find in order to keep from asking myself, "How in the heck did I do that?!?!" over and over again.</p>
+        </div>
+        <div class="sidebar-module sidebar-module-inset">
+          <h4>Contact Info</h4>
+          <ol class="list-unstyled">
+            <li><a href="https://github.com/rsmitty" target="_blank">Github</a></li>
+            <li><a href="http://lnkd.in/feXbBV" target="_blank">LinkedIn</a></li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+
+  </body>
+</html>

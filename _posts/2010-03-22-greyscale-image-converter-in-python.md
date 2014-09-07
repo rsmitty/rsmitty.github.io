@@ -11,7 +11,7 @@ Back in CPSC 101, we did a lot of image editing. We only used PPM images in clas
 
 **And here’s the output:**
 
-![alt text](/img/posts/2010-03-2-greyscale-image-converter-in-python/bw-pic.jpg "Color Nature Pic")
+![alt text](/img/posts/2010-03-2-greyscale-image-converter-in-python/bw-pic.jpg "BW Nature Pic")
 
 
 A few particulars about the files and scripts:
