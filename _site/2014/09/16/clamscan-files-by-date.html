@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <title>Spencer's Blog</title>
+
+    <meta name="author" content="Spencer's Blog" />
+    <meta name="description" content="Linux, and Cloud, and Automation Tools! Oh My!">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="http://getbootstrap.com/examples/blog/blog.css">
+    <link rel="stylesheet" href="/pygments.css">
+  </head>
+
+  <body>
+
+  <div class="blog-masthead navbar-fixed-top">
+    <div class="container">
+      <nav class="blog-nav">
+        <a class="blog-nav-item" href="/">Home</a>
+        <a class="blog-nav-item" href="#">About</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="blog-header">
+      <h1 class="blog-title">Spencer's Blog</h1>
+      <p class="lead blog-description">Linux, and Cloud, and Automation Tools! Oh My!</p>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-9 blog-main">
+          <div class="blog-post">   
+            <h2 class="blog-post-title">Scanning Only New Files With Clamscan</h2>
+            <p class="blog-post-meta">Written 09.16.2014 by Spencer</p>
+            <hr>
+              <p>So, I ran into a need to scan some files for viruses on Ubuntu this past week. However, a couple of things prevented this from being straight forward:</p>
+
+<ul>
+  <li>
+    <p>I couldn’t be sure where these files were being stored.</p>
+  </li>
+  <li>
+    <p>I didn’t want to scan the entire filesystem just to get at these few files.</p>
+  </li>
+</ul>
+
+<p>So I went out looking for a way to scan only new files with clamscan. After a good bit of digging, I ran across <a href="http://www.gossamer-threads.com/lists/clamav/users/53298">this</a> old thread where someone had a similar question. So after getting a pointer there, I was able to make this happen. Here is the way to do it:</p>
+
+<h2 id="install-clamav"><strong>Install ClamAV</strong></h2>
+
+<ul>
+  <li>
+    <p>Issue <code>sudo apt-get install clamav</code> to get the freshclam and clamscan commands.</p>
+  </li>
+  <li>
+    <p>Update the virus definitions with a <code>sudo freshclam</code>. This will take a few seconds the first time.</p>
+  </li>
+</ul>
+
+<h2 id="get-ya-find-right"><strong>Get Ya Find Right</strong></h2>
+
+<p>Now this took a bit of playing around with to get where I wanted. I wanted to find all files of a certain type that had been created or modified in the past week. There’s also some differences to note about mtime vs. ctime vs. atime as a flag for find. <a href="http://www.linux-faqs.info/general/difference-between-mtime-ctime-and-atime">Linux-FAQs.info</a> did a good job of explaining these differences:</p>
+
+<div class="highlight"><pre><code class="language-text" data-lang="text">ctime - ctime is the inode or file change time. The ctime gets updated when the file attributes are changed, like changing the owner, changing the permission or moving the file to an other filesystem but will also be updated when you modify a file.
+
+mtime - mtime is the file modify time. The mtime gets updated when you modify a file. Whenever you update content of a file or save a file the mtime gets updated.
+
+*Most of the times ctime and mtime will be the same, unless only the file attributes are updated. In that case only the ctime gets updated.*
+
+atime - atime is the file access time. The atime gets updated when you open a file but also when a file is used for other operations like grep, sort, cat, head, tail and so on.</code></pre></div>
+
+<p>For my purposes, I wanted EVERYTHING that had changed, so that pointed to using the ctime flag. For a first test, I just wanted to see how many items find would return. I was able to do that by issuing (edited to look for .md files, just for laughs): <code>sudo find / -name "*.md" -ctime -7 -type f | wc -l</code>. That command simply returns the number 5 on my machine at the time of writing. Let’s not pipe it out to wc so we can see those files:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rsmitty@rsmitty-notebook:~<span class="nv">$ </span>sudo find / -name <span class="s2">&quot;*.md&quot;</span> -ctime -7 -type f
+/home/rsmitty/Desktop/usenet-dashboard/README.md
+/home/rsmitty/Desktop/rsmitty.github.io/_posts/2014-09-07-creating-a-blog-2.md
+/home/rsmitty/Desktop/rsmitty.github.io/_posts/2014-09-16-clamscan-files-by-date.md
+/home/rsmitty/.xbmc/addons/service.xbmc.versioncheck/README.md
+/usr/share/xbmc/addons/service.xbmc.versioncheck/README.md</code></pre></div>
+
+<p><strong>Note: You’ll have to do almost everything with ClamAV as root user. Also, you can change the number of days to scan for by changing the ‘-7’ portion of the command.</strong></p>
+
+<p>Okay, slightly more interesting, and now we know what we’re working with. Let’s move on…</p>
+
+<h2 id="enter-xargs"><strong>Enter Xargs</strong></h2>
+
+<p>Using xargs was a first for me as part of this little endeavor. It’s a really handy tool to add to the toolbox! If you’ve ever tried to run a bash command like <code>rm *</code> and received an error like “Argument list too long”, xargs is the answer to your problems. It takes the argument list and breaks it down into smaller pieces. It’ll then run subsequent commands with each sublist. For the purposes of what I was doing initally, there were about 7,000 files to scan, xargs was able to break those up into two scans of ~3,000 files and one scan of ~1,000. Worked great!</p>
+
+<p>Here’s the final command that I used:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo find / -name <span class="s2">&quot;*.md&quot;</span> -ctime -7 -type f -print0 <span class="p">|</span> sudo xargs -0 clamscan --remove --log<span class="o">=</span>/home/rsmitty/clamscan.log</code></pre></div>
+
+<ul>
+  <li>The –remove flag just means that if a vulnerability is found in that file, delete the file immediately.</li>
+  <li>the –log flag sets the path of the log file that clamscan will write. You will need to do this for sure if you have lots of files to scan, because several scan summaries will be written to this file.</li>
+</ul>
+
+<p>After running, the log file will look something like this:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rsmitty@rsmitty-notebook:~<span class="nv">$ </span>sudo cat /home/rsmitty/clamscan.log 
+
+----------- SCAN SUMMARY -----------
+Known viruses: 3560111
+Engine version: 0.98.1
+Scanned directories: 0
+Scanned files: 5
+Infected files: 0
+Data scanned: 0.02 MB
+Data <span class="nb">read</span>: 0.01 MB <span class="o">(</span>ratio 2.50:1<span class="o">)</span>
+Time: 6.441 sec <span class="o">(</span><span class="m">0</span> m <span class="m">6</span> s<span class="o">)</span></code></pre></div>
+
+
+            <hr>
+            <a href="/"><< Back</a>
+          </div>
+      </div>
+
+      <div class="col-sm-3 blog-sidebar">
+        <div class="sidebar-module sidebar-module-inset">
+          <h4>About</h4>
+          <p>Hi, welcome to my personal blog. I plan to use this site to document interesting things I've learned on personal projects. I work extensively with OpenStack and Linux at work and tend to try new functionality at home. Because I'm forgetful, I'll write up the the cool things I find in order to keep from asking myself, "How in the heck did I do that?!?!" over and over again.</p>
+        </div>
+        <div class="sidebar-module sidebar-module-inset">
+          <h4>Contact Info</h4>
+          <ol class="list-unstyled">
+            <li><a href="https://github.com/rsmitty" target="_blank">Github</a></li>
+            <li><a href="http://lnkd.in/feXbBV" target="_blank">LinkedIn</a></li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+
+  </body>
+</html>
