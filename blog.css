@@ -4,7 +4,7 @@
 
 body {
   font-family: Georgia, "Times New Roman", Times, serif;
-  color: #555;
+  color: #FFF;
   background-color: #555555;
 }
 
@@ -17,7 +17,7 @@ h6, .h6 {
   margin-top: 0;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
-  color: #333;
+  color: #FFF;
 }
 
 
@@ -91,7 +91,7 @@ h6, .h6 {
 }
 .blog-description {
   font-size: 20px;
-  color: #999;
+  color: #FFF;
 }
 
 
@@ -147,7 +147,7 @@ h6, .h6 {
 }
 .blog-post-meta {
   margin-bottom: 20px;
-  color: #999;
+  color: #FFF;
 }
 
 
@@ -157,7 +157,7 @@ h6, .h6 {
 
 .blog-footer {
   padding: 40px 0;
-  color: #999;
+  color: #FFF;
   text-align: center;
   background-color: #f9f9f9;
   border-top: 1px solid #e5e5e5;
