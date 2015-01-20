@@ -5,7 +5,7 @@
 body {
   font-family: Georgia, "Times New Roman", Times, serif;
   color: #555;
-  background-color: #696969;
+  background-color: #555555;
 }
 
 h1, .h1,
@@ -111,7 +111,7 @@ h6, .h6 {
 }
 .sidebar-module-inset {
   padding: 15px;
-  background-color: #848482;
+  background-color: #696969;
   border-radius: 4px;
 }
 .sidebar-module-inset p:last-child,
