@@ -48,17 +48,17 @@ h6, .h6 {
   display: inline-block;
   padding: 10px;
   font-weight: 500;
-  color: #375A7F;
+  color: #FFF;
 }
 .blog-nav-item:hover,
 .blog-nav-item:focus {
-  color: #fff;
+  color: #FFF;
   text-decoration: none;
 }
 
 /* Active state gets a caret at the bottom */
 .blog-nav .active {
-  color: #fff;
+  color: #FFF;
 }
 .blog-nav .active:after {
   position: absolute;
@@ -88,6 +88,7 @@ h6, .h6 {
   margin-bottom: 0;
   font-size: 60px;
   font-weight: normal;
+  color: #375A7F;
 }
 .blog-description {
   font-size: 20px;
