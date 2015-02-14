@@ -39,16 +39,24 @@
     <div class="row">
       <div class="col-sm-9 blog-main">
           <div class="blog-post">   
-            <h2 class="blog-post-title">Aaaaand We're Back...</h2>
-            <p class="blog-post-meta">Written 09.06.2014 by Spencer</p>
+            <h2 class="blog-post-title">Showing dd Progress</h2>
+            <p class="blog-post-meta">Written 02.14.2015 by Spencer</p>
             <hr>
-              <p>Welp, after a long time away from anything blog related, I’ve decided to spin up a new site to start trying to keep better documentation of the stuff I do personally. A friend of mine asked about my old blog last week and, after telling me that he had liked to read it, I decided that maybe now was as good a time as any to get back into the swing of things. Life has changed quite a bit since the old entries I had made on my previous site, so the focus of my write-ups here will be pretty drastically different.</p>
+              <p>As I was trying to write an ISO to a USB drive, I wanted to see the progress when
+using the ‘dd’ command line tool. I found a quick pointer on StackOverflow to use
+the ‘pv’ command, so I adapted a little to use on a Mac. This will also serve
+as a guide on how to write ISOs on Mac. Here’s how:</p>
 
-<p>I had originally stopped writing mainly because, as graduation neared at Clemson, I was short on time and frantically trying to find a job to transition to ASAP. I also didn’t want to pay yearly for a domain name and to host my site somewhere. So in getting back into this, I have made the transition to Github Pages as a free spot to host my stuff. Pages uses the Jekyll framework to host static sites, which sounded like a neat platform to try out. This has also given me a chance to use git in a different way and learn the markdown syntax. I hope that I’ll be able to expand on these skills more in the future.</p>
-
-<p>As for most of my new posts, they’ll probably center around the creation of this site (it took me a while to figure out the simplest path forward for Jekyll + Bootstrap), Linux system administration, OpenStack oddities and how-tos, and automation tools like Chef and Ansible. Finally, in regards to my older stuff, I was able to dig the old site out of the archive.org Wayback Machine (hooray for not keeping backups), so I’ve ported a few of the ones that were still somewhat interesting to this site. </p>
-
-<p>Hope you like it!</p>
+<ul>
+  <li>Install pv with homebrew: <code>brew install pv</code></li>
+  <li>Find your USB drive with <code>diskutil list</code>. Should be pretty easy to spot the
+USB drive as it will be smaller than the other disks. Tread lightly though, don’t
+mess with your hard drive. I’ll use /dev/disk3, as that’s what my command returned.</li>
+  <li>Unmount it with <code>diskutil unmountDisk /dev/disk3</code>.</li>
+  <li>Become root with <code>sudo su</code></li>
+  <li>Write your iso with this general layout, substituting paths where necessary:
+<code>dd if=/path/to/your.iso | pv | dd of=/dev/disk3 bs=1024k</code>.</li>
+</ul>
 
             <hr>
             <a href="/"><< Back</a>

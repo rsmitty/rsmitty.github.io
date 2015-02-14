@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <title>Spencer's Blog</title>
+
+    <meta name="author" content="Spencer's Blog" />
+    <meta name="description" content="Linux, and Cloud, and Automation Tools! Oh My!">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="/blog.css">
+    <link rel="stylesheet" href="/pygments.css">
+  </head>
+
+  <body>
+
+  <div class="blog-masthead navbar-fixed-top">
+    <div class="container">
+      <nav class="blog-nav">
+        <a class="blog-nav-item" href="/">Home</a>
+        <a class="blog-nav-item" href="#">About</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="blog-header">
+      <h1 class="blog-title">Spencer's Blog</h1>
+      <p class="lead blog-description">Linux, and Cloud, and Automation Tools! Oh My!</p>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-9 blog-main">
+          <div class="blog-post">   
+            <h2 class="blog-post-title">Getting Started with Packer</h2>
+            <p class="blog-post-meta">Written 02.14.2015 by Spencer</p>
+            <hr>
+              <p>As part of a new job I’m taking, I wanted to learn more about image building
+for Openstack and other virtual environments. I’ve done it by hand for the customized
+OSes at my old job, but I haven’t had the chance to explore any automated solutions.
+I was pointed to Packer as a tool to build several different images at the same time (and automatically). It sounds like a great project and I’m going to use this post to
+get up to speed with using the basics. One quick caveat from the outset is that
+I’m not going to use Amazon at first. I’ll be running against my home Openstack lab
+since it’s free and a good excuse to get my homelab back in order.</p>
+
+<h2 id="install-packer"><strong>Install Packer</strong></h2>
+
+<p>I’ve got a shiny new Macbook, and installing Packer was actually really easy.
+The way I did it depended on homebrew, but you can also install manually from
+from their docs <a href="https://www.packer.io/intro/getting-started/setup.html">here</a>.</p>
+
+<ul>
+  <li>In terminal, ensure that you have homebrew setup by issuing <code>brew</code>.</li>
+  <li>Add the necessary tap with <code>brew tap homebrew/binary</code>.</li>
+  <li>Finally, install packer with <code>brew install packer</code>.</li>
+  <li>You can test it’s installed by simply issuing <code>packer</code> in the terminal.</li>
+</ul>
+
+<h2 id="get-openstack-ready"><strong>Get Openstack Ready</strong></h2>
+<p>I run an all-in-one deployment of RDO Openstack at home. Obviously, there’s a
+million different ways to deploy, but <a href="https://openstack.redhat.com/Quickstart">here</a>
+and <a href="https://openstack.redhat.com/Neutron_with_existing_external_network">here</a>
+are the pieces that I followed. It’s important to note that in my lab, instances
+come alive on a private network, then get access to my router’s 192.168.1.0/24 block
+via floating IPs. This will come in to play a bit later with the Packer template.</p>
+
+<ul>
+  <li>
+    <p>Get a known good image into Glance by importing one of the big distros. I used
+the Ubuntu 14.04 LTS image found <a href="https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img">here</a>. You can just put that link into Glance’s import dialog. My final dialog looked like this:
+<a href="/img/posts/2015-02-14-getting-started-with-packer/glance-dialog.png">
+<img src="/img/posts/2015-02-14-getting-started-with-packer/glance-dialog.png" style="max-width:100%; border:solid 1px;" /></a></p>
+  </li>
+  <li>
+    <p>Take note of the new image’s UUID, we’ll need that later:</p>
+  </li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>nova image-list
++--------------------------------------+-------------------+--------+----------+
+<span class="p">|</span> ID                                   <span class="p">|</span> Name              <span class="p">|</span> Status <span class="p">|</span> Server
++--------------------------------------+-------------------+--------+----------+
+<span class="p">|</span> bf2ad7f1-3823-4ad2-a788-44a25827c93e <span class="p">|</span> cirros            <span class="p">|</span> ACTIVE <span class="p">|</span>
+<span class="p">|</span> b3a4368b-7368-45e5-bfe4-63f59d732c41 <span class="p">|</span> ubuntu 14.04      <span class="p">|</span> ACTIVE <span class="p">|</span>
++--------------------------------------+-------------------+--------+----------+</code></pre></div>
+
+<h2 id="write-packer-template"><strong>Write Packer Template</strong></h2>
+<p>Okay, time to get busy. Let’s write a template for Packer to create an image list.
+We’ll need to gather some info first.</p>
+
+<ul>
+  <li>Get your keystone info by catting out your keystonerc file. For me, this was
+<code>cat keystonerc_admin</code>. Some info below has been changed to protect the innocent.</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>cat keystonerc_admin
+<span class="nb">export </span><span class="nv">OS_USERNAME</span><span class="o">=</span>admin
+<span class="nb">export </span><span class="nv">OS_TENANT_NAME</span><span class="o">=</span>admin
+<span class="nb">export </span><span class="nv">OS_PASSWORD</span><span class="o">=</span>testpass
+<span class="nb">export </span><span class="nv">OS_AUTH_URL</span><span class="o">=</span>http://192.168.1.200:5000/v2.0/
+<span class="nb">export </span><span class="nv">OS_REGION_NAME</span><span class="o">=</span>RegionOne
+<span class="nb">export </span><span class="nv">PS1</span><span class="o">=</span><span class="s1">&#39;[\u@\h \W(keystone_admin)]\$ &#39;</span></code></pre></div>
+
+<ul>
+  <li>
+    <p>Create a new json file somewhere on your machine. I simply called mine packer_template.</p>
+  </li>
+  <li>
+    <p>There’s a lot of options for Openstack in Packer (found <a href="https://www.packer.io/docs/builders/openstack.html">here</a>). Some of this will
+vary by the way your particular Openstack deployment is set up, but for me, this
+template contains all of the necessary basic fields:</p>
+  </li>
+</ul>
+
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&quot;builders&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;openstack&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;testpass&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;http://192.168.1.200:5000/v2.0&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;ssh_username&quot;</span><span class="p">:</span> <span class="s2">&quot;ubuntu&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;RegionOne&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;image_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Packer Test Image&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;source_image&quot;</span><span class="p">:</span> <span class="s2">&quot;b3a4368b-7368-45e5-bfe4-63f59d732c41&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;flavor&quot;</span><span class="p">:</span> <span class="s2">&quot;0d7e469c-e99b-4267-b154-35874b224f54&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;networks&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;0296eb7d-7f94-4cc1-b42f-f2d680b81359&quot;</span><span class="p">],</span>
+      <span class="nt">&quot;use_floating_ip&quot;</span><span class="p">:</span> <span class="kc">true</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span></code></pre></div>
+
+<p>Notes about what’s what:</p>
+
+<ol>
+  <li><strong>username &amp; password</strong>: Map to OS_USERNAME and OS_PASSWORD from source file</li>
+  <li><strong>provider</strong>: Maps to OS_AUTH_URL</li>
+  <li><strong>region</strong>: Maps to OS_REGION_NAME</li>
+  <li><strong>source image</strong>: UUID of the Ubuntu image we talked about earlier</li>
+  <li><strong>flavor</strong>: UUID of my m1.tiny flavor. Beware, this changes on any flavor update!</li>
+  <li><strong>networks</strong>: UUID of my private network. Can be an array of several networks.</li>
+  <li><strong>use_floating_ip</strong>: As mentioned earlier, floating IP allows Packer to actually
+SSH to this server across my home network.</li>
+</ol>
+
+<h2 id="test-time"><strong>Test Time!</strong></h2>
+<p>Let’s see if this thing will actually create an image for us.</p>
+
+<ul>
+  <li>
+    <p>Save your template if you haven’t already.</p>
+  </li>
+  <li>
+    <p>Validate the template to make sure there aren’t any glaring errors with
+<code>packer validate NAME_OF_TEMPLATE.json</code>. This should return the text
+‘Template validated successfully.’</p>
+  </li>
+  <li>
+    <p>Run the template with <code>packer build NAME_OF_TEMPLATE.json</code>. For me, this
+gave the following output when everything completely worked:</p>
+  </li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:Desktop spencer<span class="nv">$ </span>packer build packer_template
+openstack output will be in this color.
+
+<span class="o">==</span>&gt; openstack: Creating temporary keypair <span class="k">for</span> this instance...
+<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> server <span class="o">(</span>82db25b2-e1a5-4aef-be4a-cfccf744e103<span class="o">)</span> to become ready...
+<span class="o">==</span>&gt; openstack: Created temporary floating IP 192.168.1.204...
+<span class="o">==</span>&gt; openstack: Added floating IP 192.168.1.204 to instance...
+<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> SSH to become available...
+<span class="o">==</span>&gt; openstack: Connected to SSH!
+<span class="o">==</span>&gt; openstack: Creating the image: Packer Test <span class="nv">Image</span>
+<span class="o">==</span>&gt; openstack: Image: 70a610e9-302a-40f4-a4ca-59b6ad260e63
+<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> image to become ready...
+<span class="o">==</span>&gt; openstack: Terminating the <span class="nb">source </span>server...
+<span class="o">==</span>&gt; openstack: Deleting temporary keypair...
+Build <span class="s1">&#39;openstack&#39;</span> finished.</code></pre></div>
+
+<ul>
+  <li>Nice! Seemed to work. Now if we head out to the Glance UI, we can see that our
+shiny new image hanging out!
+<a href="/img/posts/2015-02-14-getting-started-with-packer/image-present.png">
+<img src="/img/posts/2015-02-14-getting-started-with-packer/image-present.png" style="max-width:100%; border:solid 1px;" /></a></li>
+</ul>
+
+            <hr>
+            <a href="/"><< Back</a>
+          </div>
+      </div>
+
+      <div class="col-sm-3 blog-sidebar">
+        <div class="sidebar-module sidebar-module-inset">
+          <h4>About</h4>
+          <p>Hi, welcome to my personal blog. I plan to use this site to document interesting things I've learned on personal projects. I work extensively with OpenStack and Linux at work and tend to try new functionality at home. Because I'm forgetful, I'll write up the the cool things I find in order to keep from asking myself, "How in the heck did I do that?!?!" over and over again.</p>
+        </div>
+        <div class="sidebar-module sidebar-module-inset">
+          <h4>Contact Info</h4>
+          <ol class="list-unstyled">
+            <li><a href="https://github.com/rsmitty" target="_blank">Github</a></li>
+            <li><a href="http://lnkd.in/feXbBV" target="_blank">LinkedIn</a></li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+
+  </body>
+</html>

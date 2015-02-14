@@ -27,7 +27,7 @@ This first post will center around getting a development environment setup and c
 
 * Let's grab some packages we need to serve our site locally. This will be useful when writing posts, so you don't have to push to Github constantly just to see what it looks like. Issue ```sudo apt-get install ruby ruby1.9.1-dev python-pip```.
 
-* We'll need a Javascript parser and the Jekyll gem, so get NodeJS and Jekyll from rubygems: ```sudo gem install nodejs jekyll```
+* We'll need a Javascript parser and the Jekyll gem, so get NodeJS and Jekyll from rubygems: ```sudo gem install node jekyll```
 
 * This step is optional for some, but I needed syntax highlighting for code blocks. So install the Pygments package for Python: ```sudo pip install Pygments```
 
@@ -61,7 +61,7 @@ highlighter: pygments
 Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
             Source: /home/rsmitty/Desktop/rsmitty.github.io
        Destination: /home/rsmitty/Desktop/rsmitty.github.io/_site
-      Generating... 
+      Generating...
                     done.
  Auto-regeneration: enabled for '/home/rsmitty/Desktop/rsmitty.github.io'
 Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
@@ -91,5 +91,3 @@ Okay, so we've got our first official page. How do we get that out to Github? Tu
 
 ###**Closing**
 That's it for part one of this tutorial. We've now got a development environment setup and know how to push our pages to Github. In [part two](../07/creating-a-blog-2.html), we'll explore how to use Bootstrap to setup a blog layout and create some custom layout pages so that our site looks clean and user friendly.
-
-
