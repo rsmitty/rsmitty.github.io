@@ -132,3 +132,44 @@ Build 'openstack' finished.
 shiny new image hanging out!
 <a href="/img/posts/2015-02-14-getting-started-with-packer/image-present.png">
   <img src="/img/posts/2015-02-14-getting-started-with-packer/image-present.png" style="max-width:100%; border:solid 1px;"/>
+
+##**Well, Now What?**##
+So we've built an image with Packer, which is great. But the real value here comes
+with building on multiple platforms at the same time and also doing some provisioning
+to install the necessities before creating the image.
+
+This tutorial is getting pretty long in the tooth, so I'm not going to add another provider to create an image on, but I do want to actually install something to actually change something about the image. Let's install Apache as part of the
+build. Note that in a proper environment, we would probably just install Apache
+and we would let our config manangement tool handle deploying our webpage, since
+that's the kind of thing we would want to checkout from version control at boot
+time.
+
+Here's the template:
+{%highlight bash%}
+{
+  "builders": [
+    {
+      "type": "openstack",
+      "username": "admin",
+      "password": "testpass",
+      "provider": "http://192.168.1.200:5000/v2.0",
+      "ssh_username": "ubuntu",
+      "project": "admin",
+      "region": "RegionOne",
+      "image_name": "Packer Test Image",
+      "source_image": "b3a4368b-7368-45e5-bfe4-63f59d732c41",
+      "flavor": "0d7e469c-e99b-4267-b154-35874b224f54",
+      "networks": ["0296eb7d-7f94-4cc1-b42f-f2d680b81359"],
+      "use_floating_ip": true
+    }
+  ],
+   "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sleep 30",
+      "sudo apt-get update",
+      "sudo apt-get install -y apache2"
+    ]
+  }]
+}
+{%endhighlight%}

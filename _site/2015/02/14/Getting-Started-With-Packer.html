@@ -192,6 +192,47 @@ shiny new image hanging out!
 <img src="/img/posts/2015-02-14-getting-started-with-packer/image-present.png" style="max-width:100%; border:solid 1px;" /></a></li>
 </ul>
 
+<h2 id="well-now-what"><strong>Well, Now What?</strong></h2>
+<p>So we’ve built an image with Packer, which is great. But the real value here comes
+with building on multiple platforms at the same time and also doing some provisioning
+to install the necessities before creating the image.</p>
+
+<p>This tutorial is getting pretty long in the tooth, so I’m not going to add another provider to create an image on, but I do want to actually install something to actually change something about the image. Let’s install Apache as part of the
+build. Note that in a proper environment, we would probably just install Apache
+and we would let our config manangement tool handle deploying our webpage, since
+that’s the kind of thing we would want to checkout from version control at boot
+time.</p>
+
+<p>Here’s the template:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">{</span>
+  <span class="s2">&quot;builders&quot;</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;openstack&quot;</span>,
+      <span class="s2">&quot;username&quot;</span>: <span class="s2">&quot;admin&quot;</span>,
+      <span class="s2">&quot;password&quot;</span>: <span class="s2">&quot;testpass&quot;</span>,
+      <span class="s2">&quot;provider&quot;</span>: <span class="s2">&quot;http://192.168.1.200:5000/v2.0&quot;</span>,
+      <span class="s2">&quot;ssh_username&quot;</span>: <span class="s2">&quot;ubuntu&quot;</span>,
+      <span class="s2">&quot;project&quot;</span>: <span class="s2">&quot;admin&quot;</span>,
+      <span class="s2">&quot;region&quot;</span>: <span class="s2">&quot;RegionOne&quot;</span>,
+      <span class="s2">&quot;image_name&quot;</span>: <span class="s2">&quot;Packer Test Image&quot;</span>,
+      <span class="s2">&quot;source_image&quot;</span>: <span class="s2">&quot;b3a4368b-7368-45e5-bfe4-63f59d732c41&quot;</span>,
+      <span class="s2">&quot;flavor&quot;</span>: <span class="s2">&quot;0d7e469c-e99b-4267-b154-35874b224f54&quot;</span>,
+      <span class="s2">&quot;networks&quot;</span>: <span class="o">[</span><span class="s2">&quot;0296eb7d-7f94-4cc1-b42f-f2d680b81359&quot;</span><span class="o">]</span>,
+      <span class="s2">&quot;use_floating_ip&quot;</span>: <span class="nb">true</span>
+    <span class="o">}</span>
+  <span class="o">]</span>,
+   <span class="s2">&quot;provisioners&quot;</span>: <span class="o">[{</span>
+    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;shell&quot;</span>,
+    <span class="s2">&quot;inline&quot;</span>: <span class="o">[</span>
+      <span class="s2">&quot;sleep 30&quot;</span>,
+      <span class="s2">&quot;sudo apt-get update&quot;</span>,
+      <span class="s2">&quot;sudo apt-get install -y apache2&quot;</span>
+    <span class="o">]</span>
+  <span class="o">}]</span>
+<span class="o">}</span></code></pre></div>
+
+
             <hr>
             <a href="/"><< Back</a>
           </div>
