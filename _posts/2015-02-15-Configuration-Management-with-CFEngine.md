@@ -22,7 +22,7 @@ that will be fixed in the future.
 * Open the /etc/hosts file for editing and add an entry for the private IP address to
 give it a hostname. The script below with fail if ```hostname -f``` doesn't return
 anything. I added this to my hosts file:
-```10.0.0.18 cfengine-server.localdomain```. You may also have to enter
+```10.0.0.29 cfengine-server.localdomain```. You may also have to enter
 ```sudo hostname cfengine-server.localdomain```.
 
 * Grab the CFEngine install script with
@@ -34,7 +34,7 @@ anything. I added this to my hosts file:
 will be a central hub server:
 ```sudo ./quick-install-cfengine-enterprise.sh hub```
 
-* Bootstrap the CFEngine hub with ```sudo /var/cfengine/bin/cf-agent --bootstrap 10.0.0.18```
+* Bootstrap the CFEngine hub with ```sudo /var/cfengine/bin/cf-agent --bootstrap 10.0.0.29```
 
 * We should now be able to login to the server's web UI by going to the floating
 IP address in a browser. The default login information is admin/admin. **Make sure

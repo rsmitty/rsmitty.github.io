@@ -63,7 +63,7 @@ that will be fixed in the future.</p>
     <p>Open the /etc/hosts file for editing and add an entry for the private IP address to
 give it a hostname. The script below with fail if <code>hostname -f</code> doesn’t return
 anything. I added this to my hosts file:
-<code>10.0.0.18 cfengine-server.localdomain</code>. You may also have to enter
+<code>10.0.0.29 cfengine-server.localdomain</code>. You may also have to enter
 <code>sudo hostname cfengine-server.localdomain</code>.</p>
   </li>
   <li>
@@ -79,7 +79,7 @@ will be a central hub server:
 <code>sudo ./quick-install-cfengine-enterprise.sh hub</code></p>
   </li>
   <li>
-    <p>Bootstrap the CFEngine hub with <code>sudo /var/cfengine/bin/cf-agent --bootstrap 10.0.0.18</code></p>
+    <p>Bootstrap the CFEngine hub with <code>sudo /var/cfengine/bin/cf-agent --bootstrap 10.0.0.29</code></p>
   </li>
   <li>
     <p>We should now be able to login to the server’s web UI by going to the floating
