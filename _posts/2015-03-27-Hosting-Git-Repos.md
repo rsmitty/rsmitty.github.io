@@ -18,10 +18,12 @@ sudo useradd git
 sudo su - git
 {%endhighlight%}
 
-* Now that we are the git user, we can setup the SSH keys that we want to accept by making the authorized keys file and putting the public keys of each user we want to have access in this file.
+* Now that we are the git user, we can setup the SSH keys that we want to accept by making the authorized keys file and putting the public keys of each user we want to have access in this file. After creating this directory and file, we need to set the permissions on them properly or SSH will complain.
 {%highlight bash%}
 mkdir -p ~/.ssh
 touch ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
 {%endhighlight%}
 
 * Add the desired public SSH keys in authorized keys. You can add several of these if you have a desire for several users to have access to this git repo. Just separate the keys by putting them on a new line. This should look something like:
