@@ -172,7 +172,48 @@ ping
 Tests:    2 | Passed:   2 | Failed:   0
 {%endhighlight%}
 
-Nice! Everything seems to work for our waitfor:ping command. I want to extend this
-to include another command that was mentioned in the tutorial on my own, so that I
-can really understand writing the tests on my own. I'll probably do something like
-waitfor:fileexists in another post. 
+##**Extend, Extend, Extend**##
+
+Now that we have learned all of the functionality from the official tutorial, it's time to extend our module to do other things. Consider what the 'waitfor' module is for. It is there to wait on things in general, not just ping responses. So let's extend our module to support another wait use case, waiting for a file to exist.
+
+* First let's add the new command to our module. This is as simple as it was earlier, just pass the proper options as needed:
+{%highlight bash%}
+rerun stubbs: add-command --module waitfor --command file --description "Waits for a file to be present on the system"
+{%endhighlight%}
+
+
+* Add options for the filepath we want to check, as well as the interval we want to wait to check:
+{%highlight bash%}
+rerun stubbs: add-option --option filepath --description "full path of file to wait for" --module waitfor --command file --required true --export false --default '""'
+{%endhighlight%}
+
+{%highlight bash%}
+rerun stubbs: add-option --option interval --description "how long to wait between attempts" --module waitfor --command file --required false --export false --default 30
+{%endhighlight%}
+
+* Time to implement the actual logic behind our file checker. You'll notice that since this command is similar in function to our ping command, a lot of the same logic that we used previously still applies. Here's the relevant bash from 'waitfor/commands/file/script':
+{%highlight bash%}
+until [ -f "$FILEPATH" ]
+do
+ ##Sleep by our interval if unsuccessful
+ sleep $INTERVAL
+ echo "Checking for file at $FILEPATH"
+done
+
+##Finally return when file exists
+echo "OK: $FILEPATH now exists." 
+{%endhighlight%}
+
+* We can now see this in action by issuing our command, waiting for a few cycles to occur, then touching the file that we want to exist in another terminal. For me, the touch command was simply  touch /tmp/test.txt.
+{%highlight bash%}
+Spencers-MBP:~ spencer$ rerun waitfor: file --filepath "/tmp/test.txt" --interval 1
+Checking for file at /tmp/test.txt
+Checking for file at /tmp/test.txt
+Checking for file at /tmp/test.txt
+Checking for file at /tmp/test.txt
+OK: /tmp/test.txt now exists.
+{%endhighlight%}
+
+* Finally, we would want to write some tests around this command to ensure it functions as expected when variables are missing, etc.. This post is getting pretty lengthy, so I will leave that task up to you.
+
+And that's it! I hope you enjoyed this intro to Rerun. It's a really fun tool to use once you pick up the basics, and it really makes it dead simple to allow other team mates (even those who may not be very adept with bash) to execute scripts in a known, repeatable manner.
