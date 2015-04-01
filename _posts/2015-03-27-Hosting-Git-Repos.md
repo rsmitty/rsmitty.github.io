@@ -51,3 +51,17 @@ git init --bare
 {%highlight bash%}
 git clone git@GITSERVERNAME:/git/testproject.git
 {%endhighlight%}
+
+* Change into the local testproject directory and create a file for our first commit:
+{%highlight bash%}
+touch README.md
+{%endhighlight%}
+
+* Let's add, commit, and push the file up.
+{%highlight bash%}
+git add README.md
+git commit -m "initial commit"
+git push origin master
+{%endhighlight%}
+
+Now we've got a fully functional git repo with a master branch. All ready to go!
