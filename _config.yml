@@ -14,14 +14,14 @@ owner:
   bio:            "Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS."
   email:          robertspencersmith@gmail.com
   # Social networking links used in footer. Update and remove as you like.
-  github: https://github.com/rsmitty         
-  linkedin: https://www.linkedin.com/in/spencersmith23       
+  github: rsmitty         
+  linkedin: spencersmith23       
 
 # Background image to be tiled on all pages
 background: 
 
 # Analytics and webmaster tools stuff goes here
-google_analytics:   
+google_analytics: UA-61400214-1  
 google_verify:      
 # https://ssl.bing.com/webmaster/configure/verify/ownership Option 2 content= goes here
 bing_verify:         
