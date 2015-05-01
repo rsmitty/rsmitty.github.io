@@ -1,5 +1,6 @@
 ---
-layout: posts
+layout: post
+comments: false
 author: Spencer
 title: Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 2
 ---

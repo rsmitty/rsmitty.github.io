@@ -1,6 +1,8 @@
 ---
-layout: posts
+layout: post
+comments: false
 author: Spencer
+title: Greyscale Image Converter in Python
 ---
 
 Back in CPSC 101, we did a lot of image editing. We only used PPM images in class and I was thinking the other day about how even though I hated the project at the time, it was pretty interesting. So, I decided to re-code some of it in Python. Basically, all I’ve done is written a script that will allow the conversion of any color PPM image into greyscale. I feel like this can be pretty handy, as it’s fast and seems to do a pretty good job.

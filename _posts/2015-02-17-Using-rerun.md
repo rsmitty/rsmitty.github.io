@@ -1,5 +1,6 @@
 ---
-layout: posts
+layout: post
+comments: false
 author: Spencer
 title: Using Rerun
 ---
@@ -56,20 +57,29 @@ conditions like ping to be available at a given address, a file to exist, etc..
 * Rerun uses a module:command type syntax, where module is kind of the general idea
 of what you're trying to do, while command is the specifics. So, let's use the stubbs
 module's add-module command to create the bones for our waitfor module:
-```rerun stubbs:add-module --module waitfor --description "waits for a condition."```
+{%highlight bash%}
+rerun stubbs:add-module --module waitfor --description "waits for a condition."
+{%endhighlight%}
 
 * Okay, now let's add a ping command to our waitfor module with
-```rerun stubbs:add-command --module waitfor --command ping --description "wait for ping response from address"```.
+{%highlight bash%}
+rerun stubbs:add-command --module waitfor --command ping --description "wait for ping response from address"
+{%endhighlight%}
 *Note that this command creates both a script and a test.sh file. script is what
 will actually get run, the test file is for us to write a test plan.*
 
 * For ping, we'll want to add a host and an interval option. Host will
 be required, while we will set the interval option with a default and make overriding
 that optional.
-  * Set the required host option:
-```rerun stubbs:add-option --option host --description "host to ping" --module waitfor --command ping --required true --export false --default '""'```
-  * Set the optional interval option:
-```rerun stubbs:add-option --option interval --description "how long to wait between attempts" --module waitfor --command ping --required false --export false --default 30```
+* Set the required host option:
+{%highlight bash%}
+rerun stubbs:add-option --option host --description "host to ping" --module waitfor --command ping --required true --export false --default '""'
+{%endhighlight%}
+* Set the optional interval option:
+{%highlight bash%}
+rerun stubbs:add-option --option interval --description "how long to wait between attempts" --module waitfor --command ping --required false --export false --default 30
+{%endhighlight%}
+
 
 * Let's make sure our params look right by checking the output with ```rerun waitfor```.
 Rerun gives a pretty easy to read/understand output when you try to figure out what

@@ -1,5 +1,6 @@
 ---
-layout: posts
+layout: post
+comments: false
 author: Spencer
 title: Installing Docker
 ---

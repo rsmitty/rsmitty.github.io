@@ -1,0 +1,423 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Using Rerun &#8211; Spencer's Blog</title>
+<meta name="description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta name="keywords" content="">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Using Rerun">
+<meta property="og:description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta property="og:url" content="/Using-rerun/">
+<meta property="og:site_name" content="Spencer's Blog">
+
+
+
+
+
+<link rel="canonical" href="/Using-rerun/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Spencer's Blog Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="/images/avatar.jpg" alt="Spencer Smith photo" class="author-photo">
+					<h4>Spencer Smith</h4>
+					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
+				</li>
+				<li>
+					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				<li>
+					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+				</li>
+				<li>
+					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="/posts/">All Posts</a></li>
+				<li><a href="/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="/Using-rerun/" rel="bookmark" title="Using Rerun">Using Rerun</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2015-02-17T00:00:00-05:00">February 17, 2015</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+          Reading time ~8 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>Today’s post will go into some detail on getting started with
+<a href="https://rerun.github.io/rerun/">Rerun</a>.
+Rerun is a tool that’s kind of meant to bridge the gap between having a
+bunch of sysadmin scripts and a full-blown configuration management tool.
+The truth is that a lot of times, groups have a bunch of bash scripts
+that can perform differently on different machines or exist in several different
+versions. This makes it hard to ensure that you’re always using the right one,
+the right flags are being passed, etc., etc. Rerun sets out to help wrangle your
+shell scripts and present them as something super easy to use.</p>
+
+<h2 id="install-rerun"><strong>Install Rerun</strong></h2>
+<ul>
+  <li>Installing Rerun is really just a ‘git clone’ and then adding a bunch of
+variables to your .bash_profile. I rolled it all into a script so it can just be
+run (at your own risk). Just issue <code>chmod +x whatever_you_name.sh</code>,
+followed by <code>./whatever_you_name.sh</code>.</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/bash</span>
+
+<span class="c">##Checkout Rerun to home directory</span>
+<span class="nb">cd</span> <span class="nv">$HOME</span>
+git clone git://github.com/rerun/rerun.git
+
+<span class="c">##Append rerun particulars to user profile</span>
+cat <span class="s">&lt;&lt; EOF &gt;&gt; $HOME/.bash_profile</span>
+<span class="s">##Begin vars for rerun</span>
+<span class="s">export PATH=$PATH:$HOME/rerun</span>
+<span class="s">export RERUN_MODULES=$HOME/rerun/modules</span>
+<span class="s">[ -r $HOME/rerun/etc/bash_completion.sh ] &amp;&amp; source $HOME/rerun/etc/bash_completion.sh</span>
+<span class="s">[ -t 0 ] &amp;&amp; export RERUN_COLOR=true</span>
+<span class="s">##End vars for rerun</span>
+<span class="s">EOF</span></code></pre></div>
+
+<ul>
+  <li>Exit the terminal and restart, then issue <code>rerun</code> to see if it’s working.
+This should give you a list of the modules installed:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun
+Available modules:
+  stubbs: <span class="s2">&quot;Simple rerun module builder&quot;</span> - 1.2.2</code></pre></div>
+
+<h2 id="create-a-module--command"><strong>Create a Module &amp; Command</strong></h2>
+<p>Now let’s run through the Rerun <a href="https://github.com/rerun/rerun/wiki/Tutorial">tutorial</a>.
+A lot of this part of the post will be a rehashing of that page, with some differences
+here and there to keep myself from just copying/pasting and not actually committing this
+to memory. We will be creating a waitfor module that simply waits for a variety of different
+conditions like ping to be available at a given address, a file to exist, etc..</p>
+
+<ul>
+  <li>Rerun uses a module:command type syntax, where module is kind of the general idea
+of what you’re trying to do, while command is the specifics. So, let’s use the stubbs
+module’s add-module command to create the bones for our waitfor module:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-module --module waitfor --description <span class="s2">&quot;waits for a condition.&quot;</span></code></pre></div>
+
+<ul>
+  <li>Okay, now let’s add a ping command to our waitfor module with</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-command --module waitfor --command ping --description <span class="s2">&quot;wait for ping response from address&quot;</span></code></pre></div>
+
+<p><em>Note that this command creates both a script and a test.sh file. script is what
+will actually get run, the test file is for us to write a test plan.</em></p>
+
+<ul>
+  <li>For ping, we’ll want to add a host and an interval option. Host will
+be required, while we will set the interval option with a default and make overriding
+that optional.</li>
+  <li>Set the required host option:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-option --option host --description <span class="s2">&quot;host to ping&quot;</span> --module waitfor --command ping --required <span class="nb">true</span> --export <span class="nb">false</span> --default <span class="s1">&#39;&quot;&quot;&#39;</span></code></pre></div>
+
+<ul>
+  <li>Set the optional interval option:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-option --option interval --description <span class="s2">&quot;how long to wait between attempts&quot;</span> --module waitfor --command ping --required <span class="nb">false</span> --export <span class="nb">false</span> --default 30</code></pre></div>
+
+<ul>
+  <li>Let’s make sure our params look right by checking the output with <code>rerun waitfor</code>.
+Rerun gives a pretty easy to read/understand output when you try to figure out what
+a module is capable of.</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor
+Available commands in module, <span class="s2">&quot;waitfor&quot;</span>:
+ping: <span class="s2">&quot;wait for ping response from address&quot;</span>
+    --host &lt;<span class="s2">&quot;&quot;</span>&gt;: <span class="s2">&quot;host to ping&quot;</span>
+   <span class="o">[</span> --interval &lt;30&gt;<span class="o">]</span>: <span class="s2">&quot;how long to wait between attempts&quot;</span></code></pre></div>
+
+<h2 id="implement-the-command"><strong>Implement the Command</strong></h2>
+<p>So now we’ve got our command created, but it doesn’t actually do anything. Rerun
+can’t read our mind, so it just lays down some basics and it’s up to us to implement
+the particulars.</p>
+
+<ul>
+  <li>Open the file <code>~/rerun/modules/waitfor/commands/ping/script</code> for editing.
+Scroll down to the bottom, where you will see:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Command implementation</span>
+<span class="c"># ----------------------</span>
+
+<span class="c"># - - -</span>
+<span class="c"># Put the command implementation here.</span>
+<span class="c"># - - -</span></code></pre></div>
+
+<ul>
+  <li>Replace the ‘Put the command implementation here’ with your code. I had to throw
+in a -t flag in the ping command to timeout quicker on Mac.
+For our ping check, the code will look like:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">## Loop until a single ping packet returns a result string that contains 64.</span>
+<span class="c">## 64 is the number of bytes in ping response</span>
+<span class="k">until</span> <span class="o">(</span> ping -c <span class="m">1</span> -t <span class="m">1</span> <span class="nv">$HOST</span> <span class="p">|</span> grep -q ^64 <span class="o">)</span>
+<span class="k">do</span>
+   <span class="c">##Sleep by our interval if unsuccessful</span>
+   sleep <span class="nv">$INTERVAL</span>
+   <span class="nb">echo </span>Pinging <span class="nv">$HOST</span>...
+<span class="k">done</span>
+
+<span class="c">##Finally return when ping available</span>
+<span class="nb">echo</span> <span class="s2">&quot;OK: $HOST is pingable.&quot;</span></code></pre></div>
+
+<ul>
+  <li>Test it out with a call to localhost. This should always return a positive ping.
+<code>rerun waitfor:ping --host localhost --interval 1</code></li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor:ping --host localhost --interval 1
+OK: localhost is pingable.</code></pre></div>
+
+<h2 id="write-tests"><strong>Write Tests</strong></h2>
+<p>Okay, let’s write the tests for our new command. This will help us ensure it’s working
+the right way.</p>
+
+<ul>
+  <li>
+    <p>Open <code>~/rerun/modules/waitfor/tests/ping-1-test.sh</code> for editing. Remove the whole
+‘it_fails_without_a_real_test’ block.</p>
+  </li>
+  <li>
+    <p>We’ll create two new functions. One will check that the required host is present.
+The other will check that localhost responds as expected. These tests are straight
+from the wiki tutorial with extra comments to explain what’s actually happening.</p>
+  </li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Check that the required host is passed in</span>
+it_fails_without_required_options<span class="o">()</span> <span class="o">{</span>
+    <span class="c">##Make a temp file to write to</span>
+    <span class="nv">OUT</span><span class="o">=</span><span class="k">$(</span>mktemp /tmp/waitfor:ping-XXXX<span class="k">)</span>
+    <span class="c">##Negate the error of not passing a host with &#39;!&#39;. Write results to outfile.</span>
+    <span class="c">##The &#39;2&gt;&#39; param redirects stderr to the outfile</span>
+    ! rerun waitfor:ping 2&gt; <span class="nv">$OUT</span>
+    <span class="c">##Check that missing text is in outfile</span>
+    grep <span class="s1">&#39;missing required option: --host&#39;</span> <span class="nv">$OUT</span>
+    <span class="c">##Delete outfile</span>
+    rm <span class="nv">$OUT</span>
+<span class="o">}</span>
+<span class="c">##Check that command works for localhost</span>
+it_reaches_localhost<span class="o">()</span> <span class="o">{</span>
+    <span class="c">##Make a temp file to write to</span>
+    <span class="nv">OUT</span><span class="o">=</span><span class="k">$(</span>mktemp /tmp/waitfor:ping-XXXX<span class="k">)</span>
+    <span class="c">##Run with localhost passed as host param</span>
+    rerun waitfor:ping --host localhost &gt; <span class="nv">$OUT</span>
+    <span class="c">##Ensure proper output is present in outfile</span>
+    grep <span class="s1">&#39;OK: localhost is pingable.&#39;</span> <span class="nv">$OUT</span>
+    <span class="c">##Delete outfile</span>
+    rm <span class="nv">$OUT</span>
+<span class="o">}</span></code></pre></div>
+
+<ul>
+  <li>Finally, let’s check that the output of the stubbs:test command to make sure
+our tests pass. Issue <code>rerun stubbs:test --module waitfor --plan ping</code></li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun stubbs:test --module waitfor --plan <span class="nv">ping</span>
+<span class="o">=========================================================</span>
+ TESTING MODULE: <span class="nv">waitfor</span>
+<span class="o">=========================================================</span>
+ping
+  it_fails_without_required_options:               <span class="o">[</span>PASS<span class="o">]</span>
+  it_reaches_localhost:                            <span class="o">[</span>PASS<span class="o">]</span>
+<span class="o">=========================================================</span>
+Tests:    <span class="m">2</span> <span class="p">|</span> Passed:   <span class="m">2</span> <span class="p">|</span> Failed:   0</code></pre></div>
+
+<h2 id="extend-extend-extend"><strong>Extend, Extend, Extend</strong></h2>
+
+<p>Now that we have learned all of the functionality from the official tutorial, it’s time to extend our module to do other things. Consider what the ‘waitfor’ module is for. It is there to wait on things in general, not just ping responses. So let’s extend our module to support another wait use case, waiting for a file to exist.</p>
+
+<ul>
+  <li>First let’s add the new command to our module. This is as simple as it was earlier, just pass the proper options as needed:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-command --module waitfor --command file --description <span class="s2">&quot;Waits for a file to be present on the system&quot;</span></code></pre></div>
+
+<ul>
+  <li>Add options for the filepath we want to check, as well as the interval we want to wait to check:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-option --option filepath --description <span class="s2">&quot;full path of file to wait for&quot;</span> --module waitfor --command file --required <span class="nb">true</span> --export <span class="nb">false</span> --default <span class="s1">&#39;&quot;&quot;&#39;</span></code></pre></div>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-option --option interval --description <span class="s2">&quot;how long to wait between attempts&quot;</span> --module waitfor --command file --required <span class="nb">false</span> --export <span class="nb">false</span> --default 30</code></pre></div>
+
+<ul>
+  <li>Time to implement the actual logic behind our file checker. You’ll notice that since this command is similar in function to our ping command, a lot of the same logic that we used previously still applies. Here’s the relevant bash from ‘waitfor/commands/file/script’:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">until</span> <span class="o">[</span> -f <span class="s2">&quot;$FILEPATH&quot;</span> <span class="o">]</span>
+<span class="k">do</span>
+ <span class="c">##Sleep by our interval if unsuccessful</span>
+ sleep <span class="nv">$INTERVAL</span>
+ <span class="nb">echo</span> <span class="s2">&quot;Checking for file at $FILEPATH&quot;</span>
+<span class="k">done</span>
+
+<span class="c">##Finally return when file exists</span>
+<span class="nb">echo</span> <span class="s2">&quot;OK: $FILEPATH now exists.&quot;</span></code></pre></div>
+
+<ul>
+  <li>We can now see this in action by issuing our command, waiting for a few cycles to occur, then touching the file that we want to exist in another terminal. For me, the touch command was simply  touch /tmp/test.txt.</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor: file --filepath <span class="s2">&quot;/tmp/test.txt&quot;</span> --interval 1
+Checking <span class="k">for</span> file at /tmp/test.txt
+Checking <span class="k">for</span> file at /tmp/test.txt
+Checking <span class="k">for</span> file at /tmp/test.txt
+Checking <span class="k">for</span> file at /tmp/test.txt
+OK: /tmp/test.txt now exists.</code></pre></div>
+
+<ul>
+  <li>Finally, we would want to write some tests around this command to ensure it functions as expected when variables are missing, etc.. This post is getting pretty lengthy, so I will leave that task up to you.</li>
+</ul>
+
+<p>And that’s it! I hope you enjoyed this intro to Rerun. It’s a really fun tool to use once you pick up the basics, and it really makes it dead simple to allow other team mates (even those who may not be very adept with bash) to execute scripts in a known, repeatable manner.</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/Using-rerun/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/Using-rerun/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=/Using-rerun/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="/Configuration-Management-with-CFEngine/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="/Docker-Machine-and-Openstack/" title="Docker Machine And Openstack">Docker Machine And Openstack</a></h3>
+      <p>layout: postcomments: falseinstall docker machine major version via brew install docker-machinedocker-machine upgradedocker-machine creat...&hellip; <a href="/Docker-Machine-and-Openstack/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="/Installing-Docker/" title="Installing Docker">Installing Docker</a></h4>
+        <span>Published on March 29, 2015</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="/Using-Git-with-CFEngine/" title="Using Git Repos with CFEngine">Using Git Repos with CFEngine</a></h4>
+        <span>Published on March 27, 2015</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+
+
+	        
+
+</body>
+</html>

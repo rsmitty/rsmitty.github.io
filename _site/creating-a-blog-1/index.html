@@ -1,0 +1,298 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 1 &#8211; Spencer's Blog</title>
+<meta name="description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta name="keywords" content="">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 1">
+<meta property="og:description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta property="og:url" content="/creating-a-blog-1/">
+<meta property="og:site_name" content="Spencer's Blog">
+
+
+
+
+
+<link rel="canonical" href="/creating-a-blog-1/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Spencer's Blog Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="/images/avatar.jpg" alt="Spencer Smith photo" class="author-photo">
+					<h4>Spencer Smith</h4>
+					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
+				</li>
+				<li>
+					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				<li>
+					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+				</li>
+				<li>
+					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="/posts/">All Posts</a></li>
+				<li><a href="/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="/creating-a-blog-1/" rel="bookmark" title="Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 1">Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 1</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2014-09-06T00:00:00-04:00">September 06, 2014</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+          Reading time ~4 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>As I wrote previously, I wanted to learn to use Github Pages to build a new blog and start keeping track of my personal projects and ideas. However, in getting started, I noticed that there really wasn’t a straightforward way to move from Github’s quick and dirty tutorial to actually creating a useful blog. There’s some tools like <a href="http://jekyllbootstrap.com/">Jekyll Bootstrap</a>, but it seems like it’s been a while since it has been updated. So after combing through a lot of other people’s pages and some Jekyll tutorials, I was finally able to get something presentable up and running. I figured I’d share the overall process I used as a first series of posts, in case someone else finds it useful.</p>
+
+<p>This first post will center around getting a development environment setup and creating a “Hello, World!” type page to demonstrate the basics. So without further ado…</p>
+
+<p><strong>This guide assumes a standard Ubuntu installation and a pre-existing Github account.</strong></p>
+
+<h3 id="create-our-github-page"><strong>Create Our Github Page</strong></h3>
+
+<ul>
+  <li>First, we’ll want to create an empty repo out on Github. The naming here is quite important, so for a personal blog, you’ll want to name it like GITHUB_USERNAME.github.io. So login to Github and click “+ New Repository”. My repo info looked like this:</li>
+</ul>
+
+<p><a href="/img/posts/2014-09-06-creating-a-blog-1/create-repo.png">
+  <img src="/img/posts/2014-09-06-creating-a-blog-1/create-repo.png" style="max-width:100%; border:solid 1px;" />
+</a></p>
+
+<ul>
+  <li>Now, let’s clone our repo locally. This should be as simple as a <code>git clone https://github.com/USERNAME/USERNAME.github.io.git</code> in some place that you’re comfortable with. If you change into that directory, you’ll see it’s currently empty, unless you created a README or LICENSE file as part of your repo creation.</li>
+</ul>
+
+<p><strong><em>Note: If you don’t have git installed, issue <code>sudo apt-get install git</code> to install.</em></strong></p>
+
+<h3 id="install-the-basics"><strong>Install The Basics</strong></h3>
+
+<ul>
+  <li>
+    <p>Let’s grab some packages we need to serve our site locally. This will be useful when writing posts, so you don’t have to push to Github constantly just to see what it looks like. Issue <code>sudo apt-get install ruby ruby1.9.1-dev python-pip</code>.</p>
+  </li>
+  <li>
+    <p>We’ll need a Javascript parser and the Jekyll gem, so get NodeJS and Jekyll from rubygems: <code>sudo gem install node jekyll</code></p>
+  </li>
+  <li>
+    <p>This step is optional for some, but I needed syntax highlighting for code blocks. So install the Pygments package for Python: <code>sudo pip install Pygments</code></p>
+  </li>
+</ul>
+
+<h3 id="create-our-folder-structure"><strong>Create Our Folder Structure</strong></h3>
+
+<p>There’s a certain folder structure that Jekyll looks for in your repo. For example, all posts must live in the ‘_posts’ folder and must be titled like YEAR-MONTH-DAY-TITLE.FORMAT. To help understand, the title of this post is 2014-09-06-creating-a-blog-1.md. Anyways, I wanted to get up and running with the absolute basic amount of stuff needed in my repo so here’s what seemed to work.</p>
+
+<ul>
+  <li>
+    <p>Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front. Issue <code>mkdir _layouts _posts</code></p>
+  </li>
+  <li>
+    <p>Let’s also touch a couple of files that we’ll use later on. Issue <code>touch _config.yml index.html</code></p>
+  </li>
+</ul>
+
+<h3 id="configure-the-site"><strong>Configure The Site</strong></h3>
+
+<ul>
+  <li>We could probably do this part much later in the tutorial, but let’s go ahead and put some basic info about our site in the _config.yml file. Feel free to edit these fields to your liking, with the exception of the ‘highlighter’ option. That is for our code highlighting.</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-text" data-lang="text">name: &quot;Test Blog&quot;
+
+description: &quot;A snazzy new blog, just for me!&quot;
+
+about: &quot;Here&#39;s a bit of text that we&#39;ll put in an about section later on in our tutorial. I&#39;m intentionally making it a little longer so that the section will look fuller later...&quot;
+
+highlighter: pygments</code></pre></div>
+
+<h3 id="test-our-local-server"><strong>Test Our Local Server</strong></h3>
+
+<ul>
+  <li>
+    <p>Now, what’s a tutorial without a “Hello, World!” portion? Let’s go ahead and edit index.html to say that. The “Hello, World!” text should be the only thing in the file.</p>
+  </li>
+  <li>
+    <p>In the root of your repo, let’s tell Jekyll to server our pages so we can see if everything works. Issue <code>jekyll serve --watch</code>. The watch flag will monitor the repo for changed files and regenerate automatically, so you don’t have to start/stop the process. However, I’ve noticed that’s not the case for certain files, namely _config.yml. Your terminal should look something like this when you start the process:</p>
+  </li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
+            Source: /home/rsmitty/Desktop/rsmitty.github.io
+       Destination: /home/rsmitty/Desktop/rsmitty.github.io/_site
+      Generating...
+                    <span class="k">done</span>.
+ Auto-regeneration: enabled <span class="k">for</span> <span class="s1">&#39;/home/rsmitty/Desktop/rsmitty.github.io&#39;</span>
+Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
+    Server address: http://0.0.0.0:4000/
+  Server running... press ctrl-c to stop.</code></pre></div>
+
+<ul>
+  <li>Open the address http://localhost:4000 in a browser and you should see your “Hello, World!” text. Neat!
+<a href="/img/posts/2014-09-06-creating-a-blog-1/hello-world.png">
+<img src="/img/posts/2014-09-06-creating-a-blog-1/hello-world.png" style="max-width:100%; border:solid 1px;" />
+</a></li>
+</ul>
+
+<h3 id="check-it-out-on-github"><strong>Check It Out On Github</strong></h3>
+
+<p>Okay, so we’ve got our first official page. How do we get that out to Github? Turns out, it’s really easy, because we’ve already got everything laid out just right locally.</p>
+
+<ul>
+  <li>
+    <p>Add all of our files to be commited: <code>git add --all</code></p>
+  </li>
+  <li>
+    <p>Commit them with a helpful message: <code>git commit -m "Committing basic folder structure and Hello World page."</code></p>
+  </li>
+  <li>
+    <p>Push it to Github: <code>git push origin master</code></p>
+  </li>
+  <li>
+    <p>Give it a few seconds, and you should see your new page at your USERNAME.github.io address:
+<a href="/img/posts/2014-09-06-creating-a-blog-1/github-hello-world.png">
+<img src="/img/posts/2014-09-06-creating-a-blog-1/github-hello-world.png" style="max-width:100%; border:solid 1px;" />
+</a></p>
+  </li>
+</ul>
+
+<h3 id="closing"><strong>Closing</strong></h3>
+<p>That’s it for part one of this tutorial. We’ve now got a development environment setup and know how to push our pages to Github. In <a href="../07/creating-a-blog-2.html">part two</a>, we’ll explore how to use Bootstrap to setup a blog layout and create some custom layout pages so that our site looks clean and user friendly.</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/creating-a-blog-1/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/creating-a-blog-1/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=/creating-a-blog-1/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="/and-were-back/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="/Docker-Machine-and-Openstack/" title="Docker Machine And Openstack">Docker Machine And Openstack</a></h3>
+      <p>layout: postcomments: falseinstall docker machine major version via brew install docker-machinedocker-machine upgradedocker-machine creat...&hellip; <a href="/Docker-Machine-and-Openstack/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="/Installing-Docker/" title="Installing Docker">Installing Docker</a></h4>
+        <span>Published on March 29, 2015</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="/Using-Git-with-CFEngine/" title="Using Git Repos with CFEngine">Using Git Repos with CFEngine</a></h4>
+        <span>Published on March 27, 2015</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+
+
+	        
+
+</body>
+</html>

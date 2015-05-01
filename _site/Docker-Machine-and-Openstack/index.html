@@ -1,0 +1,23 @@
+<p>layout: post
+comments: false</p>
+
+<p>install docker machine major version via brew install docker-machine</p>
+
+<p>docker-machine upgrade</p>
+
+<p>docker-machine create –driver openstack –openstack-ssh-user ubuntu –openstack-image-id 058ddc43-b871-4ac2-a067-d62194b35174 –openstack-flavor-name m1.small –openstack-floatingip-pool net04_ext –openstack-sec-groups default test</p>
+
+<p>eval “$(docker-machine env test2)”</p>
+
+<p>Spencers-MBP:apache spencer$ cat Dockerfile
+# This is a comment
+FROM ubuntu:14.04
+MAINTAINER Spencer Smith <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#114;&#111;&#098;&#101;&#114;&#116;&#115;&#112;&#101;&#110;&#099;&#101;&#114;&#115;&#109;&#105;&#116;&#104;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;">&#114;&#111;&#098;&#101;&#114;&#116;&#115;&#112;&#101;&#110;&#099;&#101;&#114;&#115;&#109;&#105;&#116;&#104;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;</a>
+RUN apt-get update
+RUN apt-get install -y apache2</p>
+
+<p>docker build -t rsmitty/apache .</p>
+
+<p>docker push rsmitty/apache</p>
+
+<p>docker run -d -p 80:80 rsmitty/apache /usr/sbin/apache2ctl -D FOREGROUND</p>
