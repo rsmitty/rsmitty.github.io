@@ -5,7 +5,7 @@ author: Spencer
 title: How Do I Docker? - Quick Dev Environments with Docker Machine and Openstack
 ---
 
-This post will go into some detail about how to get started with docker-machine. Docker-machine is a really nice tool to aid in deploying docker hosts across any environment. It seems to be quickly becoming the standard for creating dev environments. Today, I'll go through how to talk to OpenStack with Docker Machine and then deploy a quick container.
+This post will go into some detail about how to get started with docker-machine. Docker Machine is a really nice tool to aid in deploying docker hosts across any environment. It seems to be quickly becoming the standard for creating dev environments. Today, I'll go through how to talk to OpenStack with Docker Machine and then deploy a quick container.
 
 ##**Install Docker Machine**##
 
