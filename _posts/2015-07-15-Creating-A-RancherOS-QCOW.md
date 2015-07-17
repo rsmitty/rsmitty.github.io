@@ -123,7 +123,20 @@ vbox-dev               virtualbox     Running   tcp://192.168.99.100:2376
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 {%endhighlight%}
 
-##**Deploy A Container**##
+
+##**Grow The Root Volume & Deploy A Container**##
+
+- Again, keep in mind that RancherOS doesn't currently do some cloud-init functions like growing the root volume. We'll need to launch a privileged container to do this. Issue the following:
+{%highlight bash%}
+docker run --privileged -i --rm ubuntu bash << EOF
+apt-get update
+apt-get install -y cloud-guest-utils parted
+growpart /dev/vda 1
+partprobe
+resize2fs /dev/vda1
+EOF
+{%endhighlight%}
+*Credit to Darren Shepherd for this script mentioned [here](https://github.com/rancher/os/issues/232)*
 
 - Launch my test-webserver container by issuing the following:
 {%highlight bash%}
