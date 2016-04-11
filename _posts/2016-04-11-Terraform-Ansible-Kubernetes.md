@@ -11,6 +11,7 @@ Back after a pretty lengthy intermission! Today I want to talk about Kubernetes.
 As it turns out, all of this stuff is included to some extent or another with Kubernetes and we were able to recommend that they explore this option to see how it works out for them. Of course, recommending is the easy part, while implementation is decidedly more complex. The desire for the proof of concept was to enable multi-cloud deployments of Kubernetes, while also remaining within their pre-chosen set of tools like Amazon AWS, OpenStack, CentOS, Ansible, etc.. To accomplish this, we were able to create a Kubernetes deployment using Hashicorp's Terraform, Ansible, OpenStack, and Amazon. This post will talk a bit about how to roll your own cluster by adapting what I've seen.
 
 ##**Why Would I Want to do This?**##
+
 This is totally a valid question. And the answer here is that you don't... if you can help it. There are easier and more fully featured ways to deploy Kubernetes if you have open game on the tools to choose. As a recommendation, I would say that using Google Container Engine is by far the most supported and pain-free way to get started with Kubernetes. Following that, I would recommend using Amazon AWS and CoreOS as your operating system. Again, lots of people using these tools means that bugs and gotchas are well documented and easier to deal with. It should also be noted that there are OpenStack built-ins to create Kubernetes clusters, such as [Magnum](https://wiki.openstack.org/wiki/Magnum){:target="_blank"}. Again, if you're a one-cloud shop, this is likely easier than rolling your own.
 
 Alas, here we are and we'll search for a way to get it done!
@@ -154,9 +155,11 @@ kube-master
 {%endhighlight%}
 
 ##**Setup OpenStack**##
+
 You may have noticed in the Terraform section that we attached a `k8s-cluster` security group in our variables file. You will need to set this security group up to allow for the necessary ports used by Kubernetes. Follow [this](https://coreos.com/kubernetes/docs/latest/kubernetes-networking.html#port-allocation){:target="_blank"} list and enter them into Horizon.
 
 ##**Hold On To Ya Butts!**##
+
 Now that Terraform is setup, we _should_ be able to launch our cluster and have it provision using the Kargo playbooks we checked out. But first, one small BASH script to ensure things run in the proper order.
 
 - Create a file called `cluster-up.sh` and open it for editing. Paste the following:
