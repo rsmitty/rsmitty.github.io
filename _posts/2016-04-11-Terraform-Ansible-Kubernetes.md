@@ -10,13 +10,13 @@ Back after a pretty lengthy intermission! Today I want to talk about Kubernetes.
 
 As it turns out, all of this stuff is included to some extent or another with Kubernetes and we were able to recommend that they explore this option to see how it works out for them. Of course, recommending is the easy part, while implementation is decidedly more complex. The desire for the proof of concept was to enable multi-cloud deployments of Kubernetes, while also remaining within their pre-chosen set of tools like Amazon AWS, OpenStack, CentOS, Ansible, etc.. To accomplish this, we were able to create a Kubernetes deployment using Hashicorp's Terraform, Ansible, OpenStack, and Amazon. This post will talk a bit about how to roll your own cluster by adapting what I've seen.
 
-##**Why Would I Want to do This?**##
+## **Why Would I Want to do This?** ##
 
 This is totally a valid question. And the answer here is that you don't... if you can help it. There are easier and more fully featured ways to deploy Kubernetes if you have open game on the tools to choose. As a recommendation, I would say that using Google Container Engine is by far the most supported and pain-free way to get started with Kubernetes. Following that, I would recommend using Amazon AWS and CoreOS as your operating system. Again, lots of people using these tools means that bugs and gotchas are well documented and easier to deal with. It should also be noted that there are OpenStack built-ins to create Kubernetes clusters, such as [Magnum](https://wiki.openstack.org/wiki/Magnum){:target="_blank"}. Again, if you're a one-cloud shop, this is likely easier than rolling your own.
 
 Alas, here we are and we'll search for a way to get it done!
 
-##**What Pieces are in Play?**##
+## **What Pieces are in Play?** ##
 
 For the purposes of this walkthrough, there will be four pieces that you'll need to understand:
 
@@ -25,7 +25,7 @@ For the purposes of this walkthrough, there will be four pieces that you'll need
 - **Ansible** - Ansible is a configuration management platform that automates things like package installation and config file setup. We will use a set of Ansible playbooks called [KubeSpray Kargo](https://github.com/kubespray/kargo){:target="_blank"} to setup Kubernetes.
 - **Kubernetes** - And finally we get to K8s! All of the tools above will come together to give us a fully functioning cluster.
 
-##**Clone KubeSpray's Kargo**##
+## **Clone KubeSpray's Kargo** ##
 
 First we'll want to pull down the Ansible playbooks we want to use.
 
@@ -46,7 +46,7 @@ drwxr-xr-x  15 spencer  staff   510B Apr  5 16:55 kargo
 
 - Note that there are a plethora of different options available with Kargo. I highly recommend spending some time reading up on the project and the different playbooks out there in order to deploy the specific cluster type you may need.
 
-##**Create Terraform Templates**##
+## **Create Terraform Templates** ##
 
 We want to create two terraform templates, the first will create our OpenStack infrastructure, while the second will create an Ansible inventory file for kargo to use. Additionally, we will create a variable file where we can populate our desired OpenStack variables as needed. The Terraform syntax can look a bit daunting at first, but it starts to make sense as we look at it more and see it in action.
 
@@ -157,11 +157,11 @@ kube-node
 kube-master
 {%endhighlight%}
 
-##**Setup OpenStack**##
+## **Setup OpenStack** ##
 
 You may have noticed in the Terraform section that we attached a `k8s-cluster` security group in our variables file. You will need to set this security group up to allow for the necessary ports used by Kubernetes. Follow [this](https://coreos.com/kubernetes/docs/latest/kubernetes-networking.html#port-allocation){:target="_blank"} list and enter them into Horizon.
 
-## **Hold On To Ya Butts!** ##
+## **Hold On To Your Butts!** ##
 
 Now that Terraform is setup, we _should_ be able to launch our cluster and have it provision using the Kargo playbooks we checked out. But first, one small BASH script to ensure things run in the proper order.
 
