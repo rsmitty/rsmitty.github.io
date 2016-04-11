@@ -1,23 +1,283 @@
-<p>layout: post
-comments: false</p>
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>How Do I Docker? - Quick Dev Environments with Docker Machine and Openstack &#8211; Spencer's Blog</title>
+<meta name="description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta name="keywords" content="">
 
-<p>install docker machine major version via brew install docker-machine</p>
 
-<p>docker-machine upgrade</p>
 
-<p>docker-machine create –driver openstack –openstack-ssh-user ubuntu –openstack-image-id 058ddc43-b871-4ac2-a067-d62194b35174 –openstack-flavor-name m1.small –openstack-floatingip-pool net04_ext –openstack-sec-groups default test</p>
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How Do I Docker? - Quick Dev Environments with Docker Machine and Openstack">
+<meta property="og:description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta property="og:url" content="/Docker-Machine-and-Openstack/">
+<meta property="og:site_name" content="Spencer's Blog">
 
-<p>eval “$(docker-machine env test2)”</p>
 
-<p>Spencers-MBP:apache spencer$ cat Dockerfile
-# This is a comment
-FROM ubuntu:14.04
-MAINTAINER Spencer Smith <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#114;&#111;&#098;&#101;&#114;&#116;&#115;&#112;&#101;&#110;&#099;&#101;&#114;&#115;&#109;&#105;&#116;&#104;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;">&#114;&#111;&#098;&#101;&#114;&#116;&#115;&#112;&#101;&#110;&#099;&#101;&#114;&#115;&#109;&#105;&#116;&#104;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;</a>
+
+
+
+<link rel="canonical" href="/Docker-Machine-and-Openstack/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Spencer's Blog Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="/images/avatar.jpg" alt="Spencer Smith photo" class="author-photo">
+					<h4>Spencer Smith</h4>
+					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
+				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				<li>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+				</li>
+				<li>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="/posts/">All Posts</a></li>
+				<li><a href="/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="/Docker-Machine-and-Openstack/" rel="bookmark" title="How Do I Docker? - Quick Dev Environments with Docker Machine and Openstack">How Do I Docker? - Quick Dev Environments with Docker Machine and Openstack</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2015-06-23T00:00:00-04:00">June 23, 2015</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~3 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>This post will go into some detail about how to get started with docker-machine. Docker Machine is a really nice tool to aid in deploying docker hosts across any environment. It seems to be quickly becoming the standard for creating dev environments. Today, I’ll go through how to talk to OpenStack with Docker Machine and then deploy a quick container.</p>
+
+<h2 id="install-docker-machine"><strong>Install Docker Machine</strong></h2>
+
+<p>I installed both Docker and Docker Machine with Homebrew. There are several other installation options that you can find in the “Installation” sections <a href="https://docs.docker.com/mac/started/">here</a> and <a href="https://docs.docker.com/machine/">here</a>.</p>
+
+<p>For Homebrew, simply issue this in the terminal:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">brew install docker-machine</code></pre></figure>
+
+<h2 id="prepare-openstack"><strong>Prepare Openstack</strong></h2>
+
+<p>There’s a few things that we need to do on the OpenStack side in order to ensure that our machine can be created successfully. First, go ahead and source your keystone credentials. Docker Machine will use these environment variables if they are present. This keeps us from having to pass a bunch of authentication parameters later on.</p>
+
+<p>Next, take a look at your OpenStack environment. We’ll need to gather up some IDs and ensure some things are setup properly. First, take a look at your security group that you plan to use and ensure that SSH access is allowed into it. It’s also important to note here that you’ll want to allow any ports that you plan to map into your containers. For me, I allowed ports 22 and 80 initially. Now, let’s gather some IDs. I needed to find the ssh user for my image type (Centos 7), the image ID, the flavor I wished to use, the floating-ip pool name, and finally the security group that I wanted to use.</p>
+
+<h2 id="create-our-machine"><strong>Create Our Machine</strong></h2>
+
+<p>We’re finally ready to create our machine. Using the IDs I found above, here is the (extremely verbose) command that I issued:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker-machine create --driver openstack<span class="se">\</span>
+ --openstack-ssh-user centos<span class="se">\</span>
+ --openstack-image-id cfb0a24a-16a5-4d19-a15b-ee29c9375d52<span class="se">\</span>
+ --openstack-flavor-name m1.small<span class="se">\</span>
+ --openstack-floatingip-pool public<span class="se">\</span>
+ --openstack-sec-groups default<span class="se">\</span>
+ docker-dev</code></pre></figure>
+
+<p>Be patient here. I found that creating the machine took quite a while, as the docker-machine command will SSH into the instance and do some long-running tasks like ‘yum upgrade’.</p>
+
+<p>Once complete, we’ll want to override our built in docker settings to point to our new machine. We can do that by issuing:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">eval</span> <span class="s2">"</span><span class="k">$(</span>docker-machine env docker-dev<span class="k">)</span><span class="s2">"</span></code></pre></figure>
+
+<p>Finally, we’ll want to ensure that our machine is totally up to date by issuing the following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker-machine upgrade docker-dev</code></pre></figure>
+
+<h2 id="write-a-test-container"><strong>Write A Test Container</strong></h2>
+
+<p>Now that we have a working Docker Machine in OpenStack, let’s try deploying something fun to it. First, we’ll create a Dockerfile to simply install Apache and push a little image and a webpage.</p>
+
+<p>In a test directory, I created three files: Dockerfile, index.html, and logo.png. Here’s the contents of each file:</p>
+
+<p><strong>Dockerfile:</strong></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FROM ubuntu:14.04
+MAINTAINER Spencer Smith &lt;robertspencersmith@gmail.com&gt;
 RUN apt-get update
-RUN apt-get install -y apache2</p>
+RUN apt-get install -y apache2
+ADD index.html /var/www/html/index.html
+ADD logo.png /var/www/html/logo.png
+RUN chmod 777 /var/www/html/logo.png</code></pre></figure>
 
-<p>docker build -t rsmitty/apache .</p>
+<p><strong>index.html:</strong></p>
 
-<p>docker push rsmitty/apache</p>
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"logo.png"</span> <span class="na">width=</span><span class="s">"300"</span> <span class="na">height=</span><span class="s">"300"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;h3&gt;</span>Hello, World!<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;/html&gt;</span></code></pre></figure>
 
-<p>docker run -d -p 80:80 rsmitty/apache /usr/sbin/apache2ctl -D FOREGROUND</p>
+<p><strong>logo.png:</strong></p>
+
+<p><a href="/img/posts/2015-06-23-docker-machine-and-openstack/dockermachine.png">
+<img src="/img/posts/2015-06-23-docker-machine-and-openstack/dockermachine.png" style="max-width:20%; border:solid 1px;" /></a></p>
+
+<p>Finally, we’ll build our container image. Change into the directory that contains the files we just created and issue docker build. I’m also supplying a tag so that I can easily identify my apache container that I’m building. The docker build command can take a little while to complete, as there’s a lot happening with the update and installation of apache2.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker build -t rsmitty/apache .</code></pre></figure>
+
+<h2 id="test-it-out"><strong>Test It Out</strong></h2>
+
+<p>Now that our image has been created, it’s time to test it out by launching our new container in our machine. We can do that simply by calling the docker run command. Note that we will launch apache in the foreground so that it continues running and keeps our container up.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -d -p 80:80 rsmitty/apache /usr/sbin/apache2ctl -D FOREGROUND</code></pre></figure>
+
+<p>Point your browser to the IP address of our machine and see the results!</p>
+
+<p><a href="/img/posts/2015-06-23-docker-machine-and-openstack/container-running.png">
+<img src="/img/posts/2015-06-23-docker-machine-and-openstack/container-running.png" style="max-width75%; border:solid 1px;" /></a></p>
+
+
+      <footer class="entry-meta">
+        <span class="entry-tags"></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/Docker-Machine-and-Openstack/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/Docker-Machine-and-Openstack/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=/Docker-Machine-and-Openstack/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="/Installing-Docker/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="/Terraform-Ansible-Kubernetes/" title="Deploy Kubernetes w/ Ansible & Terraform">Deploy Kubernetes w/ Ansible & Terraform</a></h3>
+      <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I've recently had some clients that have been interested...&hellip; <a href="/Terraform-Ansible-Kubernetes/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="/Containerizing-The-Grid/" title="Containerizing The Grid - BOINC on Docker">Containerizing The Grid - BOINC on Docker</a></h4>
+        <span>Published on August 29, 2015</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="/Creating-A-RancherOS-QCOW/" title="Creating RancherOS Image for OpenStack">Creating RancherOS Image for OpenStack</a></h4>
+        <span>Published on July 15, 2015</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
+
+
+	        
+
+</body>
+</html>

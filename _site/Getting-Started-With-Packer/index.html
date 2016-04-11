@@ -74,6 +74,7 @@
 					<h4>Spencer Smith</h4>
 					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
 				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
 				<li>
 					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
 				</li>
@@ -81,10 +82,10 @@
 				
 				
 				<li>
-					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
 				</li>
 				<li>
-					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
 				</li>
 				
 				
@@ -100,6 +101,12 @@
 			</ul>
 		</li>
 		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
 	</ul><!-- /.dl-menu -->
 </nav><!-- /.dl-menuwrapper -->
 
@@ -118,7 +125,7 @@
         <p class="entry-reading-time">
           <i class="fa fa-clock-o"></i>
           
-          Reading time ~5 minutes
+Reading time ~4 minutes
         </p><!-- /.entry-reading-time -->
         
       </div><!-- /.header-title-wrap -->
@@ -139,10 +146,10 @@ The way I did it depended on homebrew, but you can also install manually from
 from their docs <a href="https://www.packer.io/intro/getting-started/setup.html">here</a>.</p>
 
 <ul>
-  <li>In terminal, ensure that you have homebrew setup by issuing <code>brew</code>.</li>
-  <li>Add the necessary tap with <code>brew tap homebrew/binary</code>.</li>
-  <li>Finally, install packer with <code>brew install packer</code>.</li>
-  <li>You can test it’s installed by simply issuing <code>packer</code> in the terminal.</li>
+  <li>In terminal, ensure that you have homebrew setup by issuing <code class="highlighter-rouge">brew</code>.</li>
+  <li>Add the necessary tap with <code class="highlighter-rouge">brew tap homebrew/binary</code>.</li>
+  <li>Finally, install packer with <code class="highlighter-rouge">brew install packer</code>.</li>
+  <li>You can test it’s installed by simply issuing <code class="highlighter-rouge">packer</code> in the terminal.</li>
 </ul>
 
 <h2 id="get-openstack-ready"><strong>Get Openstack Ready</strong></h2>
@@ -165,13 +172,13 @@ the Ubuntu 14.04 LTS image found <a href="https://cloud-images.ubuntu.com/trusty
   </li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>nova image-list
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>nova image-list
 +--------------------------------------+-------------------+--------+----------+
-<span class="p">|</span> ID                                   <span class="p">|</span> Name              <span class="p">|</span> Status <span class="p">|</span> Server
+| ID                                   | Name              | Status | Server
 +--------------------------------------+-------------------+--------+----------+
-<span class="p">|</span> bf2ad7f1-3823-4ad2-a788-44a25827c93e <span class="p">|</span> cirros            <span class="p">|</span> ACTIVE <span class="p">|</span>
-<span class="p">|</span> b3a4368b-7368-45e5-bfe4-63f59d732c41 <span class="p">|</span> ubuntu 14.04      <span class="p">|</span> ACTIVE <span class="p">|</span>
-+--------------------------------------+-------------------+--------+----------+</code></pre></div>
+| bf2ad7f1-3823-4ad2-a788-44a25827c93e | cirros            | ACTIVE |
+| b3a4368b-7368-45e5-bfe4-63f59d732c41 | ubuntu 14.04      | ACTIVE |
++--------------------------------------+-------------------+--------+----------+</code></pre></figure>
 
 <h2 id="write-packer-template"><strong>Write Packer Template</strong></h2>
 <p>Okay, time to get busy. Let’s write a template for Packer to create an image list.
@@ -179,16 +186,16 @@ We’ll need to gather some info first.</p>
 
 <ul>
   <li>Get your keystone info by catting out your keystonerc file. For me, this was
-<code>cat keystonerc_admin</code>. Some info below has been changed to protect the innocent.</li>
+<code class="highlighter-rouge">cat keystonerc_admin</code>. Some info below has been changed to protect the innocent.</li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>cat keystonerc_admin
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>cat keystonerc_admin
 <span class="nb">export </span><span class="nv">OS_USERNAME</span><span class="o">=</span>admin
 <span class="nb">export </span><span class="nv">OS_TENANT_NAME</span><span class="o">=</span>admin
 <span class="nb">export </span><span class="nv">OS_PASSWORD</span><span class="o">=</span>testpass
 <span class="nb">export </span><span class="nv">OS_AUTH_URL</span><span class="o">=</span>http://192.168.1.200:5000/v2.0/
 <span class="nb">export </span><span class="nv">OS_REGION_NAME</span><span class="o">=</span>RegionOne
-<span class="nb">export </span><span class="nv">PS1</span><span class="o">=</span><span class="s1">&#39;[\u@\h \W(keystone_admin)]\$ &#39;</span></code></pre></div>
+<span class="nb">export </span><span class="nv">PS1</span><span class="o">=</span><span class="s1">'[\u@\h \W(keystone_admin)]\$ '</span></code></pre></figure>
 
 <ul>
   <li>
@@ -201,24 +208,24 @@ template contains all of the necessary basic fields:</p>
   </li>
 </ul>
 
-<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
-  <span class="nt">&quot;builders&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;openstack&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;testpass&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;http://192.168.1.200:5000/v2.0&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;ssh_username&quot;</span><span class="p">:</span> <span class="s2">&quot;ubuntu&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;RegionOne&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;image_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Packer Test Image&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;source_image&quot;</span><span class="p">:</span> <span class="s2">&quot;b3a4368b-7368-45e5-bfe4-63f59d732c41&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;flavor&quot;</span><span class="p">:</span> <span class="s2">&quot;0d7e469c-e99b-4267-b154-35874b224f54&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;networks&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;0296eb7d-7f94-4cc1-b42f-f2d680b81359&quot;</span><span class="p">],</span>
-      <span class="nt">&quot;use_floating_ip&quot;</span><span class="p">:</span> <span class="kc">true</span>
-    <span class="p">}</span>
-  <span class="p">]</span>
-<span class="p">}</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
+  </span><span class="nt">"builders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"openstack"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"testpass"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://192.168.1.200:5000/v2.0"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ubuntu"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"project"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RegionOne"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"image_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Packer Test Image"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"source_image"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b3a4368b-7368-45e5-bfe4-63f59d732c41"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"flavor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0d7e469c-e99b-4267-b154-35874b224f54"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"networks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"0296eb7d-7f94-4cc1-b42f-f2d680b81359"</span><span class="p">],</span><span class="w">
+      </span><span class="nt">"use_floating_ip"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
 
 <p>Notes about what’s what:</p>
 
@@ -242,30 +249,30 @@ SSH to this server across my home network.</li>
   </li>
   <li>
     <p>Validate the template to make sure there aren’t any glaring errors with
-<code>packer validate NAME_OF_TEMPLATE.json</code>. This should return the text
+<code class="highlighter-rouge">packer validate NAME_OF_TEMPLATE.json</code>. This should return the text
 ‘Template validated successfully.’</p>
   </li>
   <li>
-    <p>Run the template with <code>packer build NAME_OF_TEMPLATE.json</code>. For me, this
+    <p>Run the template with <code class="highlighter-rouge">packer build NAME_OF_TEMPLATE.json</code>. For me, this
 gave the following output when everything completely worked:</p>
   </li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:Desktop spencer<span class="nv">$ </span>packer build packer_template
-openstack output will be in this color.
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:Desktop spencer<span class="nv">$ </span>packer build packer_template
+openstack output will be <span class="k">in </span>this color.
 
-<span class="o">==</span>&gt; openstack: Creating temporary keypair <span class="k">for</span> this instance...
-<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> server <span class="o">(</span>82db25b2-e1a5-4aef-be4a-cfccf744e103<span class="o">)</span> to become ready...
-<span class="o">==</span>&gt; openstack: Created temporary floating IP 192.168.1.204...
-<span class="o">==</span>&gt; openstack: Added floating IP 192.168.1.204 to instance...
-<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> SSH to become available...
-<span class="o">==</span>&gt; openstack: Connected to SSH!
-<span class="o">==</span>&gt; openstack: Creating the image: Packer Test <span class="nv">Image</span>
-<span class="o">==</span>&gt; openstack: Image: 70a610e9-302a-40f4-a4ca-59b6ad260e63
-<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> image to become ready...
-<span class="o">==</span>&gt; openstack: Terminating the <span class="nb">source </span>server...
-<span class="o">==</span>&gt; openstack: Deleting temporary keypair...
-Build <span class="s1">&#39;openstack&#39;</span> finished.</code></pre></div>
+<span class="gp">==&gt; </span>openstack: Creating temporary keypair <span class="k">for </span>this instance...
+<span class="gp">==&gt; </span>openstack: Waiting <span class="k">for </span>server <span class="o">(</span>82db25b2-e1a5-4aef-be4a-cfccf744e103<span class="o">)</span> to become ready...
+<span class="gp">==&gt; </span>openstack: Created temporary floating IP 192.168.1.204...
+<span class="gp">==&gt; </span>openstack: Added floating IP 192.168.1.204 to instance...
+<span class="gp">==&gt; </span>openstack: Waiting <span class="k">for </span>SSH to become available...
+<span class="gp">==&gt; </span>openstack: Connected to SSH!
+<span class="gp">==&gt; </span>openstack: Creating the image: Packer Test Image
+<span class="gp">==&gt; </span>openstack: Image: 70a610e9-302a-40f4-a4ca-59b6ad260e63
+<span class="gp">==&gt; </span>openstack: Waiting <span class="k">for </span>image to become ready...
+<span class="gp">==&gt; </span>openstack: Terminating the <span class="nb">source </span>server...
+<span class="gp">==&gt; </span>openstack: Deleting temporary keypair...
+Build <span class="s1">'openstack'</span> finished.</code></pre></figure>
 
 <ul>
   <li>Nice! Seemed to work. Now if we head out to the Glance UI, we can see that our
@@ -287,32 +294,32 @@ time.</p>
 
 <p>Here’s the template:</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">{</span>
-  <span class="s2">&quot;builders&quot;</span>: <span class="o">[</span>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">{</span>
+  <span class="s2">"builders"</span>: <span class="o">[</span>
     <span class="o">{</span>
-      <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;openstack&quot;</span>,
-      <span class="s2">&quot;username&quot;</span>: <span class="s2">&quot;admin&quot;</span>,
-      <span class="s2">&quot;password&quot;</span>: <span class="s2">&quot;testpass&quot;</span>,
-      <span class="s2">&quot;provider&quot;</span>: <span class="s2">&quot;http://192.168.1.200:5000/v2.0&quot;</span>,
-      <span class="s2">&quot;ssh_username&quot;</span>: <span class="s2">&quot;ubuntu&quot;</span>,
-      <span class="s2">&quot;project&quot;</span>: <span class="s2">&quot;admin&quot;</span>,
-      <span class="s2">&quot;region&quot;</span>: <span class="s2">&quot;RegionOne&quot;</span>,
-      <span class="s2">&quot;image_name&quot;</span>: <span class="s2">&quot;Packer Test Image&quot;</span>,
-      <span class="s2">&quot;source_image&quot;</span>: <span class="s2">&quot;b3a4368b-7368-45e5-bfe4-63f59d732c41&quot;</span>,
-      <span class="s2">&quot;flavor&quot;</span>: <span class="s2">&quot;0d7e469c-e99b-4267-b154-35874b224f54&quot;</span>,
-      <span class="s2">&quot;networks&quot;</span>: <span class="o">[</span><span class="s2">&quot;0296eb7d-7f94-4cc1-b42f-f2d680b81359&quot;</span><span class="o">]</span>,
-      <span class="s2">&quot;use_floating_ip&quot;</span>: <span class="nb">true</span>
+      <span class="s2">"type"</span>: <span class="s2">"openstack"</span>,
+      <span class="s2">"username"</span>: <span class="s2">"admin"</span>,
+      <span class="s2">"password"</span>: <span class="s2">"testpass"</span>,
+      <span class="s2">"provider"</span>: <span class="s2">"http://192.168.1.200:5000/v2.0"</span>,
+      <span class="s2">"ssh_username"</span>: <span class="s2">"ubuntu"</span>,
+      <span class="s2">"project"</span>: <span class="s2">"admin"</span>,
+      <span class="s2">"region"</span>: <span class="s2">"RegionOne"</span>,
+      <span class="s2">"image_name"</span>: <span class="s2">"Packer Test Image"</span>,
+      <span class="s2">"source_image"</span>: <span class="s2">"b3a4368b-7368-45e5-bfe4-63f59d732c41"</span>,
+      <span class="s2">"flavor"</span>: <span class="s2">"0d7e469c-e99b-4267-b154-35874b224f54"</span>,
+      <span class="s2">"networks"</span>: <span class="o">[</span><span class="s2">"0296eb7d-7f94-4cc1-b42f-f2d680b81359"</span><span class="o">]</span>,
+      <span class="s2">"use_floating_ip"</span>: <span class="nb">true</span>
     <span class="o">}</span>
   <span class="o">]</span>,
-   <span class="s2">&quot;provisioners&quot;</span>: <span class="o">[{</span>
-    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;shell&quot;</span>,
-    <span class="s2">&quot;inline&quot;</span>: <span class="o">[</span>
-      <span class="s2">&quot;sleep 30&quot;</span>,
-      <span class="s2">&quot;sudo apt-get update&quot;</span>,
-      <span class="s2">&quot;sudo apt-get install -y apache2&quot;</span>
+   <span class="s2">"provisioners"</span>: <span class="o">[{</span>
+    <span class="s2">"type"</span>: <span class="s2">"shell"</span>,
+    <span class="s2">"inline"</span>: <span class="o">[</span>
+      <span class="s2">"sleep 30"</span>,
+      <span class="s2">"sudo apt-get update"</span>,
+      <span class="s2">"sudo apt-get install -y apache2"</span>
     <span class="o">]</span>
   <span class="o">}]</span>
-<span class="o">}</span></code></pre></div>
+<span class="o">}</span></code></pre></figure>
 
 
       <footer class="entry-meta">
@@ -334,20 +341,20 @@ time.</p>
       <a href="/clamscan-files-by-date/" class="read-more-btn">Read More</a>
     </div><!-- /.read-more-header -->
     <div class="read-more-content">
-      <h3><a href="/Docker-Machine-and-Openstack/" title="Docker Machine And Openstack">Docker Machine And Openstack</a></h3>
-      <p>layout: postcomments: falseinstall docker machine major version via brew install docker-machinedocker-machine upgradedocker-machine creat...&hellip; <a href="/Docker-Machine-and-Openstack/">Continue reading</a></p>
+      <h3><a href="/Terraform-Ansible-Kubernetes/" title="Deploy Kubernetes w/ Ansible & Terraform">Deploy Kubernetes w/ Ansible & Terraform</a></h3>
+      <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I've recently had some clients that have been interested...&hellip; <a href="/Terraform-Ansible-Kubernetes/">Continue reading</a></p>
     </div><!-- /.read-more-content -->
   
   <div class="read-more-list">
     
       <div class="list-item">
-        <h4><a href="/Installing-Docker/" title="Installing Docker">Installing Docker</a></h4>
-        <span>Published on March 29, 2015</span>
+        <h4><a href="/Containerizing-The-Grid/" title="Containerizing The Grid - BOINC on Docker">Containerizing The Grid - BOINC on Docker</a></h4>
+        <span>Published on August 29, 2015</span>
       </div><!-- /.list-item -->
     
       <div class="list-item">
-        <h4><a href="/Using-Git-with-CFEngine/" title="Using Git Repos with CFEngine">Using Git Repos with CFEngine</a></h4>
-        <span>Published on March 27, 2015</span>
+        <h4><a href="/Creating-A-RancherOS-QCOW/" title="Creating RancherOS Image for OpenStack">Creating RancherOS Image for OpenStack</a></h4>
+        <span>Published on July 15, 2015</span>
       </div><!-- /.list-item -->
     
   </div><!-- /.read-more-list -->
@@ -357,7 +364,7 @@ time.</p>
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
   </footer>
 </div><!-- /.footer-wrapper -->
 
@@ -365,6 +372,18 @@ time.</p>
 <script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 <script src="/assets/js/scripts.min.js"></script>
 
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
 
 
 	        

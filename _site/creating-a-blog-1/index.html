@@ -74,6 +74,7 @@
 					<h4>Spencer Smith</h4>
 					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
 				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
 				<li>
 					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
 				</li>
@@ -81,10 +82,10 @@
 				
 				
 				<li>
-					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
 				</li>
 				<li>
-					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
 				</li>
 				
 				
@@ -100,6 +101,12 @@
 			</ul>
 		</li>
 		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
 	</ul><!-- /.dl-menu -->
 </nav><!-- /.dl-menuwrapper -->
 
@@ -118,7 +125,7 @@
         <p class="entry-reading-time">
           <i class="fa fa-clock-o"></i>
           
-          Reading time ~4 minutes
+Reading time ~4 minutes
         </p><!-- /.entry-reading-time -->
         
       </div><!-- /.header-title-wrap -->
@@ -141,22 +148,22 @@
 </a></p>
 
 <ul>
-  <li>Now, let’s clone our repo locally. This should be as simple as a <code>git clone https://github.com/USERNAME/USERNAME.github.io.git</code> in some place that you’re comfortable with. If you change into that directory, you’ll see it’s currently empty, unless you created a README or LICENSE file as part of your repo creation.</li>
+  <li>Now, let’s clone our repo locally. This should be as simple as a <code class="highlighter-rouge">git clone https://github.com/USERNAME/USERNAME.github.io.git</code> in some place that you’re comfortable with. If you change into that directory, you’ll see it’s currently empty, unless you created a README or LICENSE file as part of your repo creation.</li>
 </ul>
 
-<p><strong><em>Note: If you don’t have git installed, issue <code>sudo apt-get install git</code> to install.</em></strong></p>
+<p><strong><em>Note: If you don’t have git installed, issue <code class="highlighter-rouge">sudo apt-get install git</code> to install.</em></strong></p>
 
 <h3 id="install-the-basics"><strong>Install The Basics</strong></h3>
 
 <ul>
   <li>
-    <p>Let’s grab some packages we need to serve our site locally. This will be useful when writing posts, so you don’t have to push to Github constantly just to see what it looks like. Issue <code>sudo apt-get install ruby ruby1.9.1-dev python-pip</code>.</p>
+    <p>Let’s grab some packages we need to serve our site locally. This will be useful when writing posts, so you don’t have to push to Github constantly just to see what it looks like. Issue <code class="highlighter-rouge">sudo apt-get install ruby ruby1.9.1-dev python-pip</code>.</p>
   </li>
   <li>
-    <p>We’ll need a Javascript parser and the Jekyll gem, so get NodeJS and Jekyll from rubygems: <code>sudo gem install node jekyll</code></p>
+    <p>We’ll need a Javascript parser and the Jekyll gem, so get NodeJS and Jekyll from rubygems: <code class="highlighter-rouge">sudo gem install node jekyll</code></p>
   </li>
   <li>
-    <p>This step is optional for some, but I needed syntax highlighting for code blocks. So install the Pygments package for Python: <code>sudo pip install Pygments</code></p>
+    <p>This step is optional for some, but I needed syntax highlighting for code blocks. So install the Pygments package for Python: <code class="highlighter-rouge">sudo pip install Pygments</code></p>
   </li>
 </ul>
 
@@ -166,10 +173,10 @@
 
 <ul>
   <li>
-    <p>Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front. Issue <code>mkdir _layouts _posts</code></p>
+    <p>Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front. Issue <code class="highlighter-rouge">mkdir _layouts _posts</code></p>
   </li>
   <li>
-    <p>Let’s also touch a couple of files that we’ll use later on. Issue <code>touch _config.yml index.html</code></p>
+    <p>Let’s also touch a couple of files that we’ll use later on. Issue <code class="highlighter-rouge">touch _config.yml index.html</code></p>
   </li>
 </ul>
 
@@ -179,13 +186,13 @@
   <li>We could probably do this part much later in the tutorial, but let’s go ahead and put some basic info about our site in the _config.yml file. Feel free to edit these fields to your liking, with the exception of the ‘highlighter’ option. That is for our code highlighting.</li>
 </ul>
 
-<div class="highlight"><pre><code class="language-text" data-lang="text">name: &quot;Test Blog&quot;
+<figure class="highlight"><pre><code class="language-text" data-lang="text">name: "Test Blog"
 
-description: &quot;A snazzy new blog, just for me!&quot;
+description: "A snazzy new blog, just for me!"
 
-about: &quot;Here&#39;s a bit of text that we&#39;ll put in an about section later on in our tutorial. I&#39;m intentionally making it a little longer so that the section will look fuller later...&quot;
+about: "Here's a bit of text that we'll put in an about section later on in our tutorial. I'm intentionally making it a little longer so that the section will look fuller later..."
 
-highlighter: pygments</code></pre></div>
+highlighter: pygments</code></pre></figure>
 
 <h3 id="test-our-local-server"><strong>Test Our Local Server</strong></h3>
 
@@ -194,19 +201,19 @@ highlighter: pygments</code></pre></div>
     <p>Now, what’s a tutorial without a “Hello, World!” portion? Let’s go ahead and edit index.html to say that. The “Hello, World!” text should be the only thing in the file.</p>
   </li>
   <li>
-    <p>In the root of your repo, let’s tell Jekyll to server our pages so we can see if everything works. Issue <code>jekyll serve --watch</code>. The watch flag will monitor the repo for changed files and regenerate automatically, so you don’t have to start/stop the process. However, I’ve noticed that’s not the case for certain files, namely _config.yml. Your terminal should look something like this when you start the process:</p>
+    <p>In the root of your repo, let’s tell Jekyll to server our pages so we can see if everything works. Issue <code class="highlighter-rouge">jekyll serve --watch</code>. The watch flag will monitor the repo for changed files and regenerate automatically, so you don’t have to start/stop the process. However, I’ve noticed that’s not the case for certain files, namely _config.yml. Your terminal should look something like this when you start the process:</p>
   </li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
             Source: /home/rsmitty/Desktop/rsmitty.github.io
        Destination: /home/rsmitty/Desktop/rsmitty.github.io/_site
       Generating...
                     <span class="k">done</span>.
- Auto-regeneration: enabled <span class="k">for</span> <span class="s1">&#39;/home/rsmitty/Desktop/rsmitty.github.io&#39;</span>
+ Auto-regeneration: enabled <span class="k">for</span> <span class="s1">'/home/rsmitty/Desktop/rsmitty.github.io'</span>
 Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
     Server address: http://0.0.0.0:4000/
-  Server running... press ctrl-c to stop.</code></pre></div>
+  Server running... press ctrl-c to stop.</code></pre></figure>
 
 <ul>
   <li>Open the address http://localhost:4000 in a browser and you should see your “Hello, World!” text. Neat!
@@ -221,13 +228,13 @@ Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
 
 <ul>
   <li>
-    <p>Add all of our files to be commited: <code>git add --all</code></p>
+    <p>Add all of our files to be commited: <code class="highlighter-rouge">git add --all</code></p>
   </li>
   <li>
-    <p>Commit them with a helpful message: <code>git commit -m "Committing basic folder structure and Hello World page."</code></p>
+    <p>Commit them with a helpful message: <code class="highlighter-rouge">git commit -m "Committing basic folder structure and Hello World page."</code></p>
   </li>
   <li>
-    <p>Push it to Github: <code>git push origin master</code></p>
+    <p>Push it to Github: <code class="highlighter-rouge">git push origin master</code></p>
   </li>
   <li>
     <p>Give it a few seconds, and you should see your new page at your USERNAME.github.io address:
@@ -259,20 +266,20 @@ Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
       <a href="/and-were-back/" class="read-more-btn">Read More</a>
     </div><!-- /.read-more-header -->
     <div class="read-more-content">
-      <h3><a href="/Docker-Machine-and-Openstack/" title="Docker Machine And Openstack">Docker Machine And Openstack</a></h3>
-      <p>layout: postcomments: falseinstall docker machine major version via brew install docker-machinedocker-machine upgradedocker-machine creat...&hellip; <a href="/Docker-Machine-and-Openstack/">Continue reading</a></p>
+      <h3><a href="/Terraform-Ansible-Kubernetes/" title="Deploy Kubernetes w/ Ansible & Terraform">Deploy Kubernetes w/ Ansible & Terraform</a></h3>
+      <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I've recently had some clients that have been interested...&hellip; <a href="/Terraform-Ansible-Kubernetes/">Continue reading</a></p>
     </div><!-- /.read-more-content -->
   
   <div class="read-more-list">
     
       <div class="list-item">
-        <h4><a href="/Installing-Docker/" title="Installing Docker">Installing Docker</a></h4>
-        <span>Published on March 29, 2015</span>
+        <h4><a href="/Containerizing-The-Grid/" title="Containerizing The Grid - BOINC on Docker">Containerizing The Grid - BOINC on Docker</a></h4>
+        <span>Published on August 29, 2015</span>
       </div><!-- /.list-item -->
     
       <div class="list-item">
-        <h4><a href="/Using-Git-with-CFEngine/" title="Using Git Repos with CFEngine">Using Git Repos with CFEngine</a></h4>
-        <span>Published on March 27, 2015</span>
+        <h4><a href="/Creating-A-RancherOS-QCOW/" title="Creating RancherOS Image for OpenStack">Creating RancherOS Image for OpenStack</a></h4>
+        <span>Published on July 15, 2015</span>
       </div><!-- /.list-item -->
     
   </div><!-- /.read-more-list -->
@@ -282,7 +289,7 @@ Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
   </footer>
 </div><!-- /.footer-wrapper -->
 
@@ -290,6 +297,18 @@ Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
 <script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 <script src="/assets/js/scripts.min.js"></script>
 
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
 
 
 	        

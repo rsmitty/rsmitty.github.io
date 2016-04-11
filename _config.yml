@@ -1,6 +1,6 @@
 title:            Spencer's Blog
 description:      Thoughts and tutorials on Linux, Cloud, and Automation.
-disqus_shortname: 
+disqus_shortname:
 reading_time:     true
 words_per_minute: 200
 # Your site's domain goes here (eg: //mmistakes.github.io, http://mademistakes.com, etc)
@@ -14,25 +14,27 @@ owner:
   bio:            "Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS."
   email:          robertspencersmith@gmail.com
   # Social networking links used in footer. Update and remove as you like.
-  github: rsmitty         
-  linkedin: spencersmith23       
+  github: rsmitty
+  linkedin: spencersmith23
 
 # Background image to be tiled on all pages
-background: 
+background:
 
 # Analytics and webmaster tools stuff goes here
-google_analytics: UA-61400214-1  
-google_verify:      
+google_analytics: UA-61400214-1
+google_verify:
 # https://ssl.bing.com/webmaster/configure/verify/ownership Option 2 content= goes here
-bing_verify:         
+bing_verify:
 
 # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 timezone:    America/New_York
 future:      true
-highlighter: pygments
+highlighter: rouge
 markdown:    kramdown
 gems:
   - jekyll-sitemap
+  - jekyll-paginate
+  - jekyll-gist
 sass:
   sass_dir: _sass
   style: compressed
@@ -48,7 +50,7 @@ kramdown:
   footnote_nr: 1
   entity_output: as_char
   toc_levels: 1..6
-  use_coderay: true
+  enable_coderay: false
 
   coderay:
     coderay_line_numbers: nil
@@ -56,6 +58,16 @@ kramdown:
     coderay_tab_width: 4
     coderay_bold_every: 10
     coderay_css: class
+
+# Octopress
+# Default extensions
+post_ext: md
+page_ext: md
+# Found in _templates/
+post_layout: post
+page_layout: page
+# Format titles with titlecase?
+titlecase: true
 
 include: [".htaccess"]
 exclude: ["lib", "config.rb", "Capfile", "config", "Gemfile", "Gemfile.lock", "README.md", "LICENSE", "log", "Rakefile", "Rakefile.rb", "tmp", "less", "*.sublime-project", "*.sublime-workspace", "test", "spec", "Gruntfile.js", "package.json", "node_modules"]

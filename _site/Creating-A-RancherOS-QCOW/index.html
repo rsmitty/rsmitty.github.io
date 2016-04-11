@@ -1,0 +1,370 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Creating RancherOS Image for OpenStack &#8211; Spencer's Blog</title>
+<meta name="description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta name="keywords" content="docker, packer, rancher">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Creating RancherOS Image for OpenStack">
+<meta property="og:description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta property="og:url" content="/Creating-A-RancherOS-QCOW/">
+<meta property="og:site_name" content="Spencer's Blog">
+
+
+
+
+
+<link rel="canonical" href="/Creating-A-RancherOS-QCOW/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Spencer's Blog Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="/images/avatar.jpg" alt="Spencer Smith photo" class="author-photo">
+					<h4>Spencer Smith</h4>
+					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
+				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				<li>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+				</li>
+				<li>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="/posts/">All Posts</a></li>
+				<li><a href="/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="/Creating-A-RancherOS-QCOW/" rel="bookmark" title="Creating RancherOS Image for OpenStack">Creating RancherOS Image for OpenStack</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2015-07-15T00:00:00-04:00">July 15, 2015</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~4 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>As I’ve been learning more about the container ecosystem, I’ve come across the concept of JeOS (just enough operating system). The idea here is that you want to gain as much performance out of your Docker containers as possible, so you minimize the cruft from your host operating system. There are several different JeOS options, but today we’ll talk about RancherOS. RancherOS is a very small, ~20MB, OS that you can use as a Docker host. Everything in RancherOS runs inside of a container and Docker itself runs as pid 1. RancherOS ships as an ISO, so today, I’ll guide you through using the ISO to create a QCOW image for use in OpenStack.</p>
+
+<h2 id="setup-kvm"><strong>Setup KVM</strong></h2>
+
+<ul>
+  <li>
+    <p>First, ensure you have a proper KVM environment setup. This can involve quite a bit of configuration between making sure virtualization is allowed in the BIOS, your CPU supports it, etc.. I followed <a href="https://help.ubuntu.com/community/KVM/Installation">these</a> directions on a new Ubuntu machine and it worked just fine.</p>
+  </li>
+  <li>
+    <p>You can test that your KVM setup is working properly by issuing <code class="highlighter-rouge">virsh list</code>. That should return an empty list:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">root@ubuntu:/home/rsmitty# </span>virsh list
+ Id    Name                           State
+----------------------------------------------------</code></pre></figure>
+
+<ul>
+  <li>Finally, install the virt-install tool with <code class="highlighter-rouge">sudo apt-get install virtinst</code>.</li>
+</ul>
+
+<h2 id="install-packer"><strong>Install Packer</strong></h2>
+
+<ul>
+  <li>
+    <p>Now, we want to use Packer to build our image so we need to download it and get it installed properly. You can find directions on setting up Packer <a href="https://www.packer.io/docs/installation.html">here</a>.</p>
+  </li>
+  <li>
+    <p>If you need an intro to Packer in general, I’ve written another guide that was published to the Solinea website. You can find that <a href="http://www.solinea.com/blog/image-creation-packer-and-openstack">here</a>.</p>
+  </li>
+</ul>
+
+<h2 id="create-our-templates"><strong>Create Our Templates</strong></h2>
+
+<p>Now that we are all set up, we need to create two files, a cloud-config.yml file that gets injected into RancherOS and a Packer template called kvm-rancheros.json that we’ll use to build our QCOW.</p>
+
+<ul>
+  <li>Create a file called cloud-config.yml with the following content. Be sure to modify the ssh public key with your own, so that it gets baked into the image. Unfortunately, there’s no injection of keys during boot in OpenStack for RancherOS, so take care to make sure you get the correct one in there. Here’s what my cloud-config.yml looked like:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#cloud-config</span>
+
+ssh_authorized_keys:
+  - ssh-rsa ... spencer@Spencers-MacBook-Pro.local</code></pre></figure>
+
+<ul>
+  <li>There are lots of options for building images with Packer, so it can be a bit daunting at first. For our purposes, we will need to use the KVM builder directly and pass in the RancherOS ISO. Once booted, Packer will scp our cloud-config.yml file into the temporary instance and then issue the proper command to install RancherOS to disk. After this is complete, Packer will provide output on the location of the QCOW image. This image will simply be called “rancheros” and that path to it will be “$PWD/output_rancher/rancheros”. Here’s the full template:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
+  </span><span class="nt">"builders"</span><span class="p">:</span><span class="w">
+  </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qemu"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"iso_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://releases.rancher.com/os/latest/rancheros.iso"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"iso_checksum_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"md5"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"iso_checksum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"63b54370f8c5f8645d6088be15ab07b0"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"output_directory"</span><span class="p">:</span><span class="w"> </span><span class="s2">"output_rancheros"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_wait_timeout"</span><span class="p">:</span><span class="w"> </span><span class="s2">"30s"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"shutdown_command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sudo shutdown -h now"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"disk_size"</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qcow2"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"headless"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"accelerator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kvm"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rancher"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rancher"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_port"</span><span class="p">:</span><span class="w"> </span><span class="mi">22</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_wait_timeout"</span><span class="p">:</span><span class="w"> </span><span class="s2">"90m"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"vm_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rancheros"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"net_device"</span><span class="p">:</span><span class="w"> </span><span class="s2">"virtio-net"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"disk_interface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"virtio"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"boot_wait"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5s"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"qemuargs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">[</span><span class="w"> </span><span class="s2">"-m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"1024M"</span><span class="w"> </span><span class="p">]</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"provisioners"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+     </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"file"</span><span class="p">,</span><span class="w">
+     </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cloud_config.yml"</span><span class="p">,</span><span class="w">
+     </span><span class="nt">"destination"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/home/rancher/cloud_config.yml"</span><span class="w">
+   </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shell"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"inline"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"sleep 5"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"sudo rancheros-install -f -c cloud_config.yml -d /dev/vda"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
+
+<p><em>Notice the ‘-m’ flag in the qemuargs section. You MUST have at least 1GB of RAM to complete the install successfully.</em></p>
+
+<h2 id="build-and-upload"><strong>Build and Upload</strong></h2>
+<ul>
+  <li>
+    <p>It’s now time to build our image. Packer will fetch and verify the RancherOS ISO for us and proceed to take care of all of the necessary commands. Issue <code class="highlighter-rouge">packer build kvm-rancheros.json</code>.</p>
+  </li>
+  <li>
+    <p>Once our build is complete, we’ll want to upload it to Glance. This image is ~40MB, so it shouldn’t take a terribly long time. You can issue the following command (after sourcing your OpenStack credentials):</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">glance image-create --name <span class="s2">"RancherOS"</span> <span class="se">\</span>
+--is-public <span class="nb">false</span> --disk-format qcow2 <span class="se">\</span>
+--container-format bare --file <span class="nv">$PWD</span>/output_rancher/rancheros</code></pre></figure>
+
+<h2 id="launch-an-instance--connect"><strong>Launch An Instance &amp; Connect</strong></h2>
+
+<ul>
+  <li>
+    <p>We can now spin up our RancherOS instance inside of OpenStack. Ensure that you have ports 22, 80, and 2376 allowed in the security group that you choose to use for your instance.</p>
+  </li>
+  <li>
+    <p>Once our instance has been created, we will use Docker Machine’s generic driver to connect to our launched instance. Again, because SSH keys aren’t injected into RancherOS, we can’t use the OpenStack driver for Docker Machine and have it launch the instance for us. Here is the command that I used for connecting Docker Machine, notice I passed the path to the SSH key I injected earlier.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker-machine create -d generic --generic-ssh-user rancher <span class="se">\</span>
+--generic-ssh-key ~/.ssh/id_rsa --generic-ip-address 192.168.1.202 <span class="se">\</span>
+rancher-dev</code></pre></figure>
+
+<ul>
+  <li>Set rancher-dev as our Docker endpoint with the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">eval</span> <span class="s2">"</span><span class="k">$(</span>docker-machine env rancher-dev<span class="k">)</span><span class="s2">"</span></code></pre></figure>
+
+<ul>
+  <li>You can ensure everything is connected with a combination of <code class="highlighter-rouge">docker-machine ls</code> and <code class="highlighter-rouge">docker ps</code>. I like to echo a dashed line to give some separation in my commands.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">spencers-mbp:~ spencer<span class="nv">$ </span>docker-machine ls <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">"------------"</span> <span class="o">&amp;&amp;</span> docker ps
+NAME          ACTIVE   DRIVER         STATE     URL                         SWARM
+rancher-dev   <span class="k">*</span>        generic        Running   tcp://192.168.1.202:2376
+vbox-dev               virtualbox     Running   tcp://192.168.99.100:2376
+------------
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES</code></pre></figure>
+
+<h2 id="grow-the-root-volume--deploy-a-container"><strong>Grow The Root Volume &amp; Deploy A Container</strong></h2>
+
+<ul>
+  <li>Again, keep in mind that RancherOS doesn’t currently do some cloud-init functions like growing the root volume. We’ll need to launch a privileged container to do this. Issue the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run --privileged -i --rm ubuntu bash <span class="sh">&lt;&lt; EOF
+apt-get update
+apt-get install -y cloud-guest-utils parted
+growpart /dev/vda 1
+partprobe
+resize2fs /dev/vda1
+</span><span class="err">EOF</span></code></pre></figure>
+
+<p><em>Credit to Darren Shepherd for this script mentioned <a href="https://github.com/rancher/os/issues/232">here</a></em></p>
+
+<ul>
+  <li>Launch my test-webserver container by issuing the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -d -p 80:80 rsmitty/test-webserver /usr/sbin/apache2ctl -D FOREGROUND</code></pre></figure>
+
+<ul>
+  <li>Check out the result!
+<a href="/img/posts/2015-07-15-Creating-A-RancherOS-QCOW/Running-Container.png">
+<img src="/img/posts/2015-07-15-Creating-A-RancherOS-QCOW/Running-Container.png" style="max-width75%; border:solid 1px;" /></a></li>
+</ul>
+
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="/tags/#docker" title="Pages tagged docker" class="tag"><span class="term">docker</span></a><a href="/tags/#packer" title="Pages tagged packer" class="tag"><span class="term">packer</span></a><a href="/tags/#rancher" title="Pages tagged rancher" class="tag"><span class="term">rancher</span></a></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/Creating-A-RancherOS-QCOW/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/Creating-A-RancherOS-QCOW/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=/Creating-A-RancherOS-QCOW/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="/Removing-Cruft-From-Docker/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="/Terraform-Ansible-Kubernetes/" title="Deploy Kubernetes w/ Ansible & Terraform">Deploy Kubernetes w/ Ansible & Terraform</a></h3>
+      <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I've recently had some clients that have been interested...&hellip; <a href="/Terraform-Ansible-Kubernetes/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="/Containerizing-The-Grid/" title="Containerizing The Grid - BOINC on Docker">Containerizing The Grid - BOINC on Docker</a></h4>
+        <span>Published on August 29, 2015</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="/Removing-Cruft-From-Docker/" title="Removing Cruft From Docker">Removing Cruft From Docker</a></h4>
+        <span>Published on July 10, 2015</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
+
+
+	        
+
+</body>
+</html>

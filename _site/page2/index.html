@@ -16,7 +16,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Latest Posts">
 <meta property="og:description" content="Describe this nonsense.">
-<meta property="og:url" content="/page2/index.html">
+<meta property="og:url" content="/page2/">
 <meta property="og:site_name" content="Spencer's Blog">
 
 
@@ -74,6 +74,7 @@
 					<h4>Spencer Smith</h4>
 					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
 				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
 				<li>
 					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
 				</li>
@@ -81,10 +82,10 @@
 				
 				
 				<li>
-					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
 				</li>
 				<li>
-					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
 				</li>
 				
 				
@@ -100,6 +101,12 @@
 			</ul>
 		</li>
 		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
 	</ul><!-- /.dl-menu -->
 </nav><!-- /.dl-menuwrapper -->
 
@@ -125,12 +132,529 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-06-23T00:00:00-04:00"><a href="/Docker-Machine-and-Openstack/">June 23, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~3 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Docker-Machine-and-Openstack/" rel="bookmark" title="How Do I Docker? - Quick Dev Environments with Docker Machine and Openstack" itemprop="url">How Do I Docker? - Quick Dev Environments with Docker Machine and Openstack</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>This post will go into some detail about how to get started with docker-machine. Docker Machine is a really nice tool to aid in deploying docker hosts across any environment. It seems to be quickly becoming the standard for creating dev environments. Today, I’ll go through how to talk to OpenStack with Docker Machine and then deploy a quick container.</p>
+
+<h2 id="install-docker-machine"><strong>Install Docker Machine</strong></h2>
+
+<p>I installed both Docker and Docker Machine with Homebrew. There are several other installation options that you can find in the “Installation” sections <a href="https://docs.docker.com/mac/started/">here</a> and <a href="https://docs.docker.com/machine/">here</a>.</p>
+
+<p>For Homebrew, simply issue this in the terminal:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">brew install docker-machine</code></pre></figure>
+
+<h2 id="prepare-openstack"><strong>Prepare Openstack</strong></h2>
+
+<p>There’s a few things that we need to do on the OpenStack side in order to ensure that our machine can be created successfully. First, go ahead and source your keystone credentials. Docker Machine will use these environment variables if they are present. This keeps us from having to pass a bunch of authentication parameters later on.</p>
+
+<p>Next, take a look at your OpenStack environment. We’ll need to gather up some IDs and ensure some things are setup properly. First, take a look at your security group that you plan to use and ensure that SSH access is allowed into it. It’s also important to note here that you’ll want to allow any ports that you plan to map into your containers. For me, I allowed ports 22 and 80 initially. Now, let’s gather some IDs. I needed to find the ssh user for my image type (Centos 7), the image ID, the flavor I wished to use, the floating-ip pool name, and finally the security group that I wanted to use.</p>
+
+<h2 id="create-our-machine"><strong>Create Our Machine</strong></h2>
+
+<p>We’re finally ready to create our machine. Using the IDs I found above, here is the (extremely verbose) command that I issued:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker-machine create --driver openstack<span class="se">\</span>
+ --openstack-ssh-user centos<span class="se">\</span>
+ --openstack-image-id cfb0a24a-16a5-4d19-a15b-ee29c9375d52<span class="se">\</span>
+ --openstack-flavor-name m1.small<span class="se">\</span>
+ --openstack-floatingip-pool public<span class="se">\</span>
+ --openstack-sec-groups default<span class="se">\</span>
+ docker-dev</code></pre></figure>
+
+<p>Be patient here. I found that creating the machine took quite a while, as the docker-machine command will SSH into the instance and do some long-running tasks like ‘yum upgrade’.</p>
+
+<p>Once complete, we’ll want to override our built in docker settings to point to our new machine. We can do that by issuing:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">eval</span> <span class="s2">"</span><span class="k">$(</span>docker-machine env docker-dev<span class="k">)</span><span class="s2">"</span></code></pre></figure>
+
+<p>Finally, we’ll want to ensure that our machine is totally up to date by issuing the following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker-machine upgrade docker-dev</code></pre></figure>
+
+<h2 id="write-a-test-container"><strong>Write A Test Container</strong></h2>
+
+<p>Now that we have a working Docker Machine in OpenStack, let’s try deploying something fun to it. First, we’ll create a Dockerfile to simply install Apache and push a little image and a webpage.</p>
+
+<p>In a test directory, I created three files: Dockerfile, index.html, and logo.png. Here’s the contents of each file:</p>
+
+<p><strong>Dockerfile:</strong></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FROM ubuntu:14.04
+MAINTAINER Spencer Smith &lt;robertspencersmith@gmail.com&gt;
+RUN apt-get update
+RUN apt-get install -y apache2
+ADD index.html /var/www/html/index.html
+ADD logo.png /var/www/html/logo.png
+RUN chmod 777 /var/www/html/logo.png</code></pre></figure>
+
+<p><strong>index.html:</strong></p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"logo.png"</span> <span class="na">width=</span><span class="s">"300"</span> <span class="na">height=</span><span class="s">"300"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;h3&gt;</span>Hello, World!<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;/html&gt;</span></code></pre></figure>
+
+<p><strong>logo.png:</strong></p>
+
+<p><a href="/img/posts/2015-06-23-docker-machine-and-openstack/dockermachine.png">
+<img src="/img/posts/2015-06-23-docker-machine-and-openstack/dockermachine.png" style="max-width:20%; border:solid 1px;" /></a></p>
+
+<p>Finally, we’ll build our container image. Change into the directory that contains the files we just created and issue docker build. I’m also supplying a tag so that I can easily identify my apache container that I’m building. The docker build command can take a little while to complete, as there’s a lot happening with the update and installation of apache2.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker build -t rsmitty/apache .</code></pre></figure>
+
+<h2 id="test-it-out"><strong>Test It Out</strong></h2>
+
+<p>Now that our image has been created, it’s time to test it out by launching our new container in our machine. We can do that simply by calling the docker run command. Note that we will launch apache in the foreground so that it continues running and keeps our container up.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -d -p 80:80 rsmitty/apache /usr/sbin/apache2ctl -D FOREGROUND</code></pre></figure>
+
+<p>Point your browser to the IP address of our machine and see the results!</p>
+
+<p><a href="/img/posts/2015-06-23-docker-machine-and-openstack/container-running.png">
+<img src="/img/posts/2015-06-23-docker-machine-and-openstack/container-running.png" style="max-width75%; border:solid 1px;" /></a></p>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-03-29T00:00:00-04:00"><a href="/Installing-Docker/">March 29, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Installing-Docker/" rel="bookmark" title="Installing Docker" itemprop="url">Installing Docker</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>Today, I’m going to detail my steps for installing Docker. Docker is an extension of Linux Containers (LXC) and aims to provide an easier to use environment. This will just be a basic install guide and I will write another post soon, once I figure out how to do some more interesting stuff.</p>
+
+<p>Docker and LXC are interesting because you can run several isolated containers directly in userspace on a Linux host. One of the big advantages here is that no hypervisor is required and you don’t need a guest OS like with VMs. This means that containers can be created scarily fast and should be more performant than their VM counterparts. I’ve seen some debate about whether or not containers are as secure as plain VMs, but truthfully haven’t delved too deeply into the details around this. Docker is a project I’ve been following at a high level for a while because of the potential to hook it into Openstack, but I’m just now getting around to actually putting my hands on it.</p>
+
+<h2 id="setup-a-host"><strong>Setup a Host</strong></h2>
+<p>Setting up a host for your Docker containers is pretty easy. Docker is able to run on pretty much any environment. I’m going to use Vagrant CentOS 6.5 box, but you can find other install instructions <a href="https://docs.docker.com/installation/#installation">here</a>.</p>
+
+<ul>
+  <li>Docker is part of the EPEL repo, so let’s install that with:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo yum -y install epel-release</code></pre></figure>
+
+<ul>
+  <li>Once that’s complete, let’s update all or our packages. I found that I couldn’t start the Docker daemon without updating. There’s a device mapper package that has to be a newer version. After doing this, we can simply install Docker with:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo yum -y update
+sudo yum -y install docker-io</code></pre></figure>
+
+<ul>
+  <li>Start the Docker daemon and configure it to run at boot:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo service docker start
+sudo chkconfig docker on</code></pre></figure>
+
+<ul>
+  <li>Pull in the CentOS 6 base container. This may take a bit of time depending on your internet connection.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo docker pull centos:centos6</code></pre></figure>
+
+<ul>
+  <li>Now let’s test that it works by asking docker to run a command inside a container. The run command below will create a container, issue the echo command, then shut the container down.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo docker run centos:centos6 <span class="nb">echo</span> <span class="s2">"Hola, Mundo!"</span></code></pre></figure>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-03-27T00:00:00-04:00"><a href="/Hosting-Git-Repos/">March 27, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Hosting-Git-Repos/" rel="bookmark" title="Hosting Git Repos" itemprop="url">Hosting Git Repos</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>This post will detail how to host git repos on a server that you own. I’ll be covering how to set up your sever-side repo and then how to connect from a remote machine via SSH.</p>
+
+<h2 id="setup-our-server"><strong>Setup Our Server</strong></h2>
+<ul>
+  <li>First and foremost, we’ll need to install git. This is going to depend on your package manager, but I’m using CentOS right now, so I’ll be issuing</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo yum install -y git</code></pre></figure>
+
+<ul>
+  <li>Now we’ll need to add a user to our system for git. Let’s do that and then switch to that user with:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo useradd git
+sudo su - git</code></pre></figure>
+
+<ul>
+  <li>Now that we are the git user, we can setup the SSH keys that we want to accept by making the authorized keys file and putting the public keys of each user we want to have access in this file. After creating this directory and file, we need to set the permissions on them properly or SSH will complain.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">mkdir -p ~/.ssh
+touch ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys</code></pre></figure>
+
+<ul>
+  <li>Add the desired public SSH keys in authorized keys. You can add several of these if you have a desire for several users to have access to this git repo. Just separate the keys by putting them on a new line. This should look something like:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHytEnXVEiGKu6XVDh/evJhM5ANngMeRJiizr6jsiOmWyMtuuqtGi/84EDQ54OOwDlBfdC72YjPaYEafyez8fYls7M2L82P2Ka96hFapUWwF9TzxAw1yEkV81Rv2OZWpAdf451UCZPClludtym0DyGwZdMGfVJx8ZNPJ61lwx5ijwWQvY4dhZF0Hjo431c9d1mgOLxu94WJ15PC6CjAI9zh/zddmJMHgClkqTuGWWf/t3e/SZ8AJ5ABUtcjPutUdJBGvPI814eD3+JgE18D6AiHN/uWm0JLYx5P06htqb2Eb6uAsCJjTIDyl+I0bOYRUp8PlYzJALv+x8RxP1R35Wr rsmitty@github.com</code></pre></figure>
+
+<h2 id="create-git-repo"><strong>Create Git Repo</strong></h2>
+
+<ul>
+  <li>It’s time to finally create our git repo. Let’s create an easy directory called /git/ and a subdirectory under that for our test project. We need to switch back to our normal user (with sudo ability) to create a directory at the root. You can do that simply by issuing ‘exit’.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo mkdir -p /git/testproject.git
+sudo chown -R git:git /git</code></pre></figure>
+
+<ul>
+  <li>Now, back as the git user, initialize the git repo by using the ‘git init’ command inside that directory:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd</span> /git/testproject.git
+git init --bare</code></pre></figure>
+
+<h2 id="test-it-out"><strong>Test It Out</strong></h2>
+
+<ul>
+  <li>Back on your local machine, let’s verify that this is actually working for us. This should be as simple as doing a git clone to the proper path on the remote server:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git clone git@GITSERVERNAME:/git/testproject.git</code></pre></figure>
+
+<ul>
+  <li>Change into the local testproject directory and create a file for our first commit:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">touch README.md</code></pre></figure>
+
+<ul>
+  <li>Let’s add, commit, and push the file up.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git add README.md
+git commit -m <span class="s2">"initial commit"</span>
+git push origin master</code></pre></figure>
+
+<p>Now we’ve got a fully functional git repo with a master branch. All ready to go!</p>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-02-17T00:00:00-05:00"><a href="/Using-rerun/">February 17, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~6 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Using-rerun/" rel="bookmark" title="Using Rerun" itemprop="url">Using Rerun</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>Today’s post will go into some detail on getting started with
+<a href="https://rerun.github.io/rerun/">Rerun</a>.
+Rerun is a tool that’s kind of meant to bridge the gap between having a
+bunch of sysadmin scripts and a full-blown configuration management tool.
+The truth is that a lot of times, groups have a bunch of bash scripts
+that can perform differently on different machines or exist in several different
+versions. This makes it hard to ensure that you’re always using the right one,
+the right flags are being passed, etc., etc. Rerun sets out to help wrangle your
+shell scripts and present them as something super easy to use.</p>
+
+<h2 id="install-rerun"><strong>Install Rerun</strong></h2>
+<ul>
+  <li>Installing Rerun is really just a ‘git clone’ and then adding a bunch of
+variables to your .bash_profile. I rolled it all into a script so it can just be
+run (at your own risk). Just issue <code class="highlighter-rouge">chmod +x whatever_you_name.sh</code>,
+followed by <code class="highlighter-rouge">./whatever_you_name.sh</code>.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/bash</span>
+
+<span class="c">##Checkout Rerun to home directory</span>
+<span class="nb">cd</span> <span class="nv">$HOME</span>
+git clone git://github.com/rerun/rerun.git
+
+<span class="c">##Append rerun particulars to user profile</span>
+cat <span class="sh">&lt;&lt; EOF &gt;&gt; $HOME/.bash_profile
+##Begin vars for rerun
+export PATH=$PATH:$HOME/rerun
+export RERUN_MODULES=$HOME/rerun/modules
+[ -r $HOME/rerun/etc/bash_completion.sh ] &amp;&amp; source $HOME/rerun/etc/bash_completion.sh
+[ -t 0 ] &amp;&amp; export RERUN_COLOR=true
+##End vars for rerun
+</span><span class="err">EOF</span></code></pre></figure>
+
+<ul>
+  <li>Exit the terminal and restart, then issue <code class="highlighter-rouge">rerun</code> to see if it’s working.
+This should give you a list of the modules installed:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun
+Available modules:
+  stubbs: <span class="s2">"Simple rerun module builder"</span> - 1.2.2</code></pre></figure>
+
+<h2 id="create-a-module--command"><strong>Create a Module &amp; Command</strong></h2>
+<p>Now let’s run through the Rerun <a href="https://github.com/rerun/rerun/wiki/Tutorial">tutorial</a>.
+A lot of this part of the post will be a rehashing of that page, with some differences
+here and there to keep myself from just copying/pasting and not actually committing this
+to memory. We will be creating a waitfor module that simply waits for a variety of different
+conditions like ping to be available at a given address, a file to exist, etc..</p>
+
+<ul>
+  <li>Rerun uses a module:command type syntax, where module is kind of the general idea
+of what you’re trying to do, while command is the specifics. So, let’s use the stubbs
+module’s add-module command to create the bones for our waitfor module:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-module --module waitfor --description <span class="s2">"waits for a condition."</span></code></pre></figure>
+
+<ul>
+  <li>Okay, now let’s add a ping command to our waitfor module with</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-command --module waitfor --command ping --description <span class="s2">"wait for ping response from address"</span></code></pre></figure>
+
+<p><em>Note that this command creates both a script and a test.sh file. script is what
+will actually get run, the test file is for us to write a test plan.</em></p>
+
+<ul>
+  <li>For ping, we’ll want to add a host and an interval option. Host will
+be required, while we will set the interval option with a default and make overriding
+that optional.</li>
+  <li>Set the required host option:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-option --option host --description <span class="s2">"host to ping"</span> --module waitfor --command ping --required <span class="nb">true</span> --export <span class="nb">false</span> --default <span class="s1">'""'</span></code></pre></figure>
+
+<ul>
+  <li>Set the optional interval option:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-option --option interval --description <span class="s2">"how long to wait between attempts"</span> --module waitfor --command ping --required <span class="nb">false</span> --export <span class="nb">false</span> --default 30</code></pre></figure>
+
+<ul>
+  <li>Let’s make sure our params look right by checking the output with <code class="highlighter-rouge">rerun waitfor</code>.
+Rerun gives a pretty easy to read/understand output when you try to figure out what
+a module is capable of.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor
+Available commands <span class="k">in </span>module, <span class="s2">"waitfor"</span>:
+ping: <span class="s2">"wait for ping response from address"</span>
+    --host &lt;<span class="s2">""</span>&gt;: <span class="s2">"host to ping"</span>
+   <span class="o">[</span> --interval &lt;30&gt;]: <span class="s2">"how long to wait between attempts"</span></code></pre></figure>
+
+<h2 id="implement-the-command"><strong>Implement the Command</strong></h2>
+<p>So now we’ve got our command created, but it doesn’t actually do anything. Rerun
+can’t read our mind, so it just lays down some basics and it’s up to us to implement
+the particulars.</p>
+
+<ul>
+  <li>Open the file <code class="highlighter-rouge">~/rerun/modules/waitfor/commands/ping/script</code> for editing.
+Scroll down to the bottom, where you will see:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Command implementation</span>
+<span class="c"># ----------------------</span>
+
+<span class="c"># - - -</span>
+<span class="c"># Put the command implementation here.</span>
+<span class="c"># - - -</span></code></pre></figure>
+
+<ul>
+  <li>Replace the ‘Put the command implementation here’ with your code. I had to throw
+in a -t flag in the ping command to timeout quicker on Mac.
+For our ping check, the code will look like:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">## Loop until a single ping packet returns a result string that contains 64.</span>
+<span class="c">## 64 is the number of bytes in ping response</span>
+<span class="k">until</span> <span class="o">(</span> ping -c 1 -t 1 <span class="nv">$HOST</span> | grep -q ^64 <span class="o">)</span>
+<span class="k">do</span>
+   <span class="c">##Sleep by our interval if unsuccessful</span>
+   sleep <span class="nv">$INTERVAL</span>
+   <span class="nb">echo </span>Pinging <span class="nv">$HOST</span>...
+<span class="k">done</span>
+
+<span class="c">##Finally return when ping available</span>
+<span class="nb">echo</span> <span class="s2">"OK: </span><span class="nv">$HOST</span><span class="s2"> is pingable."</span></code></pre></figure>
+
+<ul>
+  <li>Test it out with a call to localhost. This should always return a positive ping.
+<code class="highlighter-rouge">rerun waitfor:ping --host localhost --interval 1</code></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor:ping --host localhost --interval 1
+OK: localhost is pingable.</code></pre></figure>
+
+<h2 id="write-tests"><strong>Write Tests</strong></h2>
+<p>Okay, let’s write the tests for our new command. This will help us ensure it’s working
+the right way.</p>
+
+<ul>
+  <li>
+    <p>Open <code class="highlighter-rouge">~/rerun/modules/waitfor/tests/ping-1-test.sh</code> for editing. Remove the whole
+‘it_fails_without_a_real_test’ block.</p>
+  </li>
+  <li>
+    <p>We’ll create two new functions. One will check that the required host is present.
+The other will check that localhost responds as expected. These tests are straight
+from the wiki tutorial with extra comments to explain what’s actually happening.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Check that the required host is passed in</span>
+it_fails_without_required_options<span class="o">()</span> <span class="o">{</span>
+    <span class="c">##Make a temp file to write to</span>
+    <span class="nv">OUT</span><span class="o">=</span><span class="k">$(</span>mktemp /tmp/waitfor:ping-XXXX<span class="k">)</span>
+    <span class="c">##Negate the error of not passing a host with '!'. Write results to outfile.</span>
+    <span class="c">##The '2&gt;' param redirects stderr to the outfile</span>
+    ! rerun waitfor:ping 2&gt; <span class="nv">$OUT</span>
+    <span class="c">##Check that missing text is in outfile</span>
+    grep <span class="s1">'missing required option: --host'</span> <span class="nv">$OUT</span>
+    <span class="c">##Delete outfile</span>
+    rm <span class="nv">$OUT</span>
+<span class="o">}</span>
+<span class="c">##Check that command works for localhost</span>
+it_reaches_localhost<span class="o">()</span> <span class="o">{</span>
+    <span class="c">##Make a temp file to write to</span>
+    <span class="nv">OUT</span><span class="o">=</span><span class="k">$(</span>mktemp /tmp/waitfor:ping-XXXX<span class="k">)</span>
+    <span class="c">##Run with localhost passed as host param</span>
+    rerun waitfor:ping --host localhost &gt; <span class="nv">$OUT</span>
+    <span class="c">##Ensure proper output is present in outfile</span>
+    grep <span class="s1">'OK: localhost is pingable.'</span> <span class="nv">$OUT</span>
+    <span class="c">##Delete outfile</span>
+    rm <span class="nv">$OUT</span>
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li>Finally, let’s check that the output of the stubbs:test command to make sure
+our tests pass. Issue <code class="highlighter-rouge">rerun stubbs:test --module waitfor --plan ping</code></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun stubbs:test --module waitfor --plan ping
+<span class="o">=========================================================</span>
+ TESTING MODULE: waitfor
+<span class="o">=========================================================</span>
+ping
+  it_fails_without_required_options:               <span class="o">[</span>PASS]
+  it_reaches_localhost:                            <span class="o">[</span>PASS]
+<span class="o">=========================================================</span>
+Tests:    2 | Passed:   2 | Failed:   0</code></pre></figure>
+
+<h2 id="extend-extend-extend"><strong>Extend, Extend, Extend</strong></h2>
+
+<p>Now that we have learned all of the functionality from the official tutorial, it’s time to extend our module to do other things. Consider what the ‘waitfor’ module is for. It is there to wait on things in general, not just ping responses. So let’s extend our module to support another wait use case, waiting for a file to exist.</p>
+
+<ul>
+  <li>First let’s add the new command to our module. This is as simple as it was earlier, just pass the proper options as needed:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-command --module waitfor --command file --description <span class="s2">"Waits for a file to be present on the system"</span></code></pre></figure>
+
+<ul>
+  <li>Add options for the filepath we want to check, as well as the interval we want to wait to check:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-option --option filepath --description <span class="s2">"full path of file to wait for"</span> --module waitfor --command file --required <span class="nb">true</span> --export <span class="nb">false</span> --default <span class="s1">'""'</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-option --option interval --description <span class="s2">"how long to wait between attempts"</span> --module waitfor --command file --required <span class="nb">false</span> --export <span class="nb">false</span> --default 30</code></pre></figure>
+
+<ul>
+  <li>Time to implement the actual logic behind our file checker. You’ll notice that since this command is similar in function to our ping command, a lot of the same logic that we used previously still applies. Here’s the relevant bash from ‘waitfor/commands/file/script’:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">until</span> <span class="o">[</span> -f <span class="s2">"</span><span class="nv">$FILEPATH</span><span class="s2">"</span> <span class="o">]</span>
+<span class="k">do</span>
+ <span class="c">##Sleep by our interval if unsuccessful</span>
+ sleep <span class="nv">$INTERVAL</span>
+ <span class="nb">echo</span> <span class="s2">"Checking for file at </span><span class="nv">$FILEPATH</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c">##Finally return when file exists</span>
+<span class="nb">echo</span> <span class="s2">"OK: </span><span class="nv">$FILEPATH</span><span class="s2"> now exists."</span> </code></pre></figure>
+
+<ul>
+  <li>We can now see this in action by issuing our command, waiting for a few cycles to occur, then touching the file that we want to exist in another terminal. For me, the touch command was simply  touch /tmp/test.txt.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor: file --filepath <span class="s2">"/tmp/test.txt"</span> --interval 1
+Checking <span class="k">for </span>file at /tmp/test.txt
+Checking <span class="k">for </span>file at /tmp/test.txt
+Checking <span class="k">for </span>file at /tmp/test.txt
+Checking <span class="k">for </span>file at /tmp/test.txt
+OK: /tmp/test.txt now exists.</code></pre></figure>
+
+<ul>
+  <li>Finally, we would want to write some tests around this command to ensure it functions as expected when variables are missing, etc.. This post is getting pretty lengthy, so I will leave that task up to you.</li>
+</ul>
+
+<p>And that’s it! I hope you enjoyed this intro to Rerun. It’s a really fun tool to use once you pick up the basics, and it really makes it dead simple to allow other team mates (even those who may not be very adept with bash) to execute scripts in a known, repeatable manner.</p>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2015-02-15T00:00:00-05:00"><a href="/Configuration-Management-with-CFEngine/">February 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
       
       <span class="entry-reading-time">
         <i class="fa fa-clock-o"></i>
         
-        Reading time ~2 minutes
+Reading time ~2 minutes
       </span><!-- /.entry-reading-time -->
       
     </div><!-- /.entry-meta -->
@@ -158,25 +682,25 @@ that will be fixed in the future.</p>
   </li>
   <li>
     <p>Open the /etc/hosts file for editing and add an entry for the private IP address to
-give it a hostname. The script below with fail if <code>hostname -f</code> doesn’t return
+give it a hostname. The script below with fail if <code class="highlighter-rouge">hostname -f</code> doesn’t return
 anything. I added this to my hosts file:
-<code>10.0.0.29 cfengine-server.localdomain</code>. You may also have to enter
-<code>sudo hostname cfengine-server.localdomain</code>.</p>
+<code class="highlighter-rouge">10.0.0.29 cfengine-server.localdomain</code>. You may also have to enter
+<code class="highlighter-rouge">sudo hostname cfengine-server.localdomain</code>.</p>
   </li>
   <li>
     <p>Grab the CFEngine install script with
-<code>wget http://s3.amazonaws.com/cfengine.packages/quick-install-cfengine-enterprise.sh</code>.</p>
+<code class="highlighter-rouge">wget http://s3.amazonaws.com/cfengine.packages/quick-install-cfengine-enterprise.sh</code>.</p>
   </li>
   <li>
-    <p>Make it executable with <code>chmod +x quick-install-cfengine-enterprise.sh</code>.</p>
+    <p>Make it executable with <code class="highlighter-rouge">chmod +x quick-install-cfengine-enterprise.sh</code>.</p>
   </li>
   <li>
     <p>Run the script with sudo rights and pass the hub argument to specify that this
 will be a central hub server:
-<code>sudo ./quick-install-cfengine-enterprise.sh hub</code></p>
+<code class="highlighter-rouge">sudo ./quick-install-cfengine-enterprise.sh hub</code></p>
   </li>
   <li>
-    <p>Bootstrap the CFEngine hub with <code>sudo /var/cfengine/bin/cf-agent --bootstrap 10.0.0.29</code></p>
+    <p>Bootstrap the CFEngine hub with <code class="highlighter-rouge">sudo /var/cfengine/bin/cf-agent --bootstrap 10.0.0.29</code></p>
   </li>
   <li>
     <p>We should now be able to login to the server’s web UI by going to the floating
@@ -193,7 +717,7 @@ with our snazzy new server. This process is almost exactly the same as the above
 with the exception of the argument passed to quick-install-cfengine-enterprise.sh.
 I won’t copy/paste everything from above, but just follow the same steps and when
 you get there, issue this command instead:
-<code>sudo ./quick-install-cfengine-enterprise.sh agent</code></p>
+<code class="highlighter-rouge">sudo ./quick-install-cfengine-enterprise.sh agent</code></p>
 
 <p>One last possible caveat here. I created a Ubuntu 12.04 image with the CFEngine
 client installed and it caused a kernel panic on boot. I’m not sure what was going on,
@@ -207,650 +731,61 @@ in the web UI.
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
 
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-02-14T00:00:00-05:00"><a href="/Showing-dd-Progress-in-Terminal/">February 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/Showing-dd-Progress-in-Terminal/" rel="bookmark" title="Showing dd Progress" itemprop="url">Showing dd Progress</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>As I was trying to write an ISO to a USB drive, I wanted to see the progress when
-using the ‘dd’ command line tool. I found a quick pointer on StackOverflow to use
-the ‘pv’ command, so I adapted a little to use on a Mac. This will also serve
-as a guide on how to write ISOs on Mac. Here’s how:</p>
-
-<ul>
-  <li>Install pv with homebrew: <code>brew install pv</code></li>
-  <li>Find your USB drive with <code>diskutil list</code>. Should be pretty easy to spot the
-USB drive as it will be smaller than the other disks. Tread lightly though, don’t
-mess with your hard drive. I’ll use /dev/disk3, as that’s what my command returned.</li>
-  <li>Unmount it with <code>diskutil unmountDisk /dev/disk3</code>.</li>
-  <li>Become root with <code>sudo su</code></li>
-  <li>Write your iso with this general layout, substituting paths where necessary:
-<code>dd if=/path/to/your.iso | pv | dd of=/dev/disk3 bs=1024k</code>.</li>
-</ul>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-02-14T00:00:00-05:00"><a href="/Getting-Started-With-Packer/">February 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~5 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/Getting-Started-With-Packer/" rel="bookmark" title="Getting Started with Packer" itemprop="url">Getting Started with Packer</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>As part of a new job I’m taking, I wanted to learn more about image building
-for Openstack and other virtual environments. I’ve done it by hand for the customized
-OSes at my old job, but I haven’t had the chance to explore any automated solutions.
-I was pointed to Packer as a tool to build several different images at the same time (and automatically). It sounds like a great project and I’m going to use this post to
-get up to speed with using the basics. One quick caveat from the outset is that
-I’m not going to use Amazon at first. I’ll be running against my home Openstack lab
-since it’s free and a good excuse to get my homelab back in order.</p>
-
-<h2 id="install-packer"><strong>Install Packer</strong></h2>
-
-<p>I’ve got a shiny new Macbook, and installing Packer was actually really easy.
-The way I did it depended on homebrew, but you can also install manually from
-from their docs <a href="https://www.packer.io/intro/getting-started/setup.html">here</a>.</p>
-
-<ul>
-  <li>In terminal, ensure that you have homebrew setup by issuing <code>brew</code>.</li>
-  <li>Add the necessary tap with <code>brew tap homebrew/binary</code>.</li>
-  <li>Finally, install packer with <code>brew install packer</code>.</li>
-  <li>You can test it’s installed by simply issuing <code>packer</code> in the terminal.</li>
-</ul>
-
-<h2 id="get-openstack-ready"><strong>Get Openstack Ready</strong></h2>
-<p>I run an all-in-one deployment of RDO Openstack at home. Obviously, there’s a
-million different ways to deploy, but <a href="https://openstack.redhat.com/Quickstart">here</a>
-and <a href="https://openstack.redhat.com/Neutron_with_existing_external_network">here</a>
-are the pieces that I followed. It’s important to note that in my lab, instances
-come alive on a private network, then get access to my router’s 192.168.1.0/24 block
-via floating IPs. This will come in to play a bit later with the Packer template.</p>
-
-<ul>
-  <li>
-    <p>Get a known good image into Glance by importing one of the big distros. I used
-the Ubuntu 14.04 LTS image found <a href="https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img">here</a>. You can just put that link into Glance’s import dialog. My final dialog looked like this:
-<a href="/img/posts/2015-02-14-getting-started-with-packer/glance-dialog.png">
-<img src="/img/posts/2015-02-14-getting-started-with-packer/glance-dialog.png" style="max-width:100%; border:solid 1px;" /></a></p>
-  </li>
-  <li>
-    <p>Take note of the new image’s UUID, we’ll need that later:</p>
-  </li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>nova image-list
-+--------------------------------------+-------------------+--------+----------+
-<span class="p">|</span> ID                                   <span class="p">|</span> Name              <span class="p">|</span> Status <span class="p">|</span> Server
-+--------------------------------------+-------------------+--------+----------+
-<span class="p">|</span> bf2ad7f1-3823-4ad2-a788-44a25827c93e <span class="p">|</span> cirros            <span class="p">|</span> ACTIVE <span class="p">|</span>
-<span class="p">|</span> b3a4368b-7368-45e5-bfe4-63f59d732c41 <span class="p">|</span> ubuntu 14.04      <span class="p">|</span> ACTIVE <span class="p">|</span>
-+--------------------------------------+-------------------+--------+----------+</code></pre></div>
-
-<h2 id="write-packer-template"><strong>Write Packer Template</strong></h2>
-<p>Okay, time to get busy. Let’s write a template for Packer to create an image list.
-We’ll need to gather some info first.</p>
-
-<ul>
-  <li>Get your keystone info by catting out your keystonerc file. For me, this was
-<code>cat keystonerc_admin</code>. Some info below has been changed to protect the innocent.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>cat keystonerc_admin
-<span class="nb">export </span><span class="nv">OS_USERNAME</span><span class="o">=</span>admin
-<span class="nb">export </span><span class="nv">OS_TENANT_NAME</span><span class="o">=</span>admin
-<span class="nb">export </span><span class="nv">OS_PASSWORD</span><span class="o">=</span>testpass
-<span class="nb">export </span><span class="nv">OS_AUTH_URL</span><span class="o">=</span>http://192.168.1.200:5000/v2.0/
-<span class="nb">export </span><span class="nv">OS_REGION_NAME</span><span class="o">=</span>RegionOne
-<span class="nb">export </span><span class="nv">PS1</span><span class="o">=</span><span class="s1">&#39;[\u@\h \W(keystone_admin)]\$ &#39;</span></code></pre></div>
-
-<ul>
-  <li>
-    <p>Create a new json file somewhere on your machine. I simply called mine packer_template.</p>
-  </li>
-  <li>
-    <p>There’s a lot of options for Openstack in Packer (found <a href="https://www.packer.io/docs/builders/openstack.html">here</a>). Some of this will
-vary by the way your particular Openstack deployment is set up, but for me, this
-template contains all of the necessary basic fields:</p>
-  </li>
-</ul>
-
-<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
-  <span class="nt">&quot;builders&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;openstack&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;testpass&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;http://192.168.1.200:5000/v2.0&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;ssh_username&quot;</span><span class="p">:</span> <span class="s2">&quot;ubuntu&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;RegionOne&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;image_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Packer Test Image&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;source_image&quot;</span><span class="p">:</span> <span class="s2">&quot;b3a4368b-7368-45e5-bfe4-63f59d732c41&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;flavor&quot;</span><span class="p">:</span> <span class="s2">&quot;0d7e469c-e99b-4267-b154-35874b224f54&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;networks&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;0296eb7d-7f94-4cc1-b42f-f2d680b81359&quot;</span><span class="p">],</span>
-      <span class="nt">&quot;use_floating_ip&quot;</span><span class="p">:</span> <span class="kc">true</span>
-    <span class="p">}</span>
-  <span class="p">]</span>
-<span class="p">}</span></code></pre></div>
-
-<p>Notes about what’s what:</p>
-
-<ol>
-  <li><strong>username &amp; password</strong>: Map to OS_USERNAME and OS_PASSWORD from source file</li>
-  <li><strong>provider</strong>: Maps to OS_AUTH_URL</li>
-  <li><strong>region</strong>: Maps to OS_REGION_NAME</li>
-  <li><strong>source image</strong>: UUID of the Ubuntu image we talked about earlier</li>
-  <li><strong>flavor</strong>: UUID of my m1.tiny flavor. Beware, this changes on any flavor update!</li>
-  <li><strong>networks</strong>: UUID of my private network. Can be an array of several networks.</li>
-  <li><strong>use_floating_ip</strong>: As mentioned earlier, floating IP allows Packer to actually
-SSH to this server across my home network.</li>
-</ol>
-
-<h2 id="test-time"><strong>Test Time!</strong></h2>
-<p>Let’s see if this thing will actually create an image for us.</p>
-
-<ul>
-  <li>
-    <p>Save your template if you haven’t already.</p>
-  </li>
-  <li>
-    <p>Validate the template to make sure there aren’t any glaring errors with
-<code>packer validate NAME_OF_TEMPLATE.json</code>. This should return the text
-‘Template validated successfully.’</p>
-  </li>
-  <li>
-    <p>Run the template with <code>packer build NAME_OF_TEMPLATE.json</code>. For me, this
-gave the following output when everything completely worked:</p>
-  </li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:Desktop spencer<span class="nv">$ </span>packer build packer_template
-openstack output will be in this color.
-
-<span class="o">==</span>&gt; openstack: Creating temporary keypair <span class="k">for</span> this instance...
-<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> server <span class="o">(</span>82db25b2-e1a5-4aef-be4a-cfccf744e103<span class="o">)</span> to become ready...
-<span class="o">==</span>&gt; openstack: Created temporary floating IP 192.168.1.204...
-<span class="o">==</span>&gt; openstack: Added floating IP 192.168.1.204 to instance...
-<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> SSH to become available...
-<span class="o">==</span>&gt; openstack: Connected to SSH!
-<span class="o">==</span>&gt; openstack: Creating the image: Packer Test <span class="nv">Image</span>
-<span class="o">==</span>&gt; openstack: Image: 70a610e9-302a-40f4-a4ca-59b6ad260e63
-<span class="o">==</span>&gt; openstack: Waiting <span class="k">for</span> image to become ready...
-<span class="o">==</span>&gt; openstack: Terminating the <span class="nb">source </span>server...
-<span class="o">==</span>&gt; openstack: Deleting temporary keypair...
-Build <span class="s1">&#39;openstack&#39;</span> finished.</code></pre></div>
-
-<ul>
-  <li>Nice! Seemed to work. Now if we head out to the Glance UI, we can see that our
-shiny new image hanging out!
-<a href="/img/posts/2015-02-14-getting-started-with-packer/image-present.png">
-<img src="/img/posts/2015-02-14-getting-started-with-packer/image-present.png" style="max-width:100%; border:solid 1px;" /></a></li>
-</ul>
-
-<h2 id="well-now-what"><strong>Well, Now What?</strong></h2>
-<p>So we’ve built an image with Packer, which is great. But the real value here comes
-with building on multiple platforms at the same time and also doing some provisioning
-to install the necessities before creating the image.</p>
-
-<p>This tutorial is getting pretty long in the tooth, so I’m not going to add another provider to create an image on, but I do want to actually install something to actually change something about the image. Let’s install Apache as part of the
-build. Note that in a proper environment, we would probably just install Apache
-and we would let our config manangement tool handle deploying our webpage, since
-that’s the kind of thing we would want to checkout from version control at boot
-time.</p>
-
-<p>Here’s the template:</p>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">{</span>
-  <span class="s2">&quot;builders&quot;</span>: <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;openstack&quot;</span>,
-      <span class="s2">&quot;username&quot;</span>: <span class="s2">&quot;admin&quot;</span>,
-      <span class="s2">&quot;password&quot;</span>: <span class="s2">&quot;testpass&quot;</span>,
-      <span class="s2">&quot;provider&quot;</span>: <span class="s2">&quot;http://192.168.1.200:5000/v2.0&quot;</span>,
-      <span class="s2">&quot;ssh_username&quot;</span>: <span class="s2">&quot;ubuntu&quot;</span>,
-      <span class="s2">&quot;project&quot;</span>: <span class="s2">&quot;admin&quot;</span>,
-      <span class="s2">&quot;region&quot;</span>: <span class="s2">&quot;RegionOne&quot;</span>,
-      <span class="s2">&quot;image_name&quot;</span>: <span class="s2">&quot;Packer Test Image&quot;</span>,
-      <span class="s2">&quot;source_image&quot;</span>: <span class="s2">&quot;b3a4368b-7368-45e5-bfe4-63f59d732c41&quot;</span>,
-      <span class="s2">&quot;flavor&quot;</span>: <span class="s2">&quot;0d7e469c-e99b-4267-b154-35874b224f54&quot;</span>,
-      <span class="s2">&quot;networks&quot;</span>: <span class="o">[</span><span class="s2">&quot;0296eb7d-7f94-4cc1-b42f-f2d680b81359&quot;</span><span class="o">]</span>,
-      <span class="s2">&quot;use_floating_ip&quot;</span>: <span class="nb">true</span>
-    <span class="o">}</span>
-  <span class="o">]</span>,
-   <span class="s2">&quot;provisioners&quot;</span>: <span class="o">[{</span>
-    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;shell&quot;</span>,
-    <span class="s2">&quot;inline&quot;</span>: <span class="o">[</span>
-      <span class="s2">&quot;sleep 30&quot;</span>,
-      <span class="s2">&quot;sudo apt-get update&quot;</span>,
-      <span class="s2">&quot;sudo apt-get install -y apache2&quot;</span>
-    <span class="o">]</span>
-  <span class="o">}]</span>
-<span class="o">}</span></code></pre></div>
-
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2014-09-16T00:00:00-04:00"><a href="/clamscan-files-by-date/">September 16, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~3 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/clamscan-files-by-date/" rel="bookmark" title="Scanning Only New Files With Clamscan" itemprop="url">Scanning Only New Files With Clamscan</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>So, I ran into a need to scan some files for viruses on Ubuntu this past week. However, a couple of things prevented this from being straight forward:</p>
-
-<ul>
-  <li>
-    <p>I couldn’t be sure where these files were being stored.</p>
-  </li>
-  <li>
-    <p>I didn’t want to scan the entire filesystem just to get at these few files.</p>
-  </li>
-</ul>
-
-<p>So I went out looking for a way to scan only new files with clamscan. After a good bit of digging, I ran across <a href="http://www.gossamer-threads.com/lists/clamav/users/53298">this</a> old thread where someone had a similar question. So after getting a pointer there, I was able to make this happen. Here is the way to do it:</p>
-
-<h2 id="install-clamav"><strong>Install ClamAV</strong></h2>
-
-<ul>
-  <li>
-    <p>Issue <code>sudo apt-get install clamav</code> to get the freshclam and clamscan commands.</p>
-  </li>
-  <li>
-    <p>Update the virus definitions with a <code>sudo freshclam</code>. This will take a few seconds the first time.</p>
-  </li>
-</ul>
-
-<h2 id="get-ya-find-right"><strong>Get Ya Find Right</strong></h2>
-
-<p>Now this took a bit of playing around with to get where I wanted. I wanted to find all files of a certain type that had been created or modified in the past week. There’s also some differences to note about mtime vs. ctime vs. atime as a flag for find. <a href="http://www.linux-faqs.info/general/difference-between-mtime-ctime-and-atime">Linux-FAQs.info</a> did a good job of explaining these differences:</p>
-
-<div class="highlight"><pre><code class="language-text" data-lang="text">ctime - ctime is the inode or file change time. The ctime gets updated when the file attributes are changed, like changing the owner, changing the permission or moving the file to an other filesystem but will also be updated when you modify a file.
-
-mtime - mtime is the file modify time. The mtime gets updated when you modify a file. Whenever you update content of a file or save a file the mtime gets updated.
-
-*Most of the times ctime and mtime will be the same, unless only the file attributes are updated. In that case only the ctime gets updated.*
-
-atime - atime is the file access time. The atime gets updated when you open a file but also when a file is used for other operations like grep, sort, cat, head, tail and so on.</code></pre></div>
-
-<p>For my purposes, I wanted EVERYTHING that had changed, so that pointed to using the ctime flag. For a first test, I just wanted to see how many items find would return. I was able to do that by issuing (edited to look for .md files, just for laughs): <code>sudo find / -name "*.md" -ctime -7 -type f | wc -l</code>. That command simply returns the number 5 on my machine at the time of writing. Let’s not pipe it out to wc so we can see those files:</p>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rsmitty@rsmitty-notebook:~<span class="nv">$ </span>sudo find / -name <span class="s2">&quot;*.md&quot;</span> -ctime -7 -type f
-/home/rsmitty/Desktop/usenet-dashboard/README.md
-/home/rsmitty/Desktop/rsmitty.github.io/_posts/2014-09-07-creating-a-blog-2.md
-/home/rsmitty/Desktop/rsmitty.github.io/_posts/2014-09-16-clamscan-files-by-date.md
-/home/rsmitty/.xbmc/addons/service.xbmc.versioncheck/README.md
-/usr/share/xbmc/addons/service.xbmc.versioncheck/README.md</code></pre></div>
-
-<p><strong>Note: You’ll have to do almost everything with ClamAV as root user. Also, you can change the number of days to scan for by changing the ‘-7’ portion of the command.</strong></p>
-
-<p>Okay, slightly more interesting, and now we know what we’re working with. Let’s move on…</p>
-
-<h2 id="enter-xargs"><strong>Enter Xargs</strong></h2>
-
-<p>Using xargs was a first for me as part of this little endeavor. It’s a really handy tool to add to the toolbox! If you’ve ever tried to run a bash command like <code>rm *</code> and received an error like “Argument list too long”, xargs is the answer to your problems. It takes the argument list and breaks it down into smaller pieces. It’ll then run subsequent commands with each sublist. For the purposes of what I was doing initally, there were about 7,000 files to scan, xargs was able to break those up into two scans of ~3,000 files and one scan of ~1,000. Worked great!</p>
-
-<p>Here’s the final command that I used:</p>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo find / -name <span class="s2">&quot;*.md&quot;</span> -ctime -7 -type f -print0 <span class="p">|</span> sudo xargs -0 clamscan --remove --log<span class="o">=</span>/home/rsmitty/clamscan.log</code></pre></div>
-
-<ul>
-  <li>The –remove flag just means that if a vulnerability is found in that file, delete the file immediately.</li>
-  <li>the –log flag sets the path of the log file that clamscan will write. You will need to do this for sure if you have lots of files to scan, because several scan summaries will be written to this file.</li>
-</ul>
-
-<p>After running, the log file will look something like this:</p>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rsmitty@rsmitty-notebook:~<span class="nv">$ </span>sudo cat /home/rsmitty/clamscan.log 
-
------------ SCAN SUMMARY -----------
-Known viruses: 3560111
-Engine version: 0.98.1
-Scanned directories: 0
-Scanned files: 5
-Infected files: 0
-Data scanned: 0.02 MB
-Data <span class="nb">read</span>: 0.01 MB <span class="o">(</span>ratio 2.50:1<span class="o">)</span>
-Time: 6.441 sec <span class="o">(</span><span class="m">0</span> m <span class="m">6</span> s<span class="o">)</span></code></pre></div>
-
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2014-09-07T00:00:00-04:00"><a href="/creating-a-blog-2/">September 07, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~8 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/creating-a-blog-2/" rel="bookmark" title="Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 2" itemprop="url">Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 2</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>After <a href="../06/creating-a-blog-1.html">part one</a> of this tutorial, we have a development environment setup that’s ready for us to really start making some headway in getting a presentable blog up and running. In this tutorial, I’ll show how I plugged Bootstrap’s example blog theme into my site and also guide through creating a first post.</p>
-
-<h3 id="create-a-default-layout"><strong>Create A Default Layout</strong></h3>
-
-<ul>
-  <li>First, we’ll want to get our code syntax highligting to work. Create a CSS file in the root of your Github repo called pygments.css by issuing: <code>pygmentize -S default -f html &gt; pygments.css</code></li>
-</ul>
-
-<p><strong><em>Note: This step may not be necessary for everyone, but I’ll be including a call to pygments.css in the next step. So if you’re following along step-by-step, it may be worth going ahead and doing this.</em></strong></p>
-
-<ul>
-  <li>Let’s create a default template for all of our pages to use. This is where the special folders that we created in the last tutorial come into play. Change into the _layouts directory and open a file called default.html for editing. I’ve created a basic template that imports the necessary CSS and Javascript files for the Bootstrap example blog. I’m relying on the public URLs for those imports; however, if you want to ensure that they are always functional, you’ll want to download these files manually and import them from a path inside your repo. Add the following to the default.html file:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="nt">&lt;html&gt;</span>
-  <span class="nt">&lt;head&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;utf-8&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">content=</span><span class="s">&#39;text/html; charset=utf-8&#39;</span> <span class="na">http-equiv=</span><span class="s">&#39;Content-Type&#39;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">&#39;X-UA-Compatible&#39;</span> <span class="na">content=</span><span class="s">&#39;IE=edge&#39;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&#39;viewport&#39;</span> <span class="na">content=</span><span class="s">&#39;width=device-width, initial-scale=1.0, maximum-scale=1.0&#39;</span><span class="nt">&gt;</span>
-
-    <span class="nt">&lt;title&gt;</span>{{ site.name }}<span class="nt">&lt;/title&gt;</span>
-
-    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;author&quot;</span> <span class="na">content=</span><span class="s">&quot;{{ site.name }}&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;description&quot;</span> <span class="na">content=</span><span class="s">&quot;{{ site.description }}&quot;</span><span class="nt">&gt;</span>
-
-    <span class="c">&lt;!-- Bootstrap CSS Files --&gt;</span>
-    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;http://getbootstrap.com/examples/blog/blog.css&quot;</span><span class="nt">&gt;</span>
-    
-    <span class="c">&lt;!-- Pygments CSS File for Syntax Highlighting --&gt;</span>
-    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;/pygments.css&quot;</span><span class="nt">&gt;</span>
-
-  <span class="nt">&lt;/head&gt;</span>
-
-  <span class="nt">&lt;body&gt;</span>
-
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;blog-masthead navbar-fixed-top&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;nav</span> <span class="na">class=</span><span class="s">&quot;blog-nav&quot;</span><span class="nt">&gt;</span>
-          <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;blog-nav-item&quot;</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;</span>
-          <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;blog-nav-item&quot;</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span><span class="nt">&gt;</span>About<span class="nt">&lt;/a&gt;</span>
-        <span class="nt">&lt;/nav&gt;</span>
-      <span class="nt">&lt;/div&gt;</span>
-    <span class="nt">&lt;/div&gt;</span>
-
-    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;blog-header&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">&quot;blog-title&quot;</span><span class="nt">&gt;</span>{{site.name}}<span class="nt">&lt;/h1&gt;</span>
-        <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;lead blog-description&quot;</span><span class="nt">&gt;</span>{{site.description}}<span class="nt">&lt;/p&gt;</span>
-      <span class="nt">&lt;/div&gt;</span>
-
-    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;row&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;col-sm-8 blog-main&quot;</span><span class="nt">&gt;</span>
-          {{ content }}
-      <span class="nt">&lt;/div&gt;</span>
-
-    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;col-sm-3 col-sm-offset-1 blog-sidebar&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;sidebar-module sidebar-module-inset&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;h4&gt;</span>About<span class="nt">&lt;/h4&gt;</span>
-        <span class="nt">&lt;p&gt;</span>{{site.about}}<span class="nt">&lt;/p&gt;</span>
-      <span class="nt">&lt;/div&gt;</span>
-      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;sidebar-module sidebar-module-inset&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;h4&gt;</span>Contact Info<span class="nt">&lt;/h4&gt;</span>
-        <span class="nt">&lt;ol</span> <span class="na">class=</span><span class="s">&quot;list-unstyled&quot;</span><span class="nt">&gt;</span>
-          <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span> <span class="na">target=</span><span class="s">&quot;_blank&quot;</span><span class="nt">&gt;</span>Github<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
-          <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span> <span class="na">target=</span><span class="s">&quot;_blank&quot;</span><span class="nt">&gt;</span>LinkedIn<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
-        <span class="nt">&lt;/ol&gt;</span>
-      <span class="nt">&lt;/div&gt;</span>
-    <span class="nt">&lt;/div&gt;</span>
-  <span class="nt">&lt;/div&gt;</span>
-  <span class="nt">&lt;/div&gt;</span>
-
-  <span class="c">&lt;!-- Bootstrap JS Files --&gt;</span>
-  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-
-  <span class="nt">&lt;/body&gt;</span>
-<span class="nt">&lt;/html&gt;</span></code></pre></div>
-
-<h3 id="edit-the-index-page"><strong>Edit The Index Page</strong></h3>
-
-<ul>
-  <li>Let’s tell our index.html page to use our snazzy new layout. Edit your index.html page to look like the following:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-html" data-lang="html">---
-layout: default
----
-
-Hello, World!</code></pre></div>
-
-<p><strong><em>Note: The YAML at the top of this page allows us to specify certain behavior from page to page. For example, we’re telling this page to load our default template. However, if we created another template called foo later on in the future, we could simply change the layout variable to point to the new foo layout.</em></strong></p>
-
-<ul>
-  <li>
-    <p>Refresh the localhost:4000 page in your browser and you should see the new layout load, along with all of the site info that we entered in _config.yml in the last tutorial.
-<a href="/img/posts/2014-09-07-creating-a-blog-2/bootstrap-loaded.png">
-<img src="/img/posts/2014-09-07-creating-a-blog-2/bootstrap-loaded.png" style="max-width:100%; border:solid 1px;" />
-</a></p>
-  </li>
-  <li>
-    <p>Looks good! Now, we’d rather the index page say something other than “Hello, World”. In fact, we want the first thing that people see to be a list of all of the highly interesting and potentially life changing posts that we’ll be making as our blogging continues. Let’s now edit our index.html to look like the following:</p>
-  </li>
-</ul>
-
-<div class="highlight"><pre><code class="language-html" data-lang="html">---
-layout: default
----
-
-{% for post in site.posts %}
-    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;blog-post&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;h2</span> <span class="na">class=</span><span class="s">&quot;blog-post-title&quot;</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span>{{ post.title }}<span class="nt">&lt;/a&gt;&lt;/h2&gt;</span>
-      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;blog-post-meta&quot;</span><span class="nt">&gt;</span>Written {{ post.date | date: &quot;%m.%d.%Y&quot; }} by {{post.author}}<span class="nt">&lt;/p&gt;</span>
-        {{ post.content | truncatewords:40}}  
-      <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;&quot;</span> <span class="na">class=</span><span class="s">&quot;read-more&quot;</span><span class="nt">&gt;</span>Read More<span class="nt">&lt;/a&gt;</span>
-      <span class="nt">&lt;hr&gt;</span>
-    <span class="nt">&lt;/div&gt;</span>
-{% endfor %}</code></pre></div>
-
-<p>This tells Jekyll to run a for-loop before displaying the index.html page. As this loop runs, a div is created for each blog post, along with some info about the post (author, date, etc.). It also truncates the post to 40 words and provides a link to read the full text. A refresh will be pretty blank right now, as there’s not any posts and it looks a bit silly. Let’s create a dummy post to fill things out a bit.</p>
-
-<h3 id="create-a-post"><strong>Create A Post</strong></h3>
-<ul>
-  <li>
-    <p>Creating a post is a bit of pretty cool black magic on Jekyll’s side. It expects a specific type of filename and reside in the _posts directory. So let’s create a file named like YEAR-MONTH-DAY-TITLE.md. At the time of this writing, I’m issuing <code>touch 2014-09-07-hello-post-world.md</code>.</p>
-  </li>
-  <li>
-    <p>Inside that file, we’ll add some YAML configuration to the top to tell it some info about layout, title, and author. Edit the file to look like this and feel free to the author and text to whatever you wish:</p>
-  </li>
-</ul>
-
-<div class="highlight"><pre><code class="language-text" data-lang="text">---
-layout: posts
-author: Spencer
-title: Hello, Post World!
----
-
-Here&#39;s some pretty incredible text to prove that it actually shows up in our index page and I&#39;ll continue rambling here in hopes that I hit forty words and the post gets truncated. That will allow us to see the &quot;Read More&quot; link appear on our post.</code></pre></div>
-
-<ul>
-  <li>Refresh the localhost:4000 page and you’ll see your first post appear!
-<a href="/img/posts/2014-09-07-creating-a-blog-2/first-post.png">
-<img src="/img/posts/2014-09-07-creating-a-blog-2/first-post.png" style="max-width:100%; border:solid 1px;" />
-</a></li>
-</ul>
-
-<p>Nice! Until you click the “Read More” or the title of the post. There’s no posts.html in _layouts, which is what we specified at the top of our file just a second ago. We can’t really use the default layout we created, because it’s missing a couple of things like post title and a back button that we’d want on single posts, but not on the main page.</p>
-
-<h3 id="create-a-layout-for-posts"><strong>Create A Layout For Posts</strong></h3>
-<ul>
-  <li>Create a file called posts.html and place it in the _layouts directory. Populate the file with the following:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="nt">&lt;html&gt;</span>
-  <span class="nt">&lt;head&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;utf-8&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">content=</span><span class="s">&#39;text/html; charset=utf-8&#39;</span> <span class="na">http-equiv=</span><span class="s">&#39;Content-Type&#39;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">&#39;X-UA-Compatible&#39;</span> <span class="na">content=</span><span class="s">&#39;IE=edge&#39;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&#39;viewport&#39;</span> <span class="na">content=</span><span class="s">&#39;width=device-width, initial-scale=1.0, maximum-scale=1.0&#39;</span><span class="nt">&gt;</span>
-
-    <span class="nt">&lt;title&gt;</span>{{ site.name }}<span class="nt">&lt;/title&gt;</span>
-
-    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;author&quot;</span> <span class="na">content=</span><span class="s">&quot;{{ site.name }}&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;description&quot;</span> <span class="na">content=</span><span class="s">&quot;{{ site.description }}&quot;</span><span class="nt">&gt;</span>
-
-    <span class="c">&lt;!-- Latest compiled and minified CSS --&gt;</span>
-    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css&quot;</span><span class="nt">&gt;</span>
-
-    <span class="c">&lt;!-- Optional theme --&gt;</span>
-    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;http://getbootstrap.com/examples/blog/blog.css&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;/pygments.css&quot;</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;/head&gt;</span>
-
-  <span class="nt">&lt;body&gt;</span>
-
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;blog-masthead navbar-fixed-top&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;nav</span> <span class="na">class=</span><span class="s">&quot;blog-nav&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;blog-nav-item&quot;</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;blog-nav-item&quot;</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span><span class="nt">&gt;</span>About<span class="nt">&lt;/a&gt;</span>
-      <span class="nt">&lt;/nav&gt;</span>
-    <span class="nt">&lt;/div&gt;</span>
-  <span class="nt">&lt;/div&gt;</span>
-
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;blog-header&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">&quot;blog-title&quot;</span><span class="nt">&gt;</span>{{site.name}}<span class="nt">&lt;/h1&gt;</span>
-      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;lead blog-description&quot;</span><span class="nt">&gt;</span>{{site.description}}<span class="nt">&lt;/p&gt;</span>
-    <span class="nt">&lt;/div&gt;</span>
-
-    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;row&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;col-sm-8 blog-main&quot;</span><span class="nt">&gt;</span>
-          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;blog-post&quot;</span><span class="nt">&gt;</span>   
-            <span class="nt">&lt;h2</span> <span class="na">class=</span><span class="s">&quot;blog-post-title&quot;</span><span class="nt">&gt;</span>{{ page.title }}<span class="nt">&lt;/h2&gt;</span>
-            <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;blog-post-meta&quot;</span><span class="nt">&gt;</span>Written {{ page.date | date: &quot;%m.%d.%Y&quot; }} by {{page.author}}<span class="nt">&lt;/p&gt;</span>
-            <span class="nt">&lt;hr&gt;</span>
-              {{content}}
-            <span class="nt">&lt;hr&gt;</span>
-            <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span><span class="err">&lt;</span><span class="nt">&lt; Back</span><span class="err">&lt;/</span><span class="na">a</span><span class="nt">&gt;</span>
-          <span class="nt">&lt;/div&gt;</span>
-      <span class="nt">&lt;/div&gt;</span>
-
-      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;col-sm-3 col-sm-offset-1 blog-sidebar&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;sidebar-module sidebar-module-inset&quot;</span><span class="nt">&gt;</span>
-          <span class="nt">&lt;h4&gt;</span>About<span class="nt">&lt;/h4&gt;</span>
-          <span class="nt">&lt;p&gt;</span>{{site.about}}<span class="nt">&lt;/p&gt;</span>
-        <span class="nt">&lt;/div&gt;</span>
-        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;sidebar-module sidebar-module-inset&quot;</span><span class="nt">&gt;</span>
-          <span class="nt">&lt;h4&gt;</span>Contact Info<span class="nt">&lt;/h4&gt;</span>
-          <span class="nt">&lt;ol</span> <span class="na">class=</span><span class="s">&quot;list-unstyled&quot;</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span> <span class="na">target=</span><span class="s">&quot;_blank&quot;</span><span class="nt">&gt;</span>Github<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
-            <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span> <span class="na">target=</span><span class="s">&quot;_blank&quot;</span><span class="nt">&gt;</span>LinkedIn<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
-          <span class="nt">&lt;/ol&gt;</span>
-        <span class="nt">&lt;/div&gt;</span>
-      <span class="nt">&lt;/div&gt;</span>
-
-    <span class="nt">&lt;/div&gt;</span>
-  <span class="nt">&lt;/div&gt;</span>
-
-  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-
-
-  <span class="nt">&lt;/body&gt;</span>
-<span class="nt">&lt;/html&gt;</span></code></pre></div>
-
-<ul>
-  <li>Now, let’s click on a link to our post and see it in all of it’s glory!
-<a href="/img/posts/2014-09-07-creating-a-blog-2/post-layout.png">
-<img src="/img/posts/2014-09-07-creating-a-blog-2/post-layout.png" style="max-width:100%; border:solid 1px;" />
-</a></li>
-</ul>
-
-<h3 id="closing"><strong>Closing</strong></h3>
-<p>Well, that’s pretty much it for how I created my new blog. Now is probably a good time to push all of this to Github and ensure it works properly if you’re following along with these instructions. I hope this has been a helpful write-up and I’m sure I’ll document other cool stuff that I run into as I learn to use Jekyll more effectively. It’s now up to you to create lots and lots of posts on your own blog!</p>
-
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
 
 
 <div class="pagination">
-  
-    
-      <a href="" class="btn">Previous</a>
-    
-  
   <ul class="inline-list">
-    <li>
-      
-        <a href="">1</a>
-      
-    </li>
     
-      <li>
-        
-          <span class="current-page">2</span>
-        
-      </li>
     
-      <li>
+      
+        <li><a href="" class="btn">Previous</a></li>
+      
+    
+
+    
+    
+      <li><a href="">1</a></li>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+        <li><strong class="current-page">2</strong></li>
+      
+    
+      
         
-          <a href="/page3">3</a>
         
-      </li>
+        
+        <li><a href="/page3/">3</a></li>
+      
+    
+
+    
+    
+
+    
+      <li><a href="/page4/">4</a></li>
+    
+
+    
+    
+      <li><a href="/page3/" class="btn">Next</a></li>
     
   </ul>
-  
-    <a href="/page3" class="btn">Next</a>
-  
-</div><!-- /.pagination -->
+</div>
+
 </div><!-- /#main -->
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
   </footer>
 </div><!-- /.footer-wrapper -->
 
@@ -858,6 +793,18 @@ Here&#39;s some pretty incredible text to prove that it actually shows up in our
 <script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 <script src="/assets/js/scripts.min.js"></script>
 
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
 
 
           

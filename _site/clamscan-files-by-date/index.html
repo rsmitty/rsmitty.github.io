@@ -74,6 +74,7 @@
 					<h4>Spencer Smith</h4>
 					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
 				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
 				<li>
 					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
 				</li>
@@ -81,10 +82,10 @@
 				
 				
 				<li>
-					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
 				</li>
 				<li>
-					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
 				</li>
 				
 				
@@ -100,6 +101,12 @@
 			</ul>
 		</li>
 		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
 	</ul><!-- /.dl-menu -->
 </nav><!-- /.dl-menuwrapper -->
 
@@ -118,7 +125,7 @@
         <p class="entry-reading-time">
           <i class="fa fa-clock-o"></i>
           
-          Reading time ~3 minutes
+Reading time ~3 minutes
         </p><!-- /.entry-reading-time -->
         
       </div><!-- /.header-title-wrap -->
@@ -141,10 +148,10 @@
 
 <ul>
   <li>
-    <p>Issue <code>sudo apt-get install clamav</code> to get the freshclam and clamscan commands.</p>
+    <p>Issue <code class="highlighter-rouge">sudo apt-get install clamav</code> to get the freshclam and clamscan commands.</p>
   </li>
   <li>
-    <p>Update the virus definitions with a <code>sudo freshclam</code>. This will take a few seconds the first time.</p>
+    <p>Update the virus definitions with a <code class="highlighter-rouge">sudo freshclam</code>. This will take a few seconds the first time.</p>
   </li>
 </ul>
 
@@ -152,22 +159,22 @@
 
 <p>Now this took a bit of playing around with to get where I wanted. I wanted to find all files of a certain type that had been created or modified in the past week. There’s also some differences to note about mtime vs. ctime vs. atime as a flag for find. <a href="http://www.linux-faqs.info/general/difference-between-mtime-ctime-and-atime">Linux-FAQs.info</a> did a good job of explaining these differences:</p>
 
-<div class="highlight"><pre><code class="language-text" data-lang="text">ctime - ctime is the inode or file change time. The ctime gets updated when the file attributes are changed, like changing the owner, changing the permission or moving the file to an other filesystem but will also be updated when you modify a file.
+<figure class="highlight"><pre><code class="language-text" data-lang="text">ctime - ctime is the inode or file change time. The ctime gets updated when the file attributes are changed, like changing the owner, changing the permission or moving the file to an other filesystem but will also be updated when you modify a file.
 
 mtime - mtime is the file modify time. The mtime gets updated when you modify a file. Whenever you update content of a file or save a file the mtime gets updated.
 
 *Most of the times ctime and mtime will be the same, unless only the file attributes are updated. In that case only the ctime gets updated.*
 
-atime - atime is the file access time. The atime gets updated when you open a file but also when a file is used for other operations like grep, sort, cat, head, tail and so on.</code></pre></div>
+atime - atime is the file access time. The atime gets updated when you open a file but also when a file is used for other operations like grep, sort, cat, head, tail and so on.</code></pre></figure>
 
-<p>For my purposes, I wanted EVERYTHING that had changed, so that pointed to using the ctime flag. For a first test, I just wanted to see how many items find would return. I was able to do that by issuing (edited to look for .md files, just for laughs): <code>sudo find / -name "*.md" -ctime -7 -type f | wc -l</code>. That command simply returns the number 5 on my machine at the time of writing. Let’s not pipe it out to wc so we can see those files:</p>
+<p>For my purposes, I wanted EVERYTHING that had changed, so that pointed to using the ctime flag. For a first test, I just wanted to see how many items find would return. I was able to do that by issuing (edited to look for .md files, just for laughs): <code class="highlighter-rouge">sudo find / -name "*.md" -ctime -7 -type f | wc -l</code>. That command simply returns the number 5 on my machine at the time of writing. Let’s not pipe it out to wc so we can see those files:</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rsmitty@rsmitty-notebook:~<span class="nv">$ </span>sudo find / -name <span class="s2">&quot;*.md&quot;</span> -ctime -7 -type f
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">rsmitty@rsmitty-notebook:~$ </span>sudo find / -name <span class="s2">"*.md"</span> -ctime -7 -type f
 /home/rsmitty/Desktop/usenet-dashboard/README.md
 /home/rsmitty/Desktop/rsmitty.github.io/_posts/2014-09-07-creating-a-blog-2.md
 /home/rsmitty/Desktop/rsmitty.github.io/_posts/2014-09-16-clamscan-files-by-date.md
 /home/rsmitty/.xbmc/addons/service.xbmc.versioncheck/README.md
-/usr/share/xbmc/addons/service.xbmc.versioncheck/README.md</code></pre></div>
+/usr/share/xbmc/addons/service.xbmc.versioncheck/README.md</code></pre></figure>
 
 <p><strong>Note: You’ll have to do almost everything with ClamAV as root user. Also, you can change the number of days to scan for by changing the ‘-7’ portion of the command.</strong></p>
 
@@ -175,11 +182,11 @@ atime - atime is the file access time. The atime gets updated when you open a fi
 
 <h2 id="enter-xargs"><strong>Enter Xargs</strong></h2>
 
-<p>Using xargs was a first for me as part of this little endeavor. It’s a really handy tool to add to the toolbox! If you’ve ever tried to run a bash command like <code>rm *</code> and received an error like “Argument list too long”, xargs is the answer to your problems. It takes the argument list and breaks it down into smaller pieces. It’ll then run subsequent commands with each sublist. For the purposes of what I was doing initally, there were about 7,000 files to scan, xargs was able to break those up into two scans of ~3,000 files and one scan of ~1,000. Worked great!</p>
+<p>Using xargs was a first for me as part of this little endeavor. It’s a really handy tool to add to the toolbox! If you’ve ever tried to run a bash command like <code class="highlighter-rouge">rm *</code> and received an error like “Argument list too long”, xargs is the answer to your problems. It takes the argument list and breaks it down into smaller pieces. It’ll then run subsequent commands with each sublist. For the purposes of what I was doing initally, there were about 7,000 files to scan, xargs was able to break those up into two scans of ~3,000 files and one scan of ~1,000. Worked great!</p>
 
 <p>Here’s the final command that I used:</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo find / -name <span class="s2">&quot;*.md&quot;</span> -ctime -7 -type f -print0 <span class="p">|</span> sudo xargs -0 clamscan --remove --log<span class="o">=</span>/home/rsmitty/clamscan.log</code></pre></div>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo find / -name <span class="s2">"*.md"</span> -ctime -7 -type f -print0 | sudo xargs -0 clamscan --remove --log<span class="o">=</span>/home/rsmitty/clamscan.log</code></pre></figure>
 
 <ul>
   <li>The –remove flag just means that if a vulnerability is found in that file, delete the file immediately.</li>
@@ -188,7 +195,7 @@ atime - atime is the file access time. The atime gets updated when you open a fi
 
 <p>After running, the log file will look something like this:</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rsmitty@rsmitty-notebook:~<span class="nv">$ </span>sudo cat /home/rsmitty/clamscan.log 
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">rsmitty@rsmitty-notebook:~$ </span>sudo cat /home/rsmitty/clamscan.log 
 
 ----------- SCAN SUMMARY -----------
 Known viruses: 3560111
@@ -198,7 +205,7 @@ Scanned files: 5
 Infected files: 0
 Data scanned: 0.02 MB
 Data <span class="nb">read</span>: 0.01 MB <span class="o">(</span>ratio 2.50:1<span class="o">)</span>
-Time: 6.441 sec <span class="o">(</span><span class="m">0</span> m <span class="m">6</span> s<span class="o">)</span></code></pre></div>
+Time: 6.441 sec <span class="o">(</span>0 m 6 s<span class="o">)</span></code></pre></figure>
 
 
       <footer class="entry-meta">
@@ -220,20 +227,20 @@ Time: 6.441 sec <span class="o">(</span><span class="m">0</span> m <span class="
       <a href="/creating-a-blog-2/" class="read-more-btn">Read More</a>
     </div><!-- /.read-more-header -->
     <div class="read-more-content">
-      <h3><a href="/Docker-Machine-and-Openstack/" title="Docker Machine And Openstack">Docker Machine And Openstack</a></h3>
-      <p>layout: postcomments: falseinstall docker machine major version via brew install docker-machinedocker-machine upgradedocker-machine creat...&hellip; <a href="/Docker-Machine-and-Openstack/">Continue reading</a></p>
+      <h3><a href="/Terraform-Ansible-Kubernetes/" title="Deploy Kubernetes w/ Ansible & Terraform">Deploy Kubernetes w/ Ansible & Terraform</a></h3>
+      <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I've recently had some clients that have been interested...&hellip; <a href="/Terraform-Ansible-Kubernetes/">Continue reading</a></p>
     </div><!-- /.read-more-content -->
   
   <div class="read-more-list">
     
       <div class="list-item">
-        <h4><a href="/Installing-Docker/" title="Installing Docker">Installing Docker</a></h4>
-        <span>Published on March 29, 2015</span>
+        <h4><a href="/Containerizing-The-Grid/" title="Containerizing The Grid - BOINC on Docker">Containerizing The Grid - BOINC on Docker</a></h4>
+        <span>Published on August 29, 2015</span>
       </div><!-- /.list-item -->
     
       <div class="list-item">
-        <h4><a href="/Using-Git-with-CFEngine/" title="Using Git Repos with CFEngine">Using Git Repos with CFEngine</a></h4>
-        <span>Published on March 27, 2015</span>
+        <h4><a href="/Creating-A-RancherOS-QCOW/" title="Creating RancherOS Image for OpenStack">Creating RancherOS Image for OpenStack</a></h4>
+        <span>Published on July 15, 2015</span>
       </div><!-- /.list-item -->
     
   </div><!-- /.read-more-list -->
@@ -243,7 +250,7 @@ Time: 6.441 sec <span class="o">(</span><span class="m">0</span> m <span class="
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
   </footer>
 </div><!-- /.footer-wrapper -->
 
@@ -251,6 +258,18 @@ Time: 6.441 sec <span class="o">(</span><span class="m">0</span> m <span class="
 <script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 <script src="/assets/js/scripts.min.js"></script>
 
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
 
 
 	        

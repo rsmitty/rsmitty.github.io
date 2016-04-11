@@ -1,0 +1,409 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Deploy Kubernetes w/ Ansible & Terraform &#8211; Spencer's Blog</title>
+<meta name="description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta name="keywords" content="docker, kubernetes, containers, openstack, ansible, terraform">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Deploy Kubernetes w/ Ansible & Terraform">
+<meta property="og:description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta property="og:url" content="/Terraform-Ansible-Kubernetes/">
+<meta property="og:site_name" content="Spencer's Blog">
+
+
+
+
+
+<link rel="canonical" href="/Terraform-Ansible-Kubernetes/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Spencer's Blog Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="/images/avatar.jpg" alt="Spencer Smith photo" class="author-photo">
+					<h4>Spencer Smith</h4>
+					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
+				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				<li>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+				</li>
+				<li>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="/posts/">All Posts</a></li>
+				<li><a href="/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="/Terraform-Ansible-Kubernetes/" rel="bookmark" title="Deploy Kubernetes w/ Ansible & Terraform">Deploy Kubernetes w/ Ansible & Terraform</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2016-04-11T00:00:00-04:00">April 11, 2016</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~6 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I’ve recently had some clients that have been interested in running Docker containers in a production environment and, after some research and requirement gathering, we came to the conclusion that the functionality that they wanted was not easily provided with the Docker suite of tools. These are things like guaranteeing a number of replicas running at all times, easily creating endpoints and load balancers for the replicas created, and enabling more complex deployment methodologies like blue/green or rolling updates.</p>
+
+<p>As it turns out, all of this stuff is included to some extent or another with Kubernetes and we were able to recommend that they explore this option to see how it works out for them. Of course, recommending is the easy part, while implementation is decidedly more complex. The desire for the proof of concept was to enable multi-cloud deployments of Kubernetes, while also remaining within their pre-chosen set of tools like Amazon AWS, OpenStack, CentOS, Ansible, etc.. To accomplish this, we were able to create a Kubernetes deployment using Hashicorp’s Terraform, Ansible, OpenStack, and Amazon. This post will talk a bit about how to roll your own cluster by adapting what I’ve seen.</p>
+
+<h2 id="why-would-i-want-to-do-this"><strong>Why Would I Want to do This?</strong></h2>
+
+<p>This is totally a valid question. And the answer here is that you don’t… if you can help it. There are easier and more fully featured ways to deploy Kubernetes if you have open game on the tools to choose. As a recommendation, I would say that using Google Container Engine is by far the most supported and pain-free way to get started with Kubernetes. Following that, I would recommend using Amazon AWS and CoreOS as your operating system. Again, lots of people using these tools means that bugs and gotchas are well documented and easier to deal with. It should also be noted that there are OpenStack built-ins to create Kubernetes clusters, such as <a href="https://wiki.openstack.org/wiki/Magnum" target="_blank">Magnum</a>. Again, if you’re a one-cloud shop, this is likely easier than rolling your own.</p>
+
+<p>Alas, here we are and we’ll search for a way to get it done!</p>
+
+<h2 id="what-pieces-are-in-play"><strong>What Pieces are in Play?</strong></h2>
+<p>For the purposes of this walkthrough, there will be four pieces that you’ll need to understand:</p>
+
+<ul>
+  <li><strong>OpenStack</strong> - An infrastructure as a service cloud platform. I’ll be using this in lieu of Amazon.</li>
+  <li><strong>Terraform</strong> - Terraform allows for automated creation of servers, external IPs, etc. across a multitude of cloud environments. This was a key choice to allow for a seamless transition to creating resources in both Amazon and OpenStack.</li>
+  <li><strong>Ansible</strong> - Ansible is a configuration management platform that automates things like package installation and config file setup. We will use a set of Ansible playbooks called <a href="https://github.com/kubespray/kargo" target="_blank">KubeSpray Kargo</a> to setup Kubernetes.</li>
+  <li><strong>Kubernetes</strong> - And finally we get to K8s! All of the tools above will come together to give us a fully functioning cluster.</li>
+</ul>
+
+<h2 id="clone-kubesprays-kargo"><strong>Clone KubeSpray’s Kargo</strong></h2>
+<p>First we’ll want to pull down the Ansible playbooks we want to use.</p>
+
+<ul>
+  <li>
+    <p>If you’ve never installed Ansible, it’s quite easy on a Mac with <code class="highlighter-rouge">brew install ansible</code>. Other instructions <a href="http://docs.ansible.com/ansible/intro_installation.html" target="_blank">can be found here</a>.</p>
+  </li>
+  <li>
+    <p>Ensure git is also installed with <code class="highlighter-rouge">brew install git</code>.</p>
+  </li>
+  <li>
+    <p>Create a directory for all of your deployment files and change into that directory. I called mine ‘terra-spray’.</p>
+  </li>
+  <li>
+    <p>Issue <code class="highlighter-rouge">git clone git@github.com:kubespray/kargo.git</code>. A new directory called kargo will be created with the playbooks:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:terra-spray spencer<span class="nv">$ </span>ls -lah
+total 104
+drwxr-xr-x  13 spencer  staff   442B Apr  6 12:48 .
+drwxr-xr-x  12 spencer  staff   408B Apr  5 16:45 ..
+drwxr-xr-x  15 spencer  staff   510B Apr  5 16:55 kargo</code></pre></figure>
+
+<ul>
+  <li>Note that there are a plethora of different options available with Kargo. I highly recommend spending some time reading up on the project and the different playbooks out there in order to deploy the specific cluster type you may need.</li>
+</ul>
+
+<h2 id="create-terraform-templates"><strong>Create Terraform Templates</strong></h2>
+<p>We want to create two terraform templates, the first will create our OpenStack infrastructure, while the second will create an Ansible inventory file for kargo to use. Additionally, we will create a variable file where we can populate our desired OpenStack variables as needed. The Terraform syntax can look a bit daunting at first, but it starts to make sense as we look at it more and see it in action.</p>
+
+<ul>
+  <li>
+    <p>Create all files with <code class="highlighter-rouge">touch 00-create-k8s-nodes.tf 01-create-inv.tf terraform.tfvars</code> The <code class="highlighter-rouge">.tf</code> and <code class="highlighter-rouge">.tfvars</code> extension are terraform specific extensions.</p>
+  </li>
+  <li>
+    <p>In the variables file, <code class="highlighter-rouge">terraform.tfvars</code>, populate with the following information and update the variables to reflect your OpenStack installation:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">node-count<span class="o">=</span><span class="s2">"2"</span>
+internal-ip-pool<span class="o">=</span><span class="s2">"private"</span>
+floating-ip-pool<span class="o">=</span><span class="s2">"public"</span>
+image-name<span class="o">=</span><span class="s2">"Ubuntu-14.04.2-LTS"</span>
+image-flavor<span class="o">=</span><span class="s2">"m1.small"</span>
+security-groups<span class="o">=</span><span class="s2">"default,k8s-cluster"</span>
+key-pair<span class="o">=</span><span class="s2">"spencer-key"</span></code></pre></figure>
+
+<ul>
+  <li>Now we want to create our Kubernetes master and nodes using the variables described above. Open <code class="highlighter-rouge">00-create-k8s-nodes.tf</code> and add the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Setup needed variables</span>
+variable <span class="s2">"node-count"</span> <span class="o">{}</span>
+variable <span class="s2">"internal-ip-pool"</span> <span class="o">{}</span>
+variable <span class="s2">"floating-ip-pool"</span> <span class="o">{}</span>
+variable <span class="s2">"image-name"</span> <span class="o">{}</span>
+variable <span class="s2">"image-flavor"</span> <span class="o">{}</span>
+variable <span class="s2">"security-groups"</span> <span class="o">{}</span>
+variable <span class="s2">"key-pair"</span> <span class="o">{}</span>
+
+<span class="c">##Create a single master node and floating IP</span>
+resource <span class="s2">"openstack_compute_floatingip_v2"</span> <span class="s2">"master-ip"</span> <span class="o">{</span>
+  pool <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.floating-ip-pool</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+
+resource <span class="s2">"openstack_compute_instance_v2"</span> <span class="s2">"k8s-master"</span> <span class="o">{</span>
+  name <span class="o">=</span> <span class="s2">"k8s-master"</span>
+  image_name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.image-name</span><span class="k">}</span><span class="s2">"</span>
+  flavor_name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.image-flavor</span><span class="k">}</span><span class="s2">"</span>
+  key_pair <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.key-pair</span><span class="k">}</span><span class="s2">"</span>
+  security_groups <span class="o">=</span> <span class="o">[</span><span class="s2">"</span><span class="k">${</span><span class="nv">split</span><span class="p">(</span><span class="s2">","</span><span class="p">, var.security-groups)</span><span class="k">}</span><span class="s2">"</span><span class="o">]</span>
+  network <span class="o">{</span>
+    name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.internal-ip-pool</span><span class="k">}</span><span class="s2">"</span>
+  <span class="o">}</span>
+  floating_ip <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">openstack_compute_floatingip_v2</span><span class="p">.master-ip.address</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+
+<span class="c">##Create desired number of k8s nodes and floating IPs</span>
+resource <span class="s2">"openstack_compute_floatingip_v2"</span> <span class="s2">"node-ip"</span> <span class="o">{</span>
+  pool <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.floating-ip-pool</span><span class="k">}</span><span class="s2">"</span>
+  count <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.node-count</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+
+resource <span class="s2">"openstack_compute_instance_v2"</span> <span class="s2">"k8s-node"</span> <span class="o">{</span>
+  count <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.node-count</span><span class="k">}</span><span class="s2">"</span>
+  name <span class="o">=</span> <span class="s2">"k8s-node-</span><span class="k">${</span><span class="nv">count</span><span class="p">.index</span><span class="k">}</span><span class="s2">"</span>
+  image_name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.image-name</span><span class="k">}</span><span class="s2">"</span>
+  flavor_name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.image-flavor</span><span class="k">}</span><span class="s2">"</span>
+  key_pair <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.key-pair</span><span class="k">}</span><span class="s2">"</span>
+  security_groups <span class="o">=</span> <span class="o">[</span><span class="s2">"</span><span class="k">${</span><span class="nv">split</span><span class="p">(</span><span class="s2">","</span><span class="p">, var.security-groups)</span><span class="k">}</span><span class="s2">"</span><span class="o">]</span>
+  network <span class="o">{</span>
+    name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.internal-ip-pool</span><span class="k">}</span><span class="s2">"</span>
+  <span class="o">}</span>
+  floating_ip <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">element</span><span class="p">(openstack_compute_floatingip_v2.node-ip.*.address, count.index)</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li>Now, with what we have here, our infrastructure is provisioned on OpenStack. However, we want to get the information about our infrastructure into the Kargo playbooks to use as its Ansible inventory. Add the following to <code class="highlighter-rouge">01-create-inventory.tf</code>:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">resource <span class="s2">"null_resource"</span> <span class="s2">"ansible-provision"</span> <span class="o">{</span>
+
+  depends_on <span class="o">=</span> <span class="o">[</span><span class="s2">"openstack_compute_instance_v2.k8s-master"</span>,<span class="s2">"openstack_compute_instance_v2.k8s-node"</span><span class="o">]</span>
+
+  <span class="c">##Create Masters Inventory</span>
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"</span><span class="s2">[kube-master]</span><span class="se">\n</span><span class="k">${</span><span class="nv">openstack_compute_instance_v2</span><span class="p">.k8s-master.name</span><span class="k">}</span><span class="s2"> ansible_ssh_host=</span><span class="k">${</span><span class="nv">openstack_compute_floatingip_v2</span><span class="p">.master-ip.address</span><span class="k">}</span><span class="se">\"</span><span class="s2"> &gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+
+  <span class="c">##Create ETCD Inventory</span>
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"\n</span><span class="s2">[etcd]</span><span class="se">\n</span><span class="k">${</span><span class="nv">openstack_compute_instance_v2</span><span class="p">.k8s-master.name</span><span class="k">}</span><span class="s2"> ansible_ssh_host=</span><span class="k">${</span><span class="nv">openstack_compute_floatingip_v2</span><span class="p">.master-ip.address</span><span class="k">}</span><span class="se">\"</span><span class="s2"> &gt;&gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+
+  <span class="c">##Create Nodes Inventory</span>
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"\n</span><span class="s2">[kube-node]</span><span class="se">\"</span><span class="s2"> &gt;&gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"</span><span class="k">${</span><span class="nv">join</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,formatlist(</span><span class="s2">"%s ansible_ssh_host=%s"</span><span class="p">, openstack_compute_instance_v2.k8s-node.*.name, openstack_compute_floatingip_v2.node-ip.*.address))</span><span class="k">}</span><span class="se">\"</span><span class="s2"> &gt;&gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"\n</span><span class="s2">[k8s-cluster:children]</span><span class="se">\n</span><span class="s2">kube-node</span><span class="se">\n</span><span class="s2">kube-master</span><span class="se">\"</span><span class="s2"> &gt;&gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>This template certainly looks a little confusing, but what is happening is that Terraform is taking the information for the created Kubernetes masters and nodes and outputting the hostnames and IP addresses into the Ansible inventory format at a local path of ./kargo/inventory/inventory. A sample output looks like:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>kube-master]
+k8s-master <span class="nv">ansible_ssh_host</span><span class="o">=</span>xxx.xxx.xxx.xxx
+
+<span class="o">[</span>etcd]
+k8s-master <span class="nv">ansible_ssh_host</span><span class="o">=</span>xxx.xxx.xxx.xxx
+
+<span class="o">[</span>kube-node]
+k8s-node-0 <span class="nv">ansible_ssh_host</span><span class="o">=</span>xxx.xxx.xxx.xxx
+k8s-node-1 <span class="nv">ansible_ssh_host</span><span class="o">=</span>xxx.xxx.xxx.xxx
+
+<span class="o">[</span>k8s-cluster:children]
+kube-node
+kube-master</code></pre></figure>
+
+<h2 id="setup-openstack"><strong>Setup OpenStack</strong></h2>
+
+<p>You may have noticed in the Terraform section that we attached a <code class="highlighter-rouge">k8s-cluster</code> security group in our variables file. You will need to set this security group up to allow for the necessary ports used by Kubernetes. Follow <a href="https://coreos.com/kubernetes/docs/latest/kubernetes-networking.html#port-allocation" target="_blank">this</a> list and enter them into Horizon.</p>
+
+<h2 id="hold-on-to-ya-butts"><strong>Hold On To Ya Butts!</strong></h2>
+
+<p>Now that Terraform is setup, we <em>should</em> be able to launch our cluster and have it provision using the Kargo playbooks we checked out. But first, one small BASH script to ensure things run in the proper order.</p>
+
+<ul>
+  <li>Create a file called <code class="highlighter-rouge">cluster-up.sh</code> and open it for editing. Paste the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/bash</span>
+
+<span class="c">##Create infrastructure and inventory file</span>
+<span class="nb">echo</span> <span class="s2">"Creating infrastructure"</span>
+terraform apply
+
+<span class="c">##Run Ansible playbooks</span>
+<span class="nb">echo</span> <span class="s2">"Quick sleep while instances spin up"</span>
+sleep 120
+<span class="nb">echo</span> <span class="s2">"Ansible provisioning"</span>
+<span class="nv">ANSIBLE_HOST_KEY_CHECKING</span><span class="o">=</span>False ansible-playbook -i kargo/inventory/inventory -u ubuntu -b kargo/cluster.yml</code></pre></figure>
+
+<p>You’ll notice I included a two minute sleep to take care of some of the time when the nodes created by Terraform weren’t quite ready for an SSH session when Ansible started reaching out to them. Finally, update the <code class="highlighter-rouge">-u</code> flag in the ansible-playbook command to the user that has SSH access to the OpenStack instances you have created. I used <code class="highlighter-rouge">ubuntu</code> because that’s the default SSH user for Ubuntu cloud images.</p>
+
+<ul>
+  <li>
+    <p>Source your OpenStack credentials file with <code class="highlighter-rouge">source /path/to/credfile.sh</code></p>
+  </li>
+  <li>
+    <p>Launch the cluster with <code class="highlighter-rouge">./cluster-up.sh</code>. The Ansible deployment will take quite a bit of time as the necessary packages are downloaded and setup.</p>
+  </li>
+  <li>
+    <p>Assuming all goes as planned, SSH into your Kubernetes master and issue <code class="highlighter-rouge">kubectl get-nodes</code>:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">ubuntu@k8s-master:~$ </span>kubectl get nodes
+NAME         STATUS    AGE
+k8s-node-0   Ready     1m
+k8s-node-1   Ready     1m</code></pre></figure>
+
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="/tags/#docker" title="Pages tagged docker" class="tag"><span class="term">docker</span></a><a href="/tags/#kubernetes" title="Pages tagged kubernetes" class="tag"><span class="term">kubernetes</span></a><a href="/tags/#containers" title="Pages tagged containers" class="tag"><span class="term">containers</span></a><a href="/tags/#openstack" title="Pages tagged openstack" class="tag"><span class="term">openstack</span></a><a href="/tags/#ansible" title="Pages tagged ansible" class="tag"><span class="term">ansible</span></a><a href="/tags/#terraform" title="Pages tagged terraform" class="tag"><span class="term">terraform</span></a></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/Terraform-Ansible-Kubernetes/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/Terraform-Ansible-Kubernetes/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=/Terraform-Ansible-Kubernetes/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="/Containerizing-The-Grid/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="/Containerizing-The-Grid/" title="Containerizing The Grid - BOINC on Docker">Containerizing The Grid - BOINC on Docker</a></h3>
+      <p>Today, we’ll go on yet another trip through container land. I’ve found myself itching to throw anything and everything that I may run on ...&hellip; <a href="/Containerizing-The-Grid/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="/Creating-A-RancherOS-QCOW/" title="Creating RancherOS Image for OpenStack">Creating RancherOS Image for OpenStack</a></h4>
+        <span>Published on July 15, 2015</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="/Removing-Cruft-From-Docker/" title="Removing Cruft From Docker">Removing Cruft From Docker</a></h4>
+        <span>Published on July 10, 2015</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
+
+
+	        
+
+</body>
+</html>

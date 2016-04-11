@@ -16,7 +16,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Latest Posts">
 <meta property="og:description" content="Describe this nonsense.">
-<meta property="og:url" content="/index.html">
+<meta property="og:url" content="/">
 <meta property="og:site_name" content="Spencer's Blog">
 
 
@@ -74,6 +74,7 @@
 					<h4>Spencer Smith</h4>
 					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
 				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
 				<li>
 					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
 				</li>
@@ -81,10 +82,10 @@
 				
 				
 				<li>
-					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
 				</li>
 				<li>
-					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
 				</li>
 				
 				
@@ -100,6 +101,12 @@
 			</ul>
 		</li>
 		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
 	</ul><!-- /.dl-menu -->
 </nav><!-- /.dl-menuwrapper -->
 
@@ -125,519 +132,794 @@
   <header>
     
     <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-04-22T00:00:00-04:00"><a href="/Docker-Machine-and-Openstack/">April 22, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      <span class="entry-date date published updated"><time datetime="2016-04-11T00:00:00-04:00"><a href="/Terraform-Ansible-Kubernetes/">April 11, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
       
       <span class="entry-reading-time">
         <i class="fa fa-clock-o"></i>
         
-        Reading time ~1 minute
+Reading time ~6 minutes
       </span><!-- /.entry-reading-time -->
       
     </div><!-- /.entry-meta -->
     
-      <h1 class="entry-title"><a href="/Docker-Machine-and-Openstack/" rel="bookmark" title="Docker Machine And Openstack" itemprop="url">Docker Machine And Openstack</a></h1>
+      <h1 class="entry-title"><a href="/Terraform-Ansible-Kubernetes/" rel="bookmark" title="Deploy Kubernetes w/ Ansible & Terraform" itemprop="url">Deploy Kubernetes w/ Ansible & Terraform</a></h1>
     
   </header>
   <div class="entry-content">
-    <p>layout: post
-comments: false</p>
+    <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I’ve recently had some clients that have been interested in running Docker containers in a production environment and, after some research and requirement gathering, we came to the conclusion that the functionality that they wanted was not easily provided with the Docker suite of tools. These are things like guaranteeing a number of replicas running at all times, easily creating endpoints and load balancers for the replicas created, and enabling more complex deployment methodologies like blue/green or rolling updates.</p>
 
-<p>install docker machine major version via brew install docker-machine</p>
+<p>As it turns out, all of this stuff is included to some extent or another with Kubernetes and we were able to recommend that they explore this option to see how it works out for them. Of course, recommending is the easy part, while implementation is decidedly more complex. The desire for the proof of concept was to enable multi-cloud deployments of Kubernetes, while also remaining within their pre-chosen set of tools like Amazon AWS, OpenStack, CentOS, Ansible, etc.. To accomplish this, we were able to create a Kubernetes deployment using Hashicorp’s Terraform, Ansible, OpenStack, and Amazon. This post will talk a bit about how to roll your own cluster by adapting what I’ve seen.</p>
 
-<p>docker-machine upgrade</p>
+<h2 id="why-would-i-want-to-do-this"><strong>Why Would I Want to do This?</strong></h2>
 
-<p>docker-machine create –driver openstack –openstack-ssh-user ubuntu –openstack-image-id 058ddc43-b871-4ac2-a067-d62194b35174 –openstack-flavor-name m1.small –openstack-floatingip-pool net04_ext –openstack-sec-groups default test</p>
+<p>This is totally a valid question. And the answer here is that you don’t… if you can help it. There are easier and more fully featured ways to deploy Kubernetes if you have open game on the tools to choose. As a recommendation, I would say that using Google Container Engine is by far the most supported and pain-free way to get started with Kubernetes. Following that, I would recommend using Amazon AWS and CoreOS as your operating system. Again, lots of people using these tools means that bugs and gotchas are well documented and easier to deal with. It should also be noted that there are OpenStack built-ins to create Kubernetes clusters, such as <a href="https://wiki.openstack.org/wiki/Magnum" target="_blank">Magnum</a>. Again, if you’re a one-cloud shop, this is likely easier than rolling your own.</p>
 
-<p>eval “$(docker-machine env test2)”</p>
+<p>Alas, here we are and we’ll search for a way to get it done!</p>
 
-<p>Spencers-MBP:apache spencer$ cat Dockerfile
-# This is a comment
-FROM ubuntu:14.04
-MAINTAINER Spencer Smith <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#114;&#111;&#098;&#101;&#114;&#116;&#115;&#112;&#101;&#110;&#099;&#101;&#114;&#115;&#109;&#105;&#116;&#104;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;">&#114;&#111;&#098;&#101;&#114;&#116;&#115;&#112;&#101;&#110;&#099;&#101;&#114;&#115;&#109;&#105;&#116;&#104;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;</a>
-RUN apt-get update
-RUN apt-get install -y apache2</p>
-
-<p>docker build -t rsmitty/apache .</p>
-
-<p>docker push rsmitty/apache</p>
-
-<p>docker run -d -p 80:80 rsmitty/apache /usr/sbin/apache2ctl -D FOREGROUND</p>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-03-29T00:00:00-04:00"><a href="/Installing-Docker/">March 29, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/Installing-Docker/" rel="bookmark" title="Installing Docker" itemprop="url">Installing Docker</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>Today, I’m going to detail my steps for installing Docker. Docker is an extension of Linux Containers (LXC) and aims to provide an easier to use environment. This will just be a basic install guide and I will write another post soon, once I figure out how to do some more interesting stuff.</p>
-
-<p>Docker and LXC are interesting because you can run several isolated containers directly in userspace on a Linux host. One of the big advantages here is that no hypervisor is required and you don’t need a guest OS like with VMs. This means that containers can be created scarily fast and should be more performant than their VM counterparts. I’ve seen some debate about whether or not containers are as secure as plain VMs, but truthfully haven’t delved too deeply into the details around this. Docker is a project I’ve been following at a high level for a while because of the potential to hook it into Openstack, but I’m just now getting around to actually putting my hands on it.</p>
-
-<h2 id="setup-a-host"><strong>Setup a Host</strong></h2>
-<p>Setting up a host for your Docker containers is pretty easy. Docker is able to run on pretty much any environment. I’m going to use Vagrant CentOS 6.5 box, but you can find other install instructions <a href="https://docs.docker.com/installation/#installation">here</a>.</p>
+<h2 id="what-pieces-are-in-play"><strong>What Pieces are in Play?</strong></h2>
+<p>For the purposes of this walkthrough, there will be four pieces that you’ll need to understand:</p>
 
 <ul>
-  <li>Docker is part of the EPEL repo, so let’s install that with:</li>
+  <li><strong>OpenStack</strong> - An infrastructure as a service cloud platform. I’ll be using this in lieu of Amazon.</li>
+  <li><strong>Terraform</strong> - Terraform allows for automated creation of servers, external IPs, etc. across a multitude of cloud environments. This was a key choice to allow for a seamless transition to creating resources in both Amazon and OpenStack.</li>
+  <li><strong>Ansible</strong> - Ansible is a configuration management platform that automates things like package installation and config file setup. We will use a set of Ansible playbooks called <a href="https://github.com/kubespray/kargo" target="_blank">KubeSpray Kargo</a> to setup Kubernetes.</li>
+  <li><strong>Kubernetes</strong> - And finally we get to K8s! All of the tools above will come together to give us a fully functioning cluster.</li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo yum -y install epel-release</code></pre></div>
-
-<ul>
-  <li>Once that’s complete, let’s update all or our packages. I found that I couldn’t start the Docker daemon without updating. There’s a device mapper package that has to be a newer version. After doing this, we can simply install Docker with:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo yum -y update
-sudo yum -y install docker-io</code></pre></div>
-
-<ul>
-  <li>Start the Docker daemon and configure it to run at boot:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo service docker start
-sudo chkconfig docker on</code></pre></div>
-
-<ul>
-  <li>Pull in the CentOS 6 base container. This may take a bit of time depending on your internet connection.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo docker pull centos:centos6</code></pre></div>
-
-<ul>
-  <li>Now let’s test that it works by asking docker to run a command inside a container. The run command below will create a container, issue the echo command, then shut the container down.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo docker run centos:centos6 <span class="nb">echo</span> <span class="s2">&quot;Hola, Mundo!&quot;</span></code></pre></div>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-03-27T00:00:00-04:00"><a href="/Using-Git-with-CFEngine/">March 27, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/Using-Git-with-CFEngine/" rel="bookmark" title="Using Git Repos with CFEngine" itemprop="url">Using Git Repos with CFEngine</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>This guide will detail how to write a CFEngine promise that will retrieve a git repo from a remote repository. In my previous <a href="http://rsmitty.github.io/2015/03/27/Hosting-Git-Repos.html">guide</a>, I showed how to create said git repository and enable remote connections to it with SSH keys.</p>
-
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-03-27T00:00:00-04:00"><a href="/Hosting-Git-Repos/">March 27, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~2 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/Hosting-Git-Repos/" rel="bookmark" title="Hosting Git Repos" itemprop="url">Hosting Git Repos</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>This post will detail how to host git repos on a server that you own. I’ll be covering how to set up your sever-side repo and then how to connect from a remote machine via SSH.</p>
-
-<h2 id="setup-our-server"><strong>Setup Our Server</strong></h2>
-<ul>
-  <li>First and foremost, we’ll need to install git. This is going to depend on your package manager, but I’m using CentOS right now, so I’ll be issuing</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo yum install -y git</code></pre></div>
-
-<ul>
-  <li>Now we’ll need to add a user to our system for git. Let’s do that and then switch to that user with:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo useradd git
-sudo su - git</code></pre></div>
-
-<ul>
-  <li>Now that we are the git user, we can setup the SSH keys that we want to accept by making the authorized keys file and putting the public keys of each user we want to have access in this file. After creating this directory and file, we need to set the permissions on them properly or SSH will complain.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">mkdir -p ~/.ssh
-touch ~/.ssh/authorized_keys
-chmod <span class="m">700</span> ~/.ssh
-chmod <span class="m">600</span> ~/.ssh/authorized_keys</code></pre></div>
-
-<ul>
-  <li>Add the desired public SSH keys in authorized keys. You can add several of these if you have a desire for several users to have access to this git repo. Just separate the keys by putting them on a new line. This should look something like:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHytEnXVEiGKu6XVDh/evJhM5ANngMeRJiizr6jsiOmWyMtuuqtGi/84EDQ54OOwDlBfdC72YjPaYEafyez8fYls7M2L82P2Ka96hFapUWwF9TzxAw1yEkV81Rv2OZWpAdf451UCZPClludtym0DyGwZdMGfVJx8ZNPJ61lwx5ijwWQvY4dhZF0Hjo431c9d1mgOLxu94WJ15PC6CjAI9zh/zddmJMHgClkqTuGWWf/t3e/SZ8AJ5ABUtcjPutUdJBGvPI814eD3+JgE18D6AiHN/uWm0JLYx5P06htqb2Eb6uAsCJjTIDyl+I0bOYRUp8PlYzJALv+x8RxP1R35Wr rsmitty@github.com</code></pre></div>
-
-<h2 id="create-git-repo"><strong>Create Git Repo</strong></h2>
-
-<ul>
-  <li>It’s time to finally create our git repo. Let’s create an easy directory called /git/ and a subdirectory under that for our test project. We need to switch back to our normal user (with sudo ability) to create a directory at the root. You can do that simply by issuing ‘exit’.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo mkdir -p /git/testproject.git
-sudo chown -R git:git /git</code></pre></div>
-
-<ul>
-  <li>Now, back as the git user, initialize the git repo by using the ‘git init’ command inside that directory:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd</span> /git/testproject.git
-git init --bare</code></pre></div>
-
-<h2 id="test-it-out"><strong>Test It Out</strong></h2>
-
-<ul>
-  <li>Back on your local machine, let’s verify that this is actually working for us. This should be as simple as doing a git clone to the proper path on the remote server:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">git clone git@GITSERVERNAME:/git/testproject.git</code></pre></div>
-
-<ul>
-  <li>Change into the local testproject directory and create a file for our first commit:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">touch README.md</code></pre></div>
-
-<ul>
-  <li>Let’s add, commit, and push the file up.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">git add README.md
-git commit -m <span class="s2">&quot;initial commit&quot;</span>
-git push origin master</code></pre></div>
-
-<p>Now we’ve got a fully functional git repo with a master branch. All ready to go!</p>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-02-17T00:00:00-05:00"><a href="/Using-rerun/">February 17, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~8 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/Using-rerun/" rel="bookmark" title="Using Rerun" itemprop="url">Using Rerun</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>Today’s post will go into some detail on getting started with
-<a href="https://rerun.github.io/rerun/">Rerun</a>.
-Rerun is a tool that’s kind of meant to bridge the gap between having a
-bunch of sysadmin scripts and a full-blown configuration management tool.
-The truth is that a lot of times, groups have a bunch of bash scripts
-that can perform differently on different machines or exist in several different
-versions. This makes it hard to ensure that you’re always using the right one,
-the right flags are being passed, etc., etc. Rerun sets out to help wrangle your
-shell scripts and present them as something super easy to use.</p>
-
-<h2 id="install-rerun"><strong>Install Rerun</strong></h2>
-<ul>
-  <li>Installing Rerun is really just a ‘git clone’ and then adding a bunch of
-variables to your .bash_profile. I rolled it all into a script so it can just be
-run (at your own risk). Just issue <code>chmod +x whatever_you_name.sh</code>,
-followed by <code>./whatever_you_name.sh</code>.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/bash</span>
-
-<span class="c">##Checkout Rerun to home directory</span>
-<span class="nb">cd</span> <span class="nv">$HOME</span>
-git clone git://github.com/rerun/rerun.git
-
-<span class="c">##Append rerun particulars to user profile</span>
-cat <span class="s">&lt;&lt; EOF &gt;&gt; $HOME/.bash_profile</span>
-<span class="s">##Begin vars for rerun</span>
-<span class="s">export PATH=$PATH:$HOME/rerun</span>
-<span class="s">export RERUN_MODULES=$HOME/rerun/modules</span>
-<span class="s">[ -r $HOME/rerun/etc/bash_completion.sh ] &amp;&amp; source $HOME/rerun/etc/bash_completion.sh</span>
-<span class="s">[ -t 0 ] &amp;&amp; export RERUN_COLOR=true</span>
-<span class="s">##End vars for rerun</span>
-<span class="s">EOF</span></code></pre></div>
-
-<ul>
-  <li>Exit the terminal and restart, then issue <code>rerun</code> to see if it’s working.
-This should give you a list of the modules installed:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun
-Available modules:
-  stubbs: <span class="s2">&quot;Simple rerun module builder&quot;</span> - 1.2.2</code></pre></div>
-
-<h2 id="create-a-module--command"><strong>Create a Module &amp; Command</strong></h2>
-<p>Now let’s run through the Rerun <a href="https://github.com/rerun/rerun/wiki/Tutorial">tutorial</a>.
-A lot of this part of the post will be a rehashing of that page, with some differences
-here and there to keep myself from just copying/pasting and not actually committing this
-to memory. We will be creating a waitfor module that simply waits for a variety of different
-conditions like ping to be available at a given address, a file to exist, etc..</p>
-
-<ul>
-  <li>Rerun uses a module:command type syntax, where module is kind of the general idea
-of what you’re trying to do, while command is the specifics. So, let’s use the stubbs
-module’s add-module command to create the bones for our waitfor module:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-module --module waitfor --description <span class="s2">&quot;waits for a condition.&quot;</span></code></pre></div>
-
-<ul>
-  <li>Okay, now let’s add a ping command to our waitfor module with</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-command --module waitfor --command ping --description <span class="s2">&quot;wait for ping response from address&quot;</span></code></pre></div>
-
-<p><em>Note that this command creates both a script and a test.sh file. script is what
-will actually get run, the test file is for us to write a test plan.</em></p>
-
-<ul>
-  <li>For ping, we’ll want to add a host and an interval option. Host will
-be required, while we will set the interval option with a default and make overriding
-that optional.</li>
-  <li>Set the required host option:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-option --option host --description <span class="s2">&quot;host to ping&quot;</span> --module waitfor --command ping --required <span class="nb">true</span> --export <span class="nb">false</span> --default <span class="s1">&#39;&quot;&quot;&#39;</span></code></pre></div>
-
-<ul>
-  <li>Set the optional interval option:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs:add-option --option interval --description <span class="s2">&quot;how long to wait between attempts&quot;</span> --module waitfor --command ping --required <span class="nb">false</span> --export <span class="nb">false</span> --default 30</code></pre></div>
-
-<ul>
-  <li>Let’s make sure our params look right by checking the output with <code>rerun waitfor</code>.
-Rerun gives a pretty easy to read/understand output when you try to figure out what
-a module is capable of.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor
-Available commands in module, <span class="s2">&quot;waitfor&quot;</span>:
-ping: <span class="s2">&quot;wait for ping response from address&quot;</span>
-    --host &lt;<span class="s2">&quot;&quot;</span>&gt;: <span class="s2">&quot;host to ping&quot;</span>
-   <span class="o">[</span> --interval &lt;30&gt;<span class="o">]</span>: <span class="s2">&quot;how long to wait between attempts&quot;</span></code></pre></div>
-
-<h2 id="implement-the-command"><strong>Implement the Command</strong></h2>
-<p>So now we’ve got our command created, but it doesn’t actually do anything. Rerun
-can’t read our mind, so it just lays down some basics and it’s up to us to implement
-the particulars.</p>
-
-<ul>
-  <li>Open the file <code>~/rerun/modules/waitfor/commands/ping/script</code> for editing.
-Scroll down to the bottom, where you will see:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Command implementation</span>
-<span class="c"># ----------------------</span>
-
-<span class="c"># - - -</span>
-<span class="c"># Put the command implementation here.</span>
-<span class="c"># - - -</span></code></pre></div>
-
-<ul>
-  <li>Replace the ‘Put the command implementation here’ with your code. I had to throw
-in a -t flag in the ping command to timeout quicker on Mac.
-For our ping check, the code will look like:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">## Loop until a single ping packet returns a result string that contains 64.</span>
-<span class="c">## 64 is the number of bytes in ping response</span>
-<span class="k">until</span> <span class="o">(</span> ping -c <span class="m">1</span> -t <span class="m">1</span> <span class="nv">$HOST</span> <span class="p">|</span> grep -q ^64 <span class="o">)</span>
-<span class="k">do</span>
-   <span class="c">##Sleep by our interval if unsuccessful</span>
-   sleep <span class="nv">$INTERVAL</span>
-   <span class="nb">echo </span>Pinging <span class="nv">$HOST</span>...
-<span class="k">done</span>
-
-<span class="c">##Finally return when ping available</span>
-<span class="nb">echo</span> <span class="s2">&quot;OK: $HOST is pingable.&quot;</span></code></pre></div>
-
-<ul>
-  <li>Test it out with a call to localhost. This should always return a positive ping.
-<code>rerun waitfor:ping --host localhost --interval 1</code></li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor:ping --host localhost --interval 1
-OK: localhost is pingable.</code></pre></div>
-
-<h2 id="write-tests"><strong>Write Tests</strong></h2>
-<p>Okay, let’s write the tests for our new command. This will help us ensure it’s working
-the right way.</p>
+<h2 id="clone-kubesprays-kargo"><strong>Clone KubeSpray’s Kargo</strong></h2>
+<p>First we’ll want to pull down the Ansible playbooks we want to use.</p>
 
 <ul>
   <li>
-    <p>Open <code>~/rerun/modules/waitfor/tests/ping-1-test.sh</code> for editing. Remove the whole
-‘it_fails_without_a_real_test’ block.</p>
+    <p>If you’ve never installed Ansible, it’s quite easy on a Mac with <code class="highlighter-rouge">brew install ansible</code>. Other instructions <a href="http://docs.ansible.com/ansible/intro_installation.html" target="_blank">can be found here</a>.</p>
   </li>
   <li>
-    <p>We’ll create two new functions. One will check that the required host is present.
-The other will check that localhost responds as expected. These tests are straight
-from the wiki tutorial with extra comments to explain what’s actually happening.</p>
+    <p>Ensure git is also installed with <code class="highlighter-rouge">brew install git</code>.</p>
+  </li>
+  <li>
+    <p>Create a directory for all of your deployment files and change into that directory. I called mine ‘terra-spray’.</p>
+  </li>
+  <li>
+    <p>Issue <code class="highlighter-rouge">git clone git@github.com:kubespray/kargo.git</code>. A new directory called kargo will be created with the playbooks:</p>
   </li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Check that the required host is passed in</span>
-it_fails_without_required_options<span class="o">()</span> <span class="o">{</span>
-    <span class="c">##Make a temp file to write to</span>
-    <span class="nv">OUT</span><span class="o">=</span><span class="k">$(</span>mktemp /tmp/waitfor:ping-XXXX<span class="k">)</span>
-    <span class="c">##Negate the error of not passing a host with &#39;!&#39;. Write results to outfile.</span>
-    <span class="c">##The &#39;2&gt;&#39; param redirects stderr to the outfile</span>
-    ! rerun waitfor:ping 2&gt; <span class="nv">$OUT</span>
-    <span class="c">##Check that missing text is in outfile</span>
-    grep <span class="s1">&#39;missing required option: --host&#39;</span> <span class="nv">$OUT</span>
-    <span class="c">##Delete outfile</span>
-    rm <span class="nv">$OUT</span>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:terra-spray spencer<span class="nv">$ </span>ls -lah
+total 104
+drwxr-xr-x  13 spencer  staff   442B Apr  6 12:48 .
+drwxr-xr-x  12 spencer  staff   408B Apr  5 16:45 ..
+drwxr-xr-x  15 spencer  staff   510B Apr  5 16:55 kargo</code></pre></figure>
+
+<ul>
+  <li>Note that there are a plethora of different options available with Kargo. I highly recommend spending some time reading up on the project and the different playbooks out there in order to deploy the specific cluster type you may need.</li>
+</ul>
+
+<h2 id="create-terraform-templates"><strong>Create Terraform Templates</strong></h2>
+<p>We want to create two terraform templates, the first will create our OpenStack infrastructure, while the second will create an Ansible inventory file for kargo to use. Additionally, we will create a variable file where we can populate our desired OpenStack variables as needed. The Terraform syntax can look a bit daunting at first, but it starts to make sense as we look at it more and see it in action.</p>
+
+<ul>
+  <li>
+    <p>Create all files with <code class="highlighter-rouge">touch 00-create-k8s-nodes.tf 01-create-inv.tf terraform.tfvars</code> The <code class="highlighter-rouge">.tf</code> and <code class="highlighter-rouge">.tfvars</code> extension are terraform specific extensions.</p>
+  </li>
+  <li>
+    <p>In the variables file, <code class="highlighter-rouge">terraform.tfvars</code>, populate with the following information and update the variables to reflect your OpenStack installation:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">node-count<span class="o">=</span><span class="s2">"2"</span>
+internal-ip-pool<span class="o">=</span><span class="s2">"private"</span>
+floating-ip-pool<span class="o">=</span><span class="s2">"public"</span>
+image-name<span class="o">=</span><span class="s2">"Ubuntu-14.04.2-LTS"</span>
+image-flavor<span class="o">=</span><span class="s2">"m1.small"</span>
+security-groups<span class="o">=</span><span class="s2">"default,k8s-cluster"</span>
+key-pair<span class="o">=</span><span class="s2">"spencer-key"</span></code></pre></figure>
+
+<ul>
+  <li>Now we want to create our Kubernetes master and nodes using the variables described above. Open <code class="highlighter-rouge">00-create-k8s-nodes.tf</code> and add the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Setup needed variables</span>
+variable <span class="s2">"node-count"</span> <span class="o">{}</span>
+variable <span class="s2">"internal-ip-pool"</span> <span class="o">{}</span>
+variable <span class="s2">"floating-ip-pool"</span> <span class="o">{}</span>
+variable <span class="s2">"image-name"</span> <span class="o">{}</span>
+variable <span class="s2">"image-flavor"</span> <span class="o">{}</span>
+variable <span class="s2">"security-groups"</span> <span class="o">{}</span>
+variable <span class="s2">"key-pair"</span> <span class="o">{}</span>
+
+<span class="c">##Create a single master node and floating IP</span>
+resource <span class="s2">"openstack_compute_floatingip_v2"</span> <span class="s2">"master-ip"</span> <span class="o">{</span>
+  pool <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.floating-ip-pool</span><span class="k">}</span><span class="s2">"</span>
 <span class="o">}</span>
-<span class="c">##Check that command works for localhost</span>
-it_reaches_localhost<span class="o">()</span> <span class="o">{</span>
-    <span class="c">##Make a temp file to write to</span>
-    <span class="nv">OUT</span><span class="o">=</span><span class="k">$(</span>mktemp /tmp/waitfor:ping-XXXX<span class="k">)</span>
-    <span class="c">##Run with localhost passed as host param</span>
-    rerun waitfor:ping --host localhost &gt; <span class="nv">$OUT</span>
-    <span class="c">##Ensure proper output is present in outfile</span>
-    grep <span class="s1">&#39;OK: localhost is pingable.&#39;</span> <span class="nv">$OUT</span>
-    <span class="c">##Delete outfile</span>
-    rm <span class="nv">$OUT</span>
-<span class="o">}</span></code></pre></div>
+
+resource <span class="s2">"openstack_compute_instance_v2"</span> <span class="s2">"k8s-master"</span> <span class="o">{</span>
+  name <span class="o">=</span> <span class="s2">"k8s-master"</span>
+  image_name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.image-name</span><span class="k">}</span><span class="s2">"</span>
+  flavor_name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.image-flavor</span><span class="k">}</span><span class="s2">"</span>
+  key_pair <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.key-pair</span><span class="k">}</span><span class="s2">"</span>
+  security_groups <span class="o">=</span> <span class="o">[</span><span class="s2">"</span><span class="k">${</span><span class="nv">split</span><span class="p">(</span><span class="s2">","</span><span class="p">, var.security-groups)</span><span class="k">}</span><span class="s2">"</span><span class="o">]</span>
+  network <span class="o">{</span>
+    name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.internal-ip-pool</span><span class="k">}</span><span class="s2">"</span>
+  <span class="o">}</span>
+  floating_ip <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">openstack_compute_floatingip_v2</span><span class="p">.master-ip.address</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+
+<span class="c">##Create desired number of k8s nodes and floating IPs</span>
+resource <span class="s2">"openstack_compute_floatingip_v2"</span> <span class="s2">"node-ip"</span> <span class="o">{</span>
+  pool <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.floating-ip-pool</span><span class="k">}</span><span class="s2">"</span>
+  count <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.node-count</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+
+resource <span class="s2">"openstack_compute_instance_v2"</span> <span class="s2">"k8s-node"</span> <span class="o">{</span>
+  count <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.node-count</span><span class="k">}</span><span class="s2">"</span>
+  name <span class="o">=</span> <span class="s2">"k8s-node-</span><span class="k">${</span><span class="nv">count</span><span class="p">.index</span><span class="k">}</span><span class="s2">"</span>
+  image_name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.image-name</span><span class="k">}</span><span class="s2">"</span>
+  flavor_name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.image-flavor</span><span class="k">}</span><span class="s2">"</span>
+  key_pair <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.key-pair</span><span class="k">}</span><span class="s2">"</span>
+  security_groups <span class="o">=</span> <span class="o">[</span><span class="s2">"</span><span class="k">${</span><span class="nv">split</span><span class="p">(</span><span class="s2">","</span><span class="p">, var.security-groups)</span><span class="k">}</span><span class="s2">"</span><span class="o">]</span>
+  network <span class="o">{</span>
+    name <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="p">.internal-ip-pool</span><span class="k">}</span><span class="s2">"</span>
+  <span class="o">}</span>
+  floating_ip <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">element</span><span class="p">(openstack_compute_floatingip_v2.node-ip.*.address, count.index)</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span></code></pre></figure>
 
 <ul>
-  <li>Finally, let’s check that the output of the stubbs:test command to make sure
-our tests pass. Issue <code>rerun stubbs:test --module waitfor --plan ping</code></li>
+  <li>Now, with what we have here, our infrastructure is provisioned on OpenStack. However, we want to get the information about our infrastructure into the Kargo playbooks to use as its Ansible inventory. Add the following to <code class="highlighter-rouge">01-create-inventory.tf</code>:</li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun stubbs:test --module waitfor --plan <span class="nv">ping</span>
-<span class="o">=========================================================</span>
- TESTING MODULE: <span class="nv">waitfor</span>
-<span class="o">=========================================================</span>
-ping
-  it_fails_without_required_options:               <span class="o">[</span>PASS<span class="o">]</span>
-  it_reaches_localhost:                            <span class="o">[</span>PASS<span class="o">]</span>
-<span class="o">=========================================================</span>
-Tests:    <span class="m">2</span> <span class="p">|</span> Passed:   <span class="m">2</span> <span class="p">|</span> Failed:   0</code></pre></div>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">resource <span class="s2">"null_resource"</span> <span class="s2">"ansible-provision"</span> <span class="o">{</span>
 
-<h2 id="extend-extend-extend"><strong>Extend, Extend, Extend</strong></h2>
+  depends_on <span class="o">=</span> <span class="o">[</span><span class="s2">"openstack_compute_instance_v2.k8s-master"</span>,<span class="s2">"openstack_compute_instance_v2.k8s-node"</span><span class="o">]</span>
 
-<p>Now that we have learned all of the functionality from the official tutorial, it’s time to extend our module to do other things. Consider what the ‘waitfor’ module is for. It is there to wait on things in general, not just ping responses. So let’s extend our module to support another wait use case, waiting for a file to exist.</p>
+  <span class="c">##Create Masters Inventory</span>
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"</span><span class="s2">[kube-master]</span><span class="se">\n</span><span class="k">${</span><span class="nv">openstack_compute_instance_v2</span><span class="p">.k8s-master.name</span><span class="k">}</span><span class="s2"> ansible_ssh_host=</span><span class="k">${</span><span class="nv">openstack_compute_floatingip_v2</span><span class="p">.master-ip.address</span><span class="k">}</span><span class="se">\"</span><span class="s2"> &gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+
+  <span class="c">##Create ETCD Inventory</span>
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"\n</span><span class="s2">[etcd]</span><span class="se">\n</span><span class="k">${</span><span class="nv">openstack_compute_instance_v2</span><span class="p">.k8s-master.name</span><span class="k">}</span><span class="s2"> ansible_ssh_host=</span><span class="k">${</span><span class="nv">openstack_compute_floatingip_v2</span><span class="p">.master-ip.address</span><span class="k">}</span><span class="se">\"</span><span class="s2"> &gt;&gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+
+  <span class="c">##Create Nodes Inventory</span>
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"\n</span><span class="s2">[kube-node]</span><span class="se">\"</span><span class="s2"> &gt;&gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"</span><span class="k">${</span><span class="nv">join</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,formatlist(</span><span class="s2">"%s ansible_ssh_host=%s"</span><span class="p">, openstack_compute_instance_v2.k8s-node.*.name, openstack_compute_floatingip_v2.node-ip.*.address))</span><span class="k">}</span><span class="se">\"</span><span class="s2"> &gt;&gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+
+  provisioner <span class="s2">"local-exec"</span> <span class="o">{</span>
+    <span class="nb">command</span> <span class="o">=</span>  <span class="s2">"echo </span><span class="se">\"\n</span><span class="s2">[k8s-cluster:children]</span><span class="se">\n</span><span class="s2">kube-node</span><span class="se">\n</span><span class="s2">kube-master</span><span class="se">\"</span><span class="s2"> &gt;&gt; kargo/inventory/inventory"</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>This template certainly looks a little confusing, but what is happening is that Terraform is taking the information for the created Kubernetes masters and nodes and outputting the hostnames and IP addresses into the Ansible inventory format at a local path of ./kargo/inventory/inventory. A sample output looks like:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>kube-master]
+k8s-master <span class="nv">ansible_ssh_host</span><span class="o">=</span>xxx.xxx.xxx.xxx
+
+<span class="o">[</span>etcd]
+k8s-master <span class="nv">ansible_ssh_host</span><span class="o">=</span>xxx.xxx.xxx.xxx
+
+<span class="o">[</span>kube-node]
+k8s-node-0 <span class="nv">ansible_ssh_host</span><span class="o">=</span>xxx.xxx.xxx.xxx
+k8s-node-1 <span class="nv">ansible_ssh_host</span><span class="o">=</span>xxx.xxx.xxx.xxx
+
+<span class="o">[</span>k8s-cluster:children]
+kube-node
+kube-master</code></pre></figure>
+
+<h2 id="setup-openstack"><strong>Setup OpenStack</strong></h2>
+
+<p>You may have noticed in the Terraform section that we attached a <code class="highlighter-rouge">k8s-cluster</code> security group in our variables file. You will need to set this security group up to allow for the necessary ports used by Kubernetes. Follow <a href="https://coreos.com/kubernetes/docs/latest/kubernetes-networking.html#port-allocation" target="_blank">this</a> list and enter them into Horizon.</p>
+
+<h2 id="hold-on-to-ya-butts"><strong>Hold On To Ya Butts!</strong></h2>
+
+<p>Now that Terraform is setup, we <em>should</em> be able to launch our cluster and have it provision using the Kargo playbooks we checked out. But first, one small BASH script to ensure things run in the proper order.</p>
 
 <ul>
-  <li>First let’s add the new command to our module. This is as simple as it was earlier, just pass the proper options as needed:</li>
+  <li>Create a file called <code class="highlighter-rouge">cluster-up.sh</code> and open it for editing. Paste the following:</li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-command --module waitfor --command file --description <span class="s2">&quot;Waits for a file to be present on the system&quot;</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/bash</span>
+
+<span class="c">##Create infrastructure and inventory file</span>
+<span class="nb">echo</span> <span class="s2">"Creating infrastructure"</span>
+terraform apply
+
+<span class="c">##Run Ansible playbooks</span>
+<span class="nb">echo</span> <span class="s2">"Quick sleep while instances spin up"</span>
+sleep 120
+<span class="nb">echo</span> <span class="s2">"Ansible provisioning"</span>
+<span class="nv">ANSIBLE_HOST_KEY_CHECKING</span><span class="o">=</span>False ansible-playbook -i kargo/inventory/inventory -u ubuntu -b kargo/cluster.yml</code></pre></figure>
+
+<p>You’ll notice I included a two minute sleep to take care of some of the time when the nodes created by Terraform weren’t quite ready for an SSH session when Ansible started reaching out to them. Finally, update the <code class="highlighter-rouge">-u</code> flag in the ansible-playbook command to the user that has SSH access to the OpenStack instances you have created. I used <code class="highlighter-rouge">ubuntu</code> because that’s the default SSH user for Ubuntu cloud images.</p>
 
 <ul>
-  <li>Add options for the filepath we want to check, as well as the interval we want to wait to check:</li>
+  <li>
+    <p>Source your OpenStack credentials file with <code class="highlighter-rouge">source /path/to/credfile.sh</code></p>
+  </li>
+  <li>
+    <p>Launch the cluster with <code class="highlighter-rouge">./cluster-up.sh</code>. The Ansible deployment will take quite a bit of time as the necessary packages are downloaded and setup.</p>
+  </li>
+  <li>
+    <p>Assuming all goes as planned, SSH into your Kubernetes master and issue <code class="highlighter-rouge">kubectl get-nodes</code>:</p>
+  </li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-option --option filepath --description <span class="s2">&quot;full path of file to wait for&quot;</span> --module waitfor --command file --required <span class="nb">true</span> --export <span class="nb">false</span> --default <span class="s1">&#39;&quot;&quot;&#39;</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">ubuntu@k8s-master:~$ </span>kubectl get nodes
+NAME         STATUS    AGE
+k8s-node-0   Ready     1m
+k8s-node-1   Ready     1m</code></pre></figure>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">rerun stubbs: add-option --option interval --description <span class="s2">&quot;how long to wait between attempts&quot;</span> --module waitfor --command file --required <span class="nb">false</span> --export <span class="nb">false</span> --default 30</code></pre></div>
-
-<ul>
-  <li>Time to implement the actual logic behind our file checker. You’ll notice that since this command is similar in function to our ping command, a lot of the same logic that we used previously still applies. Here’s the relevant bash from ‘waitfor/commands/file/script’:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">until</span> <span class="o">[</span> -f <span class="s2">&quot;$FILEPATH&quot;</span> <span class="o">]</span>
-<span class="k">do</span>
- <span class="c">##Sleep by our interval if unsuccessful</span>
- sleep <span class="nv">$INTERVAL</span>
- <span class="nb">echo</span> <span class="s2">&quot;Checking for file at $FILEPATH&quot;</span>
-<span class="k">done</span>
-
-<span class="c">##Finally return when file exists</span>
-<span class="nb">echo</span> <span class="s2">&quot;OK: $FILEPATH now exists.&quot;</span></code></pre></div>
-
-<ul>
-  <li>We can now see this in action by issuing our command, waiting for a few cycles to occur, then touching the file that we want to exist in another terminal. For me, the touch command was simply  touch /tmp/test.txt.</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:~ spencer<span class="nv">$ </span>rerun waitfor: file --filepath <span class="s2">&quot;/tmp/test.txt&quot;</span> --interval 1
-Checking <span class="k">for</span> file at /tmp/test.txt
-Checking <span class="k">for</span> file at /tmp/test.txt
-Checking <span class="k">for</span> file at /tmp/test.txt
-Checking <span class="k">for</span> file at /tmp/test.txt
-OK: /tmp/test.txt now exists.</code></pre></div>
-
-<ul>
-  <li>Finally, we would want to write some tests around this command to ensure it functions as expected when variables are missing, etc.. This post is getting pretty lengthy, so I will leave that task up to you.</li>
-</ul>
-
-<p>And that’s it! I hope you enjoyed this intro to Rerun. It’s a really fun tool to use once you pick up the basics, and it really makes it dead simple to allow other team mates (even those who may not be very adept with bash) to execute scripts in a known, repeatable manner.</p>
 
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-08-29T00:00:00-04:00"><a href="/Containerizing-The-Grid/">August 29, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~3 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Containerizing-The-Grid/" rel="bookmark" title="Containerizing The Grid - BOINC on Docker" itemprop="url">Containerizing The Grid - BOINC on Docker</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>Today, we’ll go on yet another trip through container land. I’ve found myself itching to throw anything and everything that I may run on a server into a container. It is so easy to create a Dockerfile, build my image, then deploy it wherever I want with Docker Machine that I tend to do it first thing when I have something new to run. Being able to write it once and have it run anywhere really is powerful stuff.</p>
+
+<p>So that said, I was reading a bit the other day about grid computing. You may have heard of some of the interesting grid projects like <a href="http://setiathome.ssl.berkeley.edu/">SETI@Home</a>. The idea here is that if you have a machine that often sits idle, you can donate your CPU (and/or GPU) to do some number crunching for the cause. I was thinking to myself upon reading this that I have some VMs that sit around idle for quite a bit of time unless I’m actively prototyping something, so why not give this a shot? I was also surprised to learn that a lot of these projects have standardized on using the same software suite, called BOINC, and you just associate to the project of your choice at launch time for the application. Sounds like a nice idea for a container!</p>
+
+<h2 id="choose-project"><strong>Choose Project</strong></h2>
+
+<ul>
+  <li>
+    <p>Pick which projects you’re interested in by starting at the <a href="https://boinc.berkeley.edu/projects.php">project page</a> of BOINC’s website. I picked SETI@Home, Rosetta, and World Community Grid.</p>
+  </li>
+  <li>
+    <p>You’ll need to create accounts on all of the projects that you are interested in. Once completed, take note of the account keys for each. We will need them later.</p>
+  </li>
+</ul>
+
+<h2 id="create-a-docker-image"><strong>Create A Docker Image</strong></h2>
+
+<ul>
+  <li>
+    <p>Create a new Dockerfile in a directory.</p>
+  </li>
+  <li>
+    <p>Initialize our Dockerfile by adding a FROM and MAINTAINER section. I picked a Ubuntu 14.04 base image to build off of.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FROM ubuntu:14.04
+MAINTAINER Spencer Smith &lt;robertspencersmith@gmail.com&gt;</code></pre></figure>
+
+<ul>
+  <li>Next, we will install the BOINC client. Luckily, it is included in Ubuntu’s repos, so it isn’t very difficult.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Install BOINC</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> apt-get install -y boinc-client</code></pre></figure>
+
+<ul>
+  <li>We will then want to set our working directory to be that of the BOINC client’s lib directory. This will allow our commands to complete successfully next.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Set working directory</span>
+WORKDIR /var/lib/boinc-client</code></pre></figure>
+
+<ul>
+  <li>We will now set the default command for our image. This command (which is admittedly a bit long) will start BOINC’s client service, sleep shortly, use the ‘boinccmd’ tool to attach a project, then tail out the stdout/stderr logs for the client. You may notice the ‘${boincurl}’ and ‘${boinckey}’ sections of the command. Those are environment variables that will point us to the project we wish to connect to. You will see these in use later when we launch our container.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Run BOINC by default. Expects env vars for url and account key</span>
+CMD /etc/init.d/boinc-client start; sleep 5; /usr/bin/boinccmd --project_attach <span class="k">${</span><span class="nv">boincurl</span><span class="k">}</span> <span class="k">${</span><span class="nv">boinckey</span><span class="k">}</span>; tail -f /var/lib/boinc-client/std<span class="k">*</span>.txt</code></pre></figure>
+
+<ul>
+  <li>That’s it for the Dockerfile. Save it and exit. Here’s the complete file:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FROM ubuntu:14.04
+MAINTAINER Spencer Smith &lt;robertspencersmith@gmail.com&gt;
+
+<span class="c">##Install BOINC</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> apt-get install -y boinc-client
+
+<span class="c">##Set working directory</span>
+WORKDIR /var/lib/boinc-client
+
+<span class="c">##Run BOINC by default. Expects env vars for url and account key</span>
+CMD /etc/init.d/boinc-client start; sleep 5; /usr/bin/boinccmd --project_attach <span class="k">${</span><span class="nv">boincurl</span><span class="k">}</span> <span class="k">${</span><span class="nv">boinckey</span><span class="k">}</span>; tail -f /var/lib/boinc-client/std<span class="k">*</span>.txt</code></pre></figure>
+
+<ul>
+  <li>We can now build our image by running <code class="highlighter-rouge">docker build -t rsmitty/boinc .</code> in the directory. Feel free to tag differently of course.</li>
+</ul>
+
+<h2 id="start-crunching"><strong>Start Crunching!</strong></h2>
+
+<p>Now that we have an image to use, let’s launch some containers.</p>
+
+<ul>
+  <li>First, find your proper docker endpoint with <code class="highlighter-rouge">docker-machine ls</code>. I’ll be using my digital ocean docker host for this tutorial.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MacBook-Pro:boinc spencer<span class="nv">$ </span>docker-machine ls
+NAME      ACTIVE   DRIVER         STATE     URL                         SWARM
+default            virtualbox     Stopped
+<span class="k">do</span>-dev             digitalocean   Running   tcp://REDACTED:2376</code></pre></figure>
+
+<ul>
+  <li>Set your docker environment variables to the proper values with</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">eval</span> <span class="s2">"</span><span class="k">$(</span>docker-machine env <span class="k">do</span>-dev<span class="k">)</span><span class="s2">"</span></code></pre></figure>
+
+<ul>
+  <li>Launch a container, substituting your own desired values for boinckey and boincurl. You should be able to find these values from the account settings for the sites you registered earlier. Also feel free to name your container as you see fit.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -ti -d --name wcg -e <span class="s2">"boincurl=www.worldcommunitygrid.org"</span> -e <span class="s2">"boinckey=1234567890"</span> rsmitty/boinc</code></pre></figure>
+
+<ul>
+  <li>Once launched, we can peek in on our jobs by either allocating a new TTY to the container with <code class="highlighter-rouge">docker exec -ti wcg /bin/bash</code> or <code class="highlighter-rouge">docker logs wcg</code></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MacBook-Pro:boinc spencer<span class="nv">$ </span>docker logs wcg
+ <span class="k">*</span> Starting BOINC core client: boinc                                     <span class="o">[</span> OK <span class="o">]</span>
+ <span class="k">*</span> Setting up scheduling <span class="k">for </span>BOINC core client and children:
+
+....
+
+29-Aug-2015 15:48:49 <span class="o">[</span>World Community Grid] Started download of 933fbd61802442e2861afa0b31aedcc6.pdbqt
+29-Aug-2015 15:48:51 <span class="o">[</span>World Community Grid] Finished download of 933fbd61802442e2861afa0b31aedcc6.pdbqt</code></pre></figure>
+
+<p>That’s it! You can check in on your accomplishments for each project in your account settings. You can find my image for this tutorial in the <a href="https://hub.docker.com/r/rsmitty/boinc/">Docker Hub</a>. If you wish to learn more about the BOINC project itself, please visit their <a href="https://boinc.berkeley.edu/">website</a>.</p>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-07-15T00:00:00-04:00"><a href="/Creating-A-RancherOS-QCOW/">July 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~4 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Creating-A-RancherOS-QCOW/" rel="bookmark" title="Creating RancherOS Image for OpenStack" itemprop="url">Creating RancherOS Image for OpenStack</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>As I’ve been learning more about the container ecosystem, I’ve come across the concept of JeOS (just enough operating system). The idea here is that you want to gain as much performance out of your Docker containers as possible, so you minimize the cruft from your host operating system. There are several different JeOS options, but today we’ll talk about RancherOS. RancherOS is a very small, ~20MB, OS that you can use as a Docker host. Everything in RancherOS runs inside of a container and Docker itself runs as pid 1. RancherOS ships as an ISO, so today, I’ll guide you through using the ISO to create a QCOW image for use in OpenStack.</p>
+
+<h2 id="setup-kvm"><strong>Setup KVM</strong></h2>
+
+<ul>
+  <li>
+    <p>First, ensure you have a proper KVM environment setup. This can involve quite a bit of configuration between making sure virtualization is allowed in the BIOS, your CPU supports it, etc.. I followed <a href="https://help.ubuntu.com/community/KVM/Installation">these</a> directions on a new Ubuntu machine and it worked just fine.</p>
+  </li>
+  <li>
+    <p>You can test that your KVM setup is working properly by issuing <code class="highlighter-rouge">virsh list</code>. That should return an empty list:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">root@ubuntu:/home/rsmitty# </span>virsh list
+ Id    Name                           State
+----------------------------------------------------</code></pre></figure>
+
+<ul>
+  <li>Finally, install the virt-install tool with <code class="highlighter-rouge">sudo apt-get install virtinst</code>.</li>
+</ul>
+
+<h2 id="install-packer"><strong>Install Packer</strong></h2>
+
+<ul>
+  <li>
+    <p>Now, we want to use Packer to build our image so we need to download it and get it installed properly. You can find directions on setting up Packer <a href="https://www.packer.io/docs/installation.html">here</a>.</p>
+  </li>
+  <li>
+    <p>If you need an intro to Packer in general, I’ve written another guide that was published to the Solinea website. You can find that <a href="http://www.solinea.com/blog/image-creation-packer-and-openstack">here</a>.</p>
+  </li>
+</ul>
+
+<h2 id="create-our-templates"><strong>Create Our Templates</strong></h2>
+
+<p>Now that we are all set up, we need to create two files, a cloud-config.yml file that gets injected into RancherOS and a Packer template called kvm-rancheros.json that we’ll use to build our QCOW.</p>
+
+<ul>
+  <li>Create a file called cloud-config.yml with the following content. Be sure to modify the ssh public key with your own, so that it gets baked into the image. Unfortunately, there’s no injection of keys during boot in OpenStack for RancherOS, so take care to make sure you get the correct one in there. Here’s what my cloud-config.yml looked like:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#cloud-config</span>
+
+ssh_authorized_keys:
+  - ssh-rsa ... spencer@Spencers-MacBook-Pro.local</code></pre></figure>
+
+<ul>
+  <li>There are lots of options for building images with Packer, so it can be a bit daunting at first. For our purposes, we will need to use the KVM builder directly and pass in the RancherOS ISO. Once booted, Packer will scp our cloud-config.yml file into the temporary instance and then issue the proper command to install RancherOS to disk. After this is complete, Packer will provide output on the location of the QCOW image. This image will simply be called “rancheros” and that path to it will be “$PWD/output_rancher/rancheros”. Here’s the full template:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
+  </span><span class="nt">"builders"</span><span class="p">:</span><span class="w">
+  </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qemu"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"iso_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://releases.rancher.com/os/latest/rancheros.iso"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"iso_checksum_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"md5"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"iso_checksum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"63b54370f8c5f8645d6088be15ab07b0"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"output_directory"</span><span class="p">:</span><span class="w"> </span><span class="s2">"output_rancheros"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_wait_timeout"</span><span class="p">:</span><span class="w"> </span><span class="s2">"30s"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"shutdown_command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sudo shutdown -h now"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"disk_size"</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qcow2"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"headless"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"accelerator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kvm"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rancher"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rancher"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_port"</span><span class="p">:</span><span class="w"> </span><span class="mi">22</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_wait_timeout"</span><span class="p">:</span><span class="w"> </span><span class="s2">"90m"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"vm_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rancheros"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"net_device"</span><span class="p">:</span><span class="w"> </span><span class="s2">"virtio-net"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"disk_interface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"virtio"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"boot_wait"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5s"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"qemuargs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">[</span><span class="w"> </span><span class="s2">"-m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"1024M"</span><span class="w"> </span><span class="p">]</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"provisioners"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+     </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"file"</span><span class="p">,</span><span class="w">
+     </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cloud_config.yml"</span><span class="p">,</span><span class="w">
+     </span><span class="nt">"destination"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/home/rancher/cloud_config.yml"</span><span class="w">
+   </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shell"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"inline"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"sleep 5"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"sudo rancheros-install -f -c cloud_config.yml -d /dev/vda"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
+
+<p><em>Notice the ‘-m’ flag in the qemuargs section. You MUST have at least 1GB of RAM to complete the install successfully.</em></p>
+
+<h2 id="build-and-upload"><strong>Build and Upload</strong></h2>
+<ul>
+  <li>
+    <p>It’s now time to build our image. Packer will fetch and verify the RancherOS ISO for us and proceed to take care of all of the necessary commands. Issue <code class="highlighter-rouge">packer build kvm-rancheros.json</code>.</p>
+  </li>
+  <li>
+    <p>Once our build is complete, we’ll want to upload it to Glance. This image is ~40MB, so it shouldn’t take a terribly long time. You can issue the following command (after sourcing your OpenStack credentials):</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">glance image-create --name <span class="s2">"RancherOS"</span> <span class="se">\</span>
+--is-public <span class="nb">false</span> --disk-format qcow2 <span class="se">\</span>
+--container-format bare --file <span class="nv">$PWD</span>/output_rancher/rancheros</code></pre></figure>
+
+<h2 id="launch-an-instance--connect"><strong>Launch An Instance &amp; Connect</strong></h2>
+
+<ul>
+  <li>
+    <p>We can now spin up our RancherOS instance inside of OpenStack. Ensure that you have ports 22, 80, and 2376 allowed in the security group that you choose to use for your instance.</p>
+  </li>
+  <li>
+    <p>Once our instance has been created, we will use Docker Machine’s generic driver to connect to our launched instance. Again, because SSH keys aren’t injected into RancherOS, we can’t use the OpenStack driver for Docker Machine and have it launch the instance for us. Here is the command that I used for connecting Docker Machine, notice I passed the path to the SSH key I injected earlier.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker-machine create -d generic --generic-ssh-user rancher <span class="se">\</span>
+--generic-ssh-key ~/.ssh/id_rsa --generic-ip-address 192.168.1.202 <span class="se">\</span>
+rancher-dev</code></pre></figure>
+
+<ul>
+  <li>Set rancher-dev as our Docker endpoint with the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">eval</span> <span class="s2">"</span><span class="k">$(</span>docker-machine env rancher-dev<span class="k">)</span><span class="s2">"</span></code></pre></figure>
+
+<ul>
+  <li>You can ensure everything is connected with a combination of <code class="highlighter-rouge">docker-machine ls</code> and <code class="highlighter-rouge">docker ps</code>. I like to echo a dashed line to give some separation in my commands.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">spencers-mbp:~ spencer<span class="nv">$ </span>docker-machine ls <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">"------------"</span> <span class="o">&amp;&amp;</span> docker ps
+NAME          ACTIVE   DRIVER         STATE     URL                         SWARM
+rancher-dev   <span class="k">*</span>        generic        Running   tcp://192.168.1.202:2376
+vbox-dev               virtualbox     Running   tcp://192.168.99.100:2376
+------------
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES</code></pre></figure>
+
+<h2 id="grow-the-root-volume--deploy-a-container"><strong>Grow The Root Volume &amp; Deploy A Container</strong></h2>
+
+<ul>
+  <li>Again, keep in mind that RancherOS doesn’t currently do some cloud-init functions like growing the root volume. We’ll need to launch a privileged container to do this. Issue the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run --privileged -i --rm ubuntu bash <span class="sh">&lt;&lt; EOF
+apt-get update
+apt-get install -y cloud-guest-utils parted
+growpart /dev/vda 1
+partprobe
+resize2fs /dev/vda1
+</span><span class="err">EOF</span></code></pre></figure>
+
+<p><em>Credit to Darren Shepherd for this script mentioned <a href="https://github.com/rancher/os/issues/232">here</a></em></p>
+
+<ul>
+  <li>Launch my test-webserver container by issuing the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -d -p 80:80 rsmitty/test-webserver /usr/sbin/apache2ctl -D FOREGROUND</code></pre></figure>
+
+<ul>
+  <li>Check out the result!
+<a href="/img/posts/2015-07-15-Creating-A-RancherOS-QCOW/Running-Container.png">
+<img src="/img/posts/2015-07-15-Creating-A-RancherOS-QCOW/Running-Container.png" style="max-width75%; border:solid 1px;" /></a></li>
+</ul>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-07-10T00:00:00-04:00"><a href="/Removing-Cruft-From-Docker/">July 10, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Removing-Cruft-From-Docker/" rel="bookmark" title="Removing Cruft From Docker" itemprop="url">Removing Cruft From Docker</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>This post is simply here to document how to remove untagged and exited images and containers.</p>
+
+<h2 id="exited-images"><strong>Exited Images</strong></h2>
+<p>You can find previously exited images by using filters:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker ps -f <span class="s2">"status=exited"</span></code></pre></figure>
+
+<p>This will return the full text for each exited container:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MacBook-Pro:~ spencer<span class="nv">$ </span>docker ps -f <span class="s2">"status=exited"</span>
+CONTAINER ID        IMAGE                                           COMMAND                CREATED             STATUS                      PORTS               NAMES
+72b10aebd2b0        rsmitty/ostack                                                     <span class="s2">"/bin/sh -c /bin/bas   9 hours ago         Exited (126) 9 hours ago                        distracted_wilson
+aa6c9cfc662f        rsmitty/ostack                                                     "</span>/bin/sh -c /bin/bas   9 hours ago         Exited <span class="o">(</span>0<span class="o">)</span> 9 hours ago                          sick_einstein
+1bfce6a324b5        ubuntu:14.04                                                       <span class="s2">"/bin/bash"</span>            9 hours ago                                                         jovial_einstein</code></pre></figure>
+
+<p>To remove all of them, you can nest a command similar to the one above inside the <code class="highlighter-rouge">docker rm</code> command:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker rm <span class="k">$(</span>docker ps -qf <span class="s2">"status=exited"</span><span class="k">)</span></code></pre></figure>
+
+<p>Docker responds with a list of IDs that it deleted:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MacBook-Pro:~ spencer<span class="nv">$ </span>docker rm <span class="k">$(</span>docker ps -qf <span class="s2">"status=exited"</span><span class="k">)</span>
+72b10aebd2b0
+aa6c9cfc662f
+1bfce6a324b5
+f7fd1c00837c</code></pre></figure>
+
+<h2 id="untagged-images"><strong>Untagged Images</strong></h2>
+<p>If you wish to clean up untagged instances you can find them with another filter command, similar to the one above:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker images -f <span class="s2">"dangling=true"</span></code></pre></figure>
+
+<p>This will return a formatted list of the untagged images:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MacBook-Pro:~ spencer<span class="nv">$ </span>docker images -f <span class="s2">"dangling=true"</span>
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+<span class="gp">&lt;none&gt;              </span>&lt;none&gt;              bfa68ad8ff4c        23 hours ago        457.1 MB
+<span class="gp">&lt;none&gt;              </span>&lt;none&gt;              0043ceae2104        23 hours ago        457.1 MB
+<span class="gp">&lt;none&gt;              </span>&lt;none&gt;              edff0ab07895        23 hours ago        421.3 MB
+<span class="gp">&lt;none&gt;              </span>&lt;none&gt;              6ae539b22ab9        23 hours ago        421 MB</code></pre></figure>
+
+<p>And again, nesting a variation of that command to actually do the cleanup:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker rmi <span class="k">$(</span>docker images -qf <span class="s2">"dangling=true"</span><span class="k">)</span></code></pre></figure>
+
+<p>Now something interesting happens!</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MacBook-Pro:~ spencer<span class="nv">$ </span>docker rmi <span class="k">$(</span>docker images -qf <span class="s2">"dangling=true"</span><span class="k">)</span>
+Error response from daemon: Conflict, cannot delete bfa68ad8ff4c because the running container 7e5c96166fcb is using it, stop it and use -f to force
+Deleted: edff0ab0789548cf33db3589eae5cc93589e7aea379bc3383f58c00b71ebb8cb
+Deleted: e619828bd6f049d81a1920b96634534044ab0bf8f1dd4e40d9daf82d9a5c80b6
+Deleted: ac0a2e7c0897058649e9e31cd4a319ee08158646990a607a54a0492f27e6e275
+Error: failed to remove images: <span class="o">[</span>bfa68ad8ff4c]</code></pre></figure>
+
+<p>If the images are in use by some container, you must first stop the container. You’ll have to resolve this in order to remove this image. This is a good thing though, it can keep you from blowing yourself up :)</p>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-07-10T00:00:00-04:00"><a href="/Bundling-OpenStack-CLI-Into-a-Container/">July 10, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~2 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Bundling-OpenStack-CLI-Into-a-Container/" rel="bookmark" title="I'll Take Mine To Go - Bundling OpenStack Client CLIs Into A Container" itemprop="url">I'll Take Mine To Go - Bundling OpenStack Client CLIs Into A Container</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>This one’s a weird one. I was trying to figure out some interesting containers to build when I overheard someone at work expressing difficulty trying to install the OpenStack client CLIs onto his machine. I thought to myself, what if I could install these once and just push them to whatever environment I please? Or even share it with other folks to use? Here’s how you can do it:</p>
+
+<h2 id="create-a-dockerfile"><strong>Create A Dockerfile</strong></h2>
+<p>First I got the basics down for creating a Dockerfile to install the proper CLI packages. It was handy to simply boot a ubuntu:14.04 container and test these steps out manually first. That’s an easy one, just do:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -ti ubuntu:14.04 /bin/bash</code></pre></figure>
+
+<p>From that point I did a little trial and error to figure out the basics of installing pip, installing the openstack client packages inside of pip, and throwing in a few extra dependencies that I encountered. Here’s the full Docker file, we’ll talk about the script that gets added in next:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FROM ubuntu:14.04
+MAINTAINER Spencer Smith &lt;robertspencersmith@gmail.com&gt;
+
+<span class="c">##Install pip and necessary dependencies for clients</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> apt-get -y upgrade
+RUN apt-get install -y python-dev<span class="se">\</span>
+    python-pip<span class="se">\</span>
+    libffi-dev<span class="se">\</span>
+    libssl-dev
+
+<span class="c">##Install ssl patches for python 2.7, then install clients</span>
+RUN pip install six --upgrade<span class="se">\</span>
+    pyopenssl<span class="se">\</span>
+    ndg-httpsclient<span class="se">\</span>
+    pyasn1<span class="se">\</span>
+    python-ceilometerclient<span class="se">\</span>
+    python-cinderclient<span class="se">\</span>
+    python-glanceclient<span class="se">\</span>
+    python-heatclient<span class="se">\</span>
+    python-keystoneclient<span class="se">\</span>
+    python-neutronclient<span class="se">\</span>
+    python-novaclient<span class="se">\</span>
+    python-saharaclient<span class="se">\</span>
+    python-swiftclient<span class="se">\</span>
+    python-troveclient<span class="se">\</span>
+    python-openstackclient
+
+<span class="c">##Upload our creds checker and set it as our entrypoint</span>
+ADD creds.sh /ostack/
+CMD /ostack/creds.sh</code></pre></figure>
+
+<h2 id="deal-with-credentials"><strong>Deal With Credentials</strong></h2>
+<p>After creating the Dockerfile, I wanted to make sure that I could create a container general enough for others to use if they wanted. As such, I wanted most of the normal OpenStack environment variables to be passed in through the command line arguments. To handle this, I wrote a quick bash script called creds.sh to add into the container.</p>
+
+<p>The creds.sh file will just ensure that the OS_AUTH_URL, OS_REGION_NAME, OS_TENANT_NAME, and OS_USERNAME variables are present in the environment, then it will prompt the user for their password so that they don’t have to put it in plaintext inside the docker run command. Finally, once all the info is present, the script will simply launch a bash session for the user.</p>
+
+<p>Here’s the full creds.sh script:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/bash</span>
+
+<span class="c">##Ensure everything but password is passed in as env variable</span>
+<span class="k">for </span>var <span class="k">in </span>OS_AUTH_URL OS_REGION_NAME OS_TENANT_NAME OS_USERNAME; <span class="k">do
+  if</span> <span class="o">[[</span> -z <span class="k">${</span><span class="p">!var</span><span class="k">}</span> <span class="o">]]</span>; <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">var</span><span class="k">}</span><span class="s2"> is unset. Please pass as a env variable input!"</span>
+    <span class="nb">exit </span>1
+  <span class="k">fi
+done</span>
+
+<span class="c">##Prompt for password input</span>
+<span class="nb">echo</span> <span class="s2">"Please enter your OpenStack Password: "</span>
+<span class="nb">read</span> -sr OS_PASSWORD_INPUT
+<span class="nb">export </span><span class="nv">OS_PASSWORD</span><span class="o">=</span><span class="nv">$OS_PASSWORD_INPUT</span>
+
+<span class="c">##Start a bash prompt</span>
+/bin/bash</code></pre></figure>
+
+<h2 id="build-the-container"><strong>Build The Container</strong></h2>
+<p>Now, we simply need to build our container. You can give this your own tag if you like. Here’s what my <code class="highlighter-rouge">docker build</code> command looked like:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker build -t rsmitty/ostack .</code></pre></figure>
+
+<p>Ensure you are in the same directory with your Dockerfile.</p>
+
+<h2 id="use-it"><strong>Use It!</strong></h2>
+
+<p>We can now launch our container and use it to talk to an OpenStack cloud. Ensure that the proper environment variables are passed in using the <code class="highlighter-rouge">-e</code> flag. Here’s what my <code class="highlighter-rouge">docker run</code> command looks like:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -ti -e <span class="nv">OS_AUTH_URL</span><span class="o">=</span>https://REDACTED_URL:5000/v2.0/ -e <span class="nv">OS_REGION_NAME</span><span class="o">=</span>RegionOne -e <span class="nv">OS_TENANT_NAME</span><span class="o">=</span>admin -e <span class="nv">OS_USERNAME</span><span class="o">=</span>spencer rsmitty/ostack</code></pre></figure>
+
+<p>Once the run has put you in the bash prompt, you should be able to use your environment!</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">root@ecedc1a96a49:/# </span>cinder list
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+
+|                  ID                  |   Status  | Display Name | Size | Volume Type | Bootable | Attached to |
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+
+| 2032053f-9809-4c29-b8f2-731fef7a01db | available |     <span class="nb">test</span>     |  2   |    iscsi    |  <span class="nb">false</span>   |             |
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+</code></pre></figure>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
 
 
 <div class="pagination">
-  
-    Previous
-  
   <ul class="inline-list">
-    <li>
-      
-        <span class="current-page">1</span>
-      
-    </li>
     
-      <li>
-        
-          <a href="/page2">2</a>
-        
-      </li>
     
-      <li>
+
+    
+    
+      <li><strong class="current-page">1</strong></li>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
         
-          <a href="/page3">3</a>
         
-      </li>
+        
+        <li><a href="/page2/">2</a></li>
+      
+    
+      
+        
+        
+        
+        <li><a href="/page3/">3</a></li>
+      
+    
+
+    
+    
+
+    
+      <li><a href="/page4/">4</a></li>
+    
+
+    
+    
+      <li><a href="/page2/" class="btn">Next</a></li>
     
   </ul>
-  
-    <a href="/page2" class="btn">Next</a>
-  
-</div><!-- /.pagination -->
+</div>
+
 </div><!-- /#main -->
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
   </footer>
 </div><!-- /.footer-wrapper -->
 
@@ -645,6 +927,18 @@ OK: /tmp/test.txt now exists.</code></pre></div>
 <script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 <script src="/assets/js/scripts.min.js"></script>
 
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
 
 
           

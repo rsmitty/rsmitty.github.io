@@ -1,0 +1,312 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Containerizing The Grid - BOINC on Docker &#8211; Spencer's Blog</title>
+<meta name="description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta name="keywords" content="docker, grid, containers">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Containerizing The Grid - BOINC on Docker">
+<meta property="og:description" content="Thoughts and tutorials on Linux, Cloud, and Automation.">
+<meta property="og:url" content="/Containerizing-The-Grid/">
+<meta property="og:site_name" content="Spencer's Blog">
+
+
+
+
+
+<link rel="canonical" href="/Containerizing-The-Grid/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Spencer's Blog Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="/images/avatar.jpg" alt="Spencer Smith photo" class="author-photo">
+					<h4>Spencer Smith</h4>
+					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
+				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				<li>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+				</li>
+				<li>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="/posts/">All Posts</a></li>
+				<li><a href="/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="/Containerizing-The-Grid/" rel="bookmark" title="Containerizing The Grid - BOINC on Docker">Containerizing The Grid - BOINC on Docker</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2015-08-29T00:00:00-04:00">August 29, 2015</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~3 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>Today, we’ll go on yet another trip through container land. I’ve found myself itching to throw anything and everything that I may run on a server into a container. It is so easy to create a Dockerfile, build my image, then deploy it wherever I want with Docker Machine that I tend to do it first thing when I have something new to run. Being able to write it once and have it run anywhere really is powerful stuff.</p>
+
+<p>So that said, I was reading a bit the other day about grid computing. You may have heard of some of the interesting grid projects like <a href="http://setiathome.ssl.berkeley.edu/">SETI@Home</a>. The idea here is that if you have a machine that often sits idle, you can donate your CPU (and/or GPU) to do some number crunching for the cause. I was thinking to myself upon reading this that I have some VMs that sit around idle for quite a bit of time unless I’m actively prototyping something, so why not give this a shot? I was also surprised to learn that a lot of these projects have standardized on using the same software suite, called BOINC, and you just associate to the project of your choice at launch time for the application. Sounds like a nice idea for a container!</p>
+
+<h2 id="choose-project"><strong>Choose Project</strong></h2>
+
+<ul>
+  <li>
+    <p>Pick which projects you’re interested in by starting at the <a href="https://boinc.berkeley.edu/projects.php">project page</a> of BOINC’s website. I picked SETI@Home, Rosetta, and World Community Grid.</p>
+  </li>
+  <li>
+    <p>You’ll need to create accounts on all of the projects that you are interested in. Once completed, take note of the account keys for each. We will need them later.</p>
+  </li>
+</ul>
+
+<h2 id="create-a-docker-image"><strong>Create A Docker Image</strong></h2>
+
+<ul>
+  <li>
+    <p>Create a new Dockerfile in a directory.</p>
+  </li>
+  <li>
+    <p>Initialize our Dockerfile by adding a FROM and MAINTAINER section. I picked a Ubuntu 14.04 base image to build off of.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FROM ubuntu:14.04
+MAINTAINER Spencer Smith &lt;robertspencersmith@gmail.com&gt;</code></pre></figure>
+
+<ul>
+  <li>Next, we will install the BOINC client. Luckily, it is included in Ubuntu’s repos, so it isn’t very difficult.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Install BOINC</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> apt-get install -y boinc-client</code></pre></figure>
+
+<ul>
+  <li>We will then want to set our working directory to be that of the BOINC client’s lib directory. This will allow our commands to complete successfully next.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Set working directory</span>
+WORKDIR /var/lib/boinc-client</code></pre></figure>
+
+<ul>
+  <li>We will now set the default command for our image. This command (which is admittedly a bit long) will start BOINC’s client service, sleep shortly, use the ‘boinccmd’ tool to attach a project, then tail out the stdout/stderr logs for the client. You may notice the ‘${boincurl}’ and ‘${boinckey}’ sections of the command. Those are environment variables that will point us to the project we wish to connect to. You will see these in use later when we launch our container.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">##Run BOINC by default. Expects env vars for url and account key</span>
+CMD /etc/init.d/boinc-client start; sleep 5; /usr/bin/boinccmd --project_attach <span class="k">${</span><span class="nv">boincurl</span><span class="k">}</span> <span class="k">${</span><span class="nv">boinckey</span><span class="k">}</span>; tail -f /var/lib/boinc-client/std<span class="k">*</span>.txt</code></pre></figure>
+
+<ul>
+  <li>That’s it for the Dockerfile. Save it and exit. Here’s the complete file:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FROM ubuntu:14.04
+MAINTAINER Spencer Smith &lt;robertspencersmith@gmail.com&gt;
+
+<span class="c">##Install BOINC</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> apt-get install -y boinc-client
+
+<span class="c">##Set working directory</span>
+WORKDIR /var/lib/boinc-client
+
+<span class="c">##Run BOINC by default. Expects env vars for url and account key</span>
+CMD /etc/init.d/boinc-client start; sleep 5; /usr/bin/boinccmd --project_attach <span class="k">${</span><span class="nv">boincurl</span><span class="k">}</span> <span class="k">${</span><span class="nv">boinckey</span><span class="k">}</span>; tail -f /var/lib/boinc-client/std<span class="k">*</span>.txt</code></pre></figure>
+
+<ul>
+  <li>We can now build our image by running <code class="highlighter-rouge">docker build -t rsmitty/boinc .</code> in the directory. Feel free to tag differently of course.</li>
+</ul>
+
+<h2 id="start-crunching"><strong>Start Crunching!</strong></h2>
+
+<p>Now that we have an image to use, let’s launch some containers.</p>
+
+<ul>
+  <li>First, find your proper docker endpoint with <code class="highlighter-rouge">docker-machine ls</code>. I’ll be using my digital ocean docker host for this tutorial.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MacBook-Pro:boinc spencer<span class="nv">$ </span>docker-machine ls
+NAME      ACTIVE   DRIVER         STATE     URL                         SWARM
+default            virtualbox     Stopped
+<span class="k">do</span>-dev             digitalocean   Running   tcp://REDACTED:2376</code></pre></figure>
+
+<ul>
+  <li>Set your docker environment variables to the proper values with</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">eval</span> <span class="s2">"</span><span class="k">$(</span>docker-machine env <span class="k">do</span>-dev<span class="k">)</span><span class="s2">"</span></code></pre></figure>
+
+<ul>
+  <li>Launch a container, substituting your own desired values for boinckey and boincurl. You should be able to find these values from the account settings for the sites you registered earlier. Also feel free to name your container as you see fit.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -ti -d --name wcg -e <span class="s2">"boincurl=www.worldcommunitygrid.org"</span> -e <span class="s2">"boinckey=1234567890"</span> rsmitty/boinc</code></pre></figure>
+
+<ul>
+  <li>Once launched, we can peek in on our jobs by either allocating a new TTY to the container with <code class="highlighter-rouge">docker exec -ti wcg /bin/bash</code> or <code class="highlighter-rouge">docker logs wcg</code></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MacBook-Pro:boinc spencer<span class="nv">$ </span>docker logs wcg
+ <span class="k">*</span> Starting BOINC core client: boinc                                     <span class="o">[</span> OK <span class="o">]</span>
+ <span class="k">*</span> Setting up scheduling <span class="k">for </span>BOINC core client and children:
+
+....
+
+29-Aug-2015 15:48:49 <span class="o">[</span>World Community Grid] Started download of 933fbd61802442e2861afa0b31aedcc6.pdbqt
+29-Aug-2015 15:48:51 <span class="o">[</span>World Community Grid] Finished download of 933fbd61802442e2861afa0b31aedcc6.pdbqt</code></pre></figure>
+
+<p>That’s it! You can check in on your accomplishments for each project in your account settings. You can find my image for this tutorial in the <a href="https://hub.docker.com/r/rsmitty/boinc/">Docker Hub</a>. If you wish to learn more about the BOINC project itself, please visit their <a href="https://boinc.berkeley.edu/">website</a>.</p>
+
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="/tags/#docker" title="Pages tagged docker" class="tag"><span class="term">docker</span></a><a href="/tags/#grid" title="Pages tagged grid" class="tag"><span class="term">grid</span></a><a href="/tags/#containers" title="Pages tagged containers" class="tag"><span class="term">containers</span></a></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/Containerizing-The-Grid/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/Containerizing-The-Grid/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=/Containerizing-The-Grid/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="/Creating-A-RancherOS-QCOW/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="/Terraform-Ansible-Kubernetes/" title="Deploy Kubernetes w/ Ansible & Terraform">Deploy Kubernetes w/ Ansible & Terraform</a></h3>
+      <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I've recently had some clients that have been interested...&hellip; <a href="/Terraform-Ansible-Kubernetes/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="/Creating-A-RancherOS-QCOW/" title="Creating RancherOS Image for OpenStack">Creating RancherOS Image for OpenStack</a></h4>
+        <span>Published on July 15, 2015</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="/Removing-Cruft-From-Docker/" title="Removing Cruft From Docker">Removing Cruft From Docker</a></h4>
+        <span>Published on July 10, 2015</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
+
+
+	        
+
+</body>
+</html>

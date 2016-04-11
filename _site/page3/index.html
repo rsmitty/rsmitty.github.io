@@ -16,7 +16,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Latest Posts">
 <meta property="og:description" content="Describe this nonsense.">
-<meta property="og:url" content="/page3/index.html">
+<meta property="og:url" content="/page3/">
 <meta property="og:site_name" content="Spencer's Blog">
 
 
@@ -74,6 +74,7 @@
 					<h4>Spencer Smith</h4>
 					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
 				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
 				<li>
 					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
 				</li>
@@ -81,10 +82,10 @@
 				
 				
 				<li>
-					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
 				</li>
 				<li>
-					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
 				</li>
 				
 				
@@ -100,6 +101,12 @@
 			</ul>
 		</li>
 		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
 	</ul><!-- /.dl-menu -->
 </nav><!-- /.dl-menuwrapper -->
 
@@ -125,12 +132,620 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-02-14T00:00:00-05:00"><a href="/Showing-dd-Progress-in-Terminal/">February 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Showing-dd-Progress-in-Terminal/" rel="bookmark" title="Showing dd Progress" itemprop="url">Showing dd Progress</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>As I was trying to write an ISO to a USB drive, I wanted to see the progress when
+using the ‘dd’ command line tool. I found a quick pointer on StackOverflow to use
+the ‘pv’ command, so I adapted a little to use on a Mac. This will also serve
+as a guide on how to write ISOs on Mac. Here’s how:</p>
+
+<ul>
+  <li>Install pv with homebrew: <code class="highlighter-rouge">brew install pv</code></li>
+  <li>Find your USB drive with <code class="highlighter-rouge">diskutil list</code>. Should be pretty easy to spot the
+USB drive as it will be smaller than the other disks. Tread lightly though, don’t
+mess with your hard drive. I’ll use /dev/disk3, as that’s what my command returned.</li>
+  <li>Unmount it with <code class="highlighter-rouge">diskutil unmountDisk /dev/disk3</code>.</li>
+  <li>Become root with <code class="highlighter-rouge">sudo su</code></li>
+  <li>Write your iso with this general layout, substituting paths where necessary:
+<code class="highlighter-rouge">dd if=/path/to/your.iso | pv | dd of=/dev/disk3 bs=1024k</code>.</li>
+</ul>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-02-14T00:00:00-05:00"><a href="/Getting-Started-With-Packer/">February 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~4 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Getting-Started-With-Packer/" rel="bookmark" title="Getting Started with Packer" itemprop="url">Getting Started with Packer</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>As part of a new job I’m taking, I wanted to learn more about image building
+for Openstack and other virtual environments. I’ve done it by hand for the customized
+OSes at my old job, but I haven’t had the chance to explore any automated solutions.
+I was pointed to Packer as a tool to build several different images at the same time (and automatically). It sounds like a great project and I’m going to use this post to
+get up to speed with using the basics. One quick caveat from the outset is that
+I’m not going to use Amazon at first. I’ll be running against my home Openstack lab
+since it’s free and a good excuse to get my homelab back in order.</p>
+
+<h2 id="install-packer"><strong>Install Packer</strong></h2>
+
+<p>I’ve got a shiny new Macbook, and installing Packer was actually really easy.
+The way I did it depended on homebrew, but you can also install manually from
+from their docs <a href="https://www.packer.io/intro/getting-started/setup.html">here</a>.</p>
+
+<ul>
+  <li>In terminal, ensure that you have homebrew setup by issuing <code class="highlighter-rouge">brew</code>.</li>
+  <li>Add the necessary tap with <code class="highlighter-rouge">brew tap homebrew/binary</code>.</li>
+  <li>Finally, install packer with <code class="highlighter-rouge">brew install packer</code>.</li>
+  <li>You can test it’s installed by simply issuing <code class="highlighter-rouge">packer</code> in the terminal.</li>
+</ul>
+
+<h2 id="get-openstack-ready"><strong>Get Openstack Ready</strong></h2>
+<p>I run an all-in-one deployment of RDO Openstack at home. Obviously, there’s a
+million different ways to deploy, but <a href="https://openstack.redhat.com/Quickstart">here</a>
+and <a href="https://openstack.redhat.com/Neutron_with_existing_external_network">here</a>
+are the pieces that I followed. It’s important to note that in my lab, instances
+come alive on a private network, then get access to my router’s 192.168.1.0/24 block
+via floating IPs. This will come in to play a bit later with the Packer template.</p>
+
+<ul>
+  <li>
+    <p>Get a known good image into Glance by importing one of the big distros. I used
+the Ubuntu 14.04 LTS image found <a href="https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img">here</a>. You can just put that link into Glance’s import dialog. My final dialog looked like this:
+<a href="/img/posts/2015-02-14-getting-started-with-packer/glance-dialog.png">
+<img src="/img/posts/2015-02-14-getting-started-with-packer/glance-dialog.png" style="max-width:100%; border:solid 1px;" /></a></p>
+  </li>
+  <li>
+    <p>Take note of the new image’s UUID, we’ll need that later:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>nova image-list
++--------------------------------------+-------------------+--------+----------+
+| ID                                   | Name              | Status | Server
++--------------------------------------+-------------------+--------+----------+
+| bf2ad7f1-3823-4ad2-a788-44a25827c93e | cirros            | ACTIVE |
+| b3a4368b-7368-45e5-bfe4-63f59d732c41 | ubuntu 14.04      | ACTIVE |
++--------------------------------------+-------------------+--------+----------+</code></pre></figure>
+
+<h2 id="write-packer-template"><strong>Write Packer Template</strong></h2>
+<p>Okay, time to get busy. Let’s write a template for Packer to create an image list.
+We’ll need to gather some info first.</p>
+
+<ul>
+  <li>Get your keystone info by catting out your keystonerc file. For me, this was
+<code class="highlighter-rouge">cat keystonerc_admin</code>. Some info below has been changed to protect the innocent.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>rsmitty@localhost ~<span class="o">(</span>keystone_admin<span class="o">)]</span><span class="nv">$ </span>cat keystonerc_admin
+<span class="nb">export </span><span class="nv">OS_USERNAME</span><span class="o">=</span>admin
+<span class="nb">export </span><span class="nv">OS_TENANT_NAME</span><span class="o">=</span>admin
+<span class="nb">export </span><span class="nv">OS_PASSWORD</span><span class="o">=</span>testpass
+<span class="nb">export </span><span class="nv">OS_AUTH_URL</span><span class="o">=</span>http://192.168.1.200:5000/v2.0/
+<span class="nb">export </span><span class="nv">OS_REGION_NAME</span><span class="o">=</span>RegionOne
+<span class="nb">export </span><span class="nv">PS1</span><span class="o">=</span><span class="s1">'[\u@\h \W(keystone_admin)]\$ '</span></code></pre></figure>
+
+<ul>
+  <li>
+    <p>Create a new json file somewhere on your machine. I simply called mine packer_template.</p>
+  </li>
+  <li>
+    <p>There’s a lot of options for Openstack in Packer (found <a href="https://www.packer.io/docs/builders/openstack.html">here</a>). Some of this will
+vary by the way your particular Openstack deployment is set up, but for me, this
+template contains all of the necessary basic fields:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
+  </span><span class="nt">"builders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"openstack"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"testpass"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://192.168.1.200:5000/v2.0"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ssh_username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ubuntu"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"project"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RegionOne"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"image_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Packer Test Image"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"source_image"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b3a4368b-7368-45e5-bfe4-63f59d732c41"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"flavor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0d7e469c-e99b-4267-b154-35874b224f54"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"networks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"0296eb7d-7f94-4cc1-b42f-f2d680b81359"</span><span class="p">],</span><span class="w">
+      </span><span class="nt">"use_floating_ip"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
+
+<p>Notes about what’s what:</p>
+
+<ol>
+  <li><strong>username &amp; password</strong>: Map to OS_USERNAME and OS_PASSWORD from source file</li>
+  <li><strong>provider</strong>: Maps to OS_AUTH_URL</li>
+  <li><strong>region</strong>: Maps to OS_REGION_NAME</li>
+  <li><strong>source image</strong>: UUID of the Ubuntu image we talked about earlier</li>
+  <li><strong>flavor</strong>: UUID of my m1.tiny flavor. Beware, this changes on any flavor update!</li>
+  <li><strong>networks</strong>: UUID of my private network. Can be an array of several networks.</li>
+  <li><strong>use_floating_ip</strong>: As mentioned earlier, floating IP allows Packer to actually
+SSH to this server across my home network.</li>
+</ol>
+
+<h2 id="test-time"><strong>Test Time!</strong></h2>
+<p>Let’s see if this thing will actually create an image for us.</p>
+
+<ul>
+  <li>
+    <p>Save your template if you haven’t already.</p>
+  </li>
+  <li>
+    <p>Validate the template to make sure there aren’t any glaring errors with
+<code class="highlighter-rouge">packer validate NAME_OF_TEMPLATE.json</code>. This should return the text
+‘Template validated successfully.’</p>
+  </li>
+  <li>
+    <p>Run the template with <code class="highlighter-rouge">packer build NAME_OF_TEMPLATE.json</code>. For me, this
+gave the following output when everything completely worked:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Spencers-MBP:Desktop spencer<span class="nv">$ </span>packer build packer_template
+openstack output will be <span class="k">in </span>this color.
+
+<span class="gp">==&gt; </span>openstack: Creating temporary keypair <span class="k">for </span>this instance...
+<span class="gp">==&gt; </span>openstack: Waiting <span class="k">for </span>server <span class="o">(</span>82db25b2-e1a5-4aef-be4a-cfccf744e103<span class="o">)</span> to become ready...
+<span class="gp">==&gt; </span>openstack: Created temporary floating IP 192.168.1.204...
+<span class="gp">==&gt; </span>openstack: Added floating IP 192.168.1.204 to instance...
+<span class="gp">==&gt; </span>openstack: Waiting <span class="k">for </span>SSH to become available...
+<span class="gp">==&gt; </span>openstack: Connected to SSH!
+<span class="gp">==&gt; </span>openstack: Creating the image: Packer Test Image
+<span class="gp">==&gt; </span>openstack: Image: 70a610e9-302a-40f4-a4ca-59b6ad260e63
+<span class="gp">==&gt; </span>openstack: Waiting <span class="k">for </span>image to become ready...
+<span class="gp">==&gt; </span>openstack: Terminating the <span class="nb">source </span>server...
+<span class="gp">==&gt; </span>openstack: Deleting temporary keypair...
+Build <span class="s1">'openstack'</span> finished.</code></pre></figure>
+
+<ul>
+  <li>Nice! Seemed to work. Now if we head out to the Glance UI, we can see that our
+shiny new image hanging out!
+<a href="/img/posts/2015-02-14-getting-started-with-packer/image-present.png">
+<img src="/img/posts/2015-02-14-getting-started-with-packer/image-present.png" style="max-width:100%; border:solid 1px;" /></a></li>
+</ul>
+
+<h2 id="well-now-what"><strong>Well, Now What?</strong></h2>
+<p>So we’ve built an image with Packer, which is great. But the real value here comes
+with building on multiple platforms at the same time and also doing some provisioning
+to install the necessities before creating the image.</p>
+
+<p>This tutorial is getting pretty long in the tooth, so I’m not going to add another provider to create an image on, but I do want to actually install something to actually change something about the image. Let’s install Apache as part of the
+build. Note that in a proper environment, we would probably just install Apache
+and we would let our config manangement tool handle deploying our webpage, since
+that’s the kind of thing we would want to checkout from version control at boot
+time.</p>
+
+<p>Here’s the template:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">{</span>
+  <span class="s2">"builders"</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"type"</span>: <span class="s2">"openstack"</span>,
+      <span class="s2">"username"</span>: <span class="s2">"admin"</span>,
+      <span class="s2">"password"</span>: <span class="s2">"testpass"</span>,
+      <span class="s2">"provider"</span>: <span class="s2">"http://192.168.1.200:5000/v2.0"</span>,
+      <span class="s2">"ssh_username"</span>: <span class="s2">"ubuntu"</span>,
+      <span class="s2">"project"</span>: <span class="s2">"admin"</span>,
+      <span class="s2">"region"</span>: <span class="s2">"RegionOne"</span>,
+      <span class="s2">"image_name"</span>: <span class="s2">"Packer Test Image"</span>,
+      <span class="s2">"source_image"</span>: <span class="s2">"b3a4368b-7368-45e5-bfe4-63f59d732c41"</span>,
+      <span class="s2">"flavor"</span>: <span class="s2">"0d7e469c-e99b-4267-b154-35874b224f54"</span>,
+      <span class="s2">"networks"</span>: <span class="o">[</span><span class="s2">"0296eb7d-7f94-4cc1-b42f-f2d680b81359"</span><span class="o">]</span>,
+      <span class="s2">"use_floating_ip"</span>: <span class="nb">true</span>
+    <span class="o">}</span>
+  <span class="o">]</span>,
+   <span class="s2">"provisioners"</span>: <span class="o">[{</span>
+    <span class="s2">"type"</span>: <span class="s2">"shell"</span>,
+    <span class="s2">"inline"</span>: <span class="o">[</span>
+      <span class="s2">"sleep 30"</span>,
+      <span class="s2">"sudo apt-get update"</span>,
+      <span class="s2">"sudo apt-get install -y apache2"</span>
+    <span class="o">]</span>
+  <span class="o">}]</span>
+<span class="o">}</span></code></pre></figure>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2014-09-16T00:00:00-04:00"><a href="/clamscan-files-by-date/">September 16, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~3 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/clamscan-files-by-date/" rel="bookmark" title="Scanning Only New Files With Clamscan" itemprop="url">Scanning Only New Files With Clamscan</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>So, I ran into a need to scan some files for viruses on Ubuntu this past week. However, a couple of things prevented this from being straight forward:</p>
+
+<ul>
+  <li>
+    <p>I couldn’t be sure where these files were being stored.</p>
+  </li>
+  <li>
+    <p>I didn’t want to scan the entire filesystem just to get at these few files.</p>
+  </li>
+</ul>
+
+<p>So I went out looking for a way to scan only new files with clamscan. After a good bit of digging, I ran across <a href="http://www.gossamer-threads.com/lists/clamav/users/53298">this</a> old thread where someone had a similar question. So after getting a pointer there, I was able to make this happen. Here is the way to do it:</p>
+
+<h2 id="install-clamav"><strong>Install ClamAV</strong></h2>
+
+<ul>
+  <li>
+    <p>Issue <code class="highlighter-rouge">sudo apt-get install clamav</code> to get the freshclam and clamscan commands.</p>
+  </li>
+  <li>
+    <p>Update the virus definitions with a <code class="highlighter-rouge">sudo freshclam</code>. This will take a few seconds the first time.</p>
+  </li>
+</ul>
+
+<h2 id="get-ya-find-right"><strong>Get Ya Find Right</strong></h2>
+
+<p>Now this took a bit of playing around with to get where I wanted. I wanted to find all files of a certain type that had been created or modified in the past week. There’s also some differences to note about mtime vs. ctime vs. atime as a flag for find. <a href="http://www.linux-faqs.info/general/difference-between-mtime-ctime-and-atime">Linux-FAQs.info</a> did a good job of explaining these differences:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">ctime - ctime is the inode or file change time. The ctime gets updated when the file attributes are changed, like changing the owner, changing the permission or moving the file to an other filesystem but will also be updated when you modify a file.
+
+mtime - mtime is the file modify time. The mtime gets updated when you modify a file. Whenever you update content of a file or save a file the mtime gets updated.
+
+*Most of the times ctime and mtime will be the same, unless only the file attributes are updated. In that case only the ctime gets updated.*
+
+atime - atime is the file access time. The atime gets updated when you open a file but also when a file is used for other operations like grep, sort, cat, head, tail and so on.</code></pre></figure>
+
+<p>For my purposes, I wanted EVERYTHING that had changed, so that pointed to using the ctime flag. For a first test, I just wanted to see how many items find would return. I was able to do that by issuing (edited to look for .md files, just for laughs): <code class="highlighter-rouge">sudo find / -name "*.md" -ctime -7 -type f | wc -l</code>. That command simply returns the number 5 on my machine at the time of writing. Let’s not pipe it out to wc so we can see those files:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">rsmitty@rsmitty-notebook:~$ </span>sudo find / -name <span class="s2">"*.md"</span> -ctime -7 -type f
+/home/rsmitty/Desktop/usenet-dashboard/README.md
+/home/rsmitty/Desktop/rsmitty.github.io/_posts/2014-09-07-creating-a-blog-2.md
+/home/rsmitty/Desktop/rsmitty.github.io/_posts/2014-09-16-clamscan-files-by-date.md
+/home/rsmitty/.xbmc/addons/service.xbmc.versioncheck/README.md
+/usr/share/xbmc/addons/service.xbmc.versioncheck/README.md</code></pre></figure>
+
+<p><strong>Note: You’ll have to do almost everything with ClamAV as root user. Also, you can change the number of days to scan for by changing the ‘-7’ portion of the command.</strong></p>
+
+<p>Okay, slightly more interesting, and now we know what we’re working with. Let’s move on…</p>
+
+<h2 id="enter-xargs"><strong>Enter Xargs</strong></h2>
+
+<p>Using xargs was a first for me as part of this little endeavor. It’s a really handy tool to add to the toolbox! If you’ve ever tried to run a bash command like <code class="highlighter-rouge">rm *</code> and received an error like “Argument list too long”, xargs is the answer to your problems. It takes the argument list and breaks it down into smaller pieces. It’ll then run subsequent commands with each sublist. For the purposes of what I was doing initally, there were about 7,000 files to scan, xargs was able to break those up into two scans of ~3,000 files and one scan of ~1,000. Worked great!</p>
+
+<p>Here’s the final command that I used:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo find / -name <span class="s2">"*.md"</span> -ctime -7 -type f -print0 | sudo xargs -0 clamscan --remove --log<span class="o">=</span>/home/rsmitty/clamscan.log</code></pre></figure>
+
+<ul>
+  <li>The –remove flag just means that if a vulnerability is found in that file, delete the file immediately.</li>
+  <li>the –log flag sets the path of the log file that clamscan will write. You will need to do this for sure if you have lots of files to scan, because several scan summaries will be written to this file.</li>
+</ul>
+
+<p>After running, the log file will look something like this:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">rsmitty@rsmitty-notebook:~$ </span>sudo cat /home/rsmitty/clamscan.log 
+
+----------- SCAN SUMMARY -----------
+Known viruses: 3560111
+Engine version: 0.98.1
+Scanned directories: 0
+Scanned files: 5
+Infected files: 0
+Data scanned: 0.02 MB
+Data <span class="nb">read</span>: 0.01 MB <span class="o">(</span>ratio 2.50:1<span class="o">)</span>
+Time: 6.441 sec <span class="o">(</span>0 m 6 s<span class="o">)</span></code></pre></figure>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2014-09-07T00:00:00-04:00"><a href="/creating-a-blog-2/">September 07, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+Reading time ~5 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/creating-a-blog-2/" rel="bookmark" title="Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 2" itemprop="url">Creating A Blog With Github Pages, Jekyll, And Bootstrap - Part 2</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>After <a href="../06/creating-a-blog-1.html">part one</a> of this tutorial, we have a development environment setup that’s ready for us to really start making some headway in getting a presentable blog up and running. In this tutorial, I’ll show how I plugged Bootstrap’s example blog theme into my site and also guide through creating a first post.</p>
+
+<h3 id="create-a-default-layout"><strong>Create A Default Layout</strong></h3>
+
+<ul>
+  <li>First, we’ll want to get our code syntax highligting to work. Create a CSS file in the root of your Github repo called pygments.css by issuing: <code class="highlighter-rouge">pygmentize -S default -f html &gt; pygments.css</code></li>
+</ul>
+
+<p><strong><em>Note: This step may not be necessary for everyone, but I’ll be including a call to pygments.css in the next step. So if you’re following along step-by-step, it may be worth going ahead and doing this.</em></strong></p>
+
+<ul>
+  <li>Let’s create a default template for all of our pages to use. This is where the special folders that we created in the last tutorial come into play. Change into the _layouts directory and open a file called default.html for editing. I’ve created a basic template that imports the necessary CSS and Javascript files for the Bootstrap example blog. I’m relying on the public URLs for those imports; however, if you want to ensure that they are always functional, you’ll want to download these files manually and import them from a path inside your repo. Add the following to the default.html file:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">content=</span><span class="s">'text/html; charset=utf-8'</span> <span class="na">http-equiv=</span><span class="s">'Content-Type'</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">'X-UA-Compatible'</span> <span class="na">content=</span><span class="s">'IE=edge'</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">'viewport'</span> <span class="na">content=</span><span class="s">'width=device-width, initial-scale=1.0, maximum-scale=1.0'</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;title&gt;</span>{{ site.name }}<span class="nt">&lt;/title&gt;</span>
+
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"author"</span> <span class="na">content=</span><span class="s">"{{ site.name }}"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"description"</span> <span class="na">content=</span><span class="s">"{{ site.description }}"</span><span class="nt">&gt;</span>
+
+    <span class="c">&lt;!-- Bootstrap CSS Files --&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"http://getbootstrap.com/examples/blog/blog.css"</span><span class="nt">&gt;</span>
+    
+    <span class="c">&lt;!-- Pygments CSS File for Syntax Highlighting --&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"/pygments.css"</span><span class="nt">&gt;</span>
+
+  <span class="nt">&lt;/head&gt;</span>
+
+  <span class="nt">&lt;body&gt;</span>
+
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"blog-masthead navbar-fixed-top"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;nav</span> <span class="na">class=</span><span class="s">"blog-nav"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"blog-nav-item"</span> <span class="na">href=</span><span class="s">"#"</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;</span>
+          <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"blog-nav-item"</span> <span class="na">href=</span><span class="s">"#"</span><span class="nt">&gt;</span>About<span class="nt">&lt;/a&gt;</span>
+        <span class="nt">&lt;/nav&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"blog-header"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">"blog-title"</span><span class="nt">&gt;</span>{{site.name}}<span class="nt">&lt;/h1&gt;</span>
+        <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"lead blog-description"</span><span class="nt">&gt;</span>{{site.description}}<span class="nt">&lt;/p&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-sm-8 blog-main"</span><span class="nt">&gt;</span>
+          {{ content }}
+      <span class="nt">&lt;/div&gt;</span>
+
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-sm-3 col-sm-offset-1 blog-sidebar"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"sidebar-module sidebar-module-inset"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;h4&gt;</span>About<span class="nt">&lt;/h4&gt;</span>
+        <span class="nt">&lt;p&gt;</span>{{site.about}}<span class="nt">&lt;/p&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"sidebar-module sidebar-module-inset"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;h4&gt;</span>Contact Info<span class="nt">&lt;/h4&gt;</span>
+        <span class="nt">&lt;ol</span> <span class="na">class=</span><span class="s">"list-unstyled"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">target=</span><span class="s">"_blank"</span><span class="nt">&gt;</span>Github<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+          <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">target=</span><span class="s">"_blank"</span><span class="nt">&gt;</span>LinkedIn<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+        <span class="nt">&lt;/ol&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+
+  <span class="c">&lt;!-- Bootstrap JS Files --&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span></code></pre></figure>
+
+<h3 id="edit-the-index-page"><strong>Edit The Index Page</strong></h3>
+
+<ul>
+  <li>Let’s tell our index.html page to use our snazzy new layout. Edit your index.html page to look like the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html">---
+layout: default
+---
+
+Hello, World!</code></pre></figure>
+
+<p><strong><em>Note: The YAML at the top of this page allows us to specify certain behavior from page to page. For example, we’re telling this page to load our default template. However, if we created another template called foo later on in the future, we could simply change the layout variable to point to the new foo layout.</em></strong></p>
+
+<ul>
+  <li>
+    <p>Refresh the localhost:4000 page in your browser and you should see the new layout load, along with all of the site info that we entered in _config.yml in the last tutorial.
+<a href="/img/posts/2014-09-07-creating-a-blog-2/bootstrap-loaded.png">
+<img src="/img/posts/2014-09-07-creating-a-blog-2/bootstrap-loaded.png" style="max-width:100%; border:solid 1px;" />
+</a></p>
+  </li>
+  <li>
+    <p>Looks good! Now, we’d rather the index page say something other than “Hello, World”. In fact, we want the first thing that people see to be a list of all of the highly interesting and potentially life changing posts that we’ll be making as our blogging continues. Let’s now edit our index.html to look like the following:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html">---
+layout: default
+---
+
+{% for post in site.posts %}
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"blog-post"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;h2</span> <span class="na">class=</span><span class="s">"blog-post-title"</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">""</span><span class="nt">&gt;</span>{{ post.title }}<span class="nt">&lt;/a&gt;&lt;/h2&gt;</span>
+      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"blog-post-meta"</span><span class="nt">&gt;</span>Written {{ post.date | date: "%m.%d.%Y" }} by {{post.author}}<span class="nt">&lt;/p&gt;</span>
+        {{ post.content | truncatewords:40}}  
+      <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">""</span> <span class="na">class=</span><span class="s">"read-more"</span><span class="nt">&gt;</span>Read More<span class="nt">&lt;/a&gt;</span>
+      <span class="nt">&lt;hr&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+{% endfor %}</code></pre></figure>
+
+<p>This tells Jekyll to run a for-loop before displaying the index.html page. As this loop runs, a div is created for each blog post, along with some info about the post (author, date, etc.). It also truncates the post to 40 words and provides a link to read the full text. A refresh will be pretty blank right now, as there’s not any posts and it looks a bit silly. Let’s create a dummy post to fill things out a bit.</p>
+
+<h3 id="create-a-post"><strong>Create A Post</strong></h3>
+<ul>
+  <li>
+    <p>Creating a post is a bit of pretty cool black magic on Jekyll’s side. It expects a specific type of filename and reside in the _posts directory. So let’s create a file named like YEAR-MONTH-DAY-TITLE.md. At the time of this writing, I’m issuing <code class="highlighter-rouge">touch 2014-09-07-hello-post-world.md</code>.</p>
+  </li>
+  <li>
+    <p>Inside that file, we’ll add some YAML configuration to the top to tell it some info about layout, title, and author. Edit the file to look like this and feel free to the author and text to whatever you wish:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">---
+layout: posts
+author: Spencer
+title: Hello, Post World!
+---
+
+Here's some pretty incredible text to prove that it actually shows up in our index page and I'll continue rambling here in hopes that I hit forty words and the post gets truncated. That will allow us to see the "Read More" link appear on our post.</code></pre></figure>
+
+<ul>
+  <li>Refresh the localhost:4000 page and you’ll see your first post appear!
+<a href="/img/posts/2014-09-07-creating-a-blog-2/first-post.png">
+<img src="/img/posts/2014-09-07-creating-a-blog-2/first-post.png" style="max-width:100%; border:solid 1px;" />
+</a></li>
+</ul>
+
+<p>Nice! Until you click the “Read More” or the title of the post. There’s no posts.html in _layouts, which is what we specified at the top of our file just a second ago. We can’t really use the default layout we created, because it’s missing a couple of things like post title and a back button that we’d want on single posts, but not on the main page.</p>
+
+<h3 id="create-a-layout-for-posts"><strong>Create A Layout For Posts</strong></h3>
+<ul>
+  <li>Create a file called posts.html and place it in the _layouts directory. Populate the file with the following:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">content=</span><span class="s">'text/html; charset=utf-8'</span> <span class="na">http-equiv=</span><span class="s">'Content-Type'</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">'X-UA-Compatible'</span> <span class="na">content=</span><span class="s">'IE=edge'</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">'viewport'</span> <span class="na">content=</span><span class="s">'width=device-width, initial-scale=1.0, maximum-scale=1.0'</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;title&gt;</span>{{ site.name }}<span class="nt">&lt;/title&gt;</span>
+
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"author"</span> <span class="na">content=</span><span class="s">"{{ site.name }}"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"description"</span> <span class="na">content=</span><span class="s">"{{ site.description }}"</span><span class="nt">&gt;</span>
+
+    <span class="c">&lt;!-- Latest compiled and minified CSS --&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"</span><span class="nt">&gt;</span>
+
+    <span class="c">&lt;!-- Optional theme --&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"http://getbootstrap.com/examples/blog/blog.css"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"/pygments.css"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+
+  <span class="nt">&lt;body&gt;</span>
+
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"blog-masthead navbar-fixed-top"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;nav</span> <span class="na">class=</span><span class="s">"blog-nav"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"blog-nav-item"</span> <span class="na">href=</span><span class="s">"/"</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;</span>
+        <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"blog-nav-item"</span> <span class="na">href=</span><span class="s">"#"</span><span class="nt">&gt;</span>About<span class="nt">&lt;/a&gt;</span>
+      <span class="nt">&lt;/nav&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"blog-header"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">"blog-title"</span><span class="nt">&gt;</span>{{site.name}}<span class="nt">&lt;/h1&gt;</span>
+      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"lead blog-description"</span><span class="nt">&gt;</span>{{site.description}}<span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-sm-8 blog-main"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"blog-post"</span><span class="nt">&gt;</span>   
+            <span class="nt">&lt;h2</span> <span class="na">class=</span><span class="s">"blog-post-title"</span><span class="nt">&gt;</span>{{ page.title }}<span class="nt">&lt;/h2&gt;</span>
+            <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"blog-post-meta"</span><span class="nt">&gt;</span>Written {{ page.date | date: "%m.%d.%Y" }} by {{page.author}}<span class="nt">&lt;/p&gt;</span>
+            <span class="nt">&lt;hr&gt;</span>
+              {{content}}
+            <span class="nt">&lt;hr&gt;</span>
+            <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/"</span><span class="nt">&gt;</span><span class="err">&lt;</span><span class="nt">&lt; Back</span><span class="err">&lt;/</span><span class="na">a</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-sm-3 col-sm-offset-1 blog-sidebar"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"sidebar-module sidebar-module-inset"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;h4&gt;</span>About<span class="nt">&lt;/h4&gt;</span>
+          <span class="nt">&lt;p&gt;</span>{{site.about}}<span class="nt">&lt;/p&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"sidebar-module sidebar-module-inset"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;h4&gt;</span>Contact Info<span class="nt">&lt;/h4&gt;</span>
+          <span class="nt">&lt;ol</span> <span class="na">class=</span><span class="s">"list-unstyled"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">target=</span><span class="s">"_blank"</span><span class="nt">&gt;</span>Github<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+            <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">target=</span><span class="s">"_blank"</span><span class="nt">&gt;</span>LinkedIn<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+          <span class="nt">&lt;/ol&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+
+
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span></code></pre></figure>
+
+<ul>
+  <li>Now, let’s click on a link to our post and see it in all of it’s glory!
+<a href="/img/posts/2014-09-07-creating-a-blog-2/post-layout.png">
+<img src="/img/posts/2014-09-07-creating-a-blog-2/post-layout.png" style="max-width:100%; border:solid 1px;" />
+</a></li>
+</ul>
+
+<h3 id="closing"><strong>Closing</strong></h3>
+<p>Well, that’s pretty much it for how I created my new blog. Now is probably a good time to push all of this to Github and ensure it works properly if you’re following along with these instructions. I hope this has been a helpful write-up and I’m sure I’ll document other cool stuff that I run into as I learn to use Jekyll more effectively. It’s now up to you to create lots and lots of posts on your own blog!</p>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2014-09-06T00:00:00-04:00"><a href="/creating-a-blog-1/">September 06, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
       
       <span class="entry-reading-time">
         <i class="fa fa-clock-o"></i>
         
-        Reading time ~4 minutes
+Reading time ~4 minutes
       </span><!-- /.entry-reading-time -->
       
     </div><!-- /.entry-meta -->
@@ -156,22 +771,22 @@
 </a></p>
 
 <ul>
-  <li>Now, let’s clone our repo locally. This should be as simple as a <code>git clone https://github.com/USERNAME/USERNAME.github.io.git</code> in some place that you’re comfortable with. If you change into that directory, you’ll see it’s currently empty, unless you created a README or LICENSE file as part of your repo creation.</li>
+  <li>Now, let’s clone our repo locally. This should be as simple as a <code class="highlighter-rouge">git clone https://github.com/USERNAME/USERNAME.github.io.git</code> in some place that you’re comfortable with. If you change into that directory, you’ll see it’s currently empty, unless you created a README or LICENSE file as part of your repo creation.</li>
 </ul>
 
-<p><strong><em>Note: If you don’t have git installed, issue <code>sudo apt-get install git</code> to install.</em></strong></p>
+<p><strong><em>Note: If you don’t have git installed, issue <code class="highlighter-rouge">sudo apt-get install git</code> to install.</em></strong></p>
 
 <h3 id="install-the-basics"><strong>Install The Basics</strong></h3>
 
 <ul>
   <li>
-    <p>Let’s grab some packages we need to serve our site locally. This will be useful when writing posts, so you don’t have to push to Github constantly just to see what it looks like. Issue <code>sudo apt-get install ruby ruby1.9.1-dev python-pip</code>.</p>
+    <p>Let’s grab some packages we need to serve our site locally. This will be useful when writing posts, so you don’t have to push to Github constantly just to see what it looks like. Issue <code class="highlighter-rouge">sudo apt-get install ruby ruby1.9.1-dev python-pip</code>.</p>
   </li>
   <li>
-    <p>We’ll need a Javascript parser and the Jekyll gem, so get NodeJS and Jekyll from rubygems: <code>sudo gem install node jekyll</code></p>
+    <p>We’ll need a Javascript parser and the Jekyll gem, so get NodeJS and Jekyll from rubygems: <code class="highlighter-rouge">sudo gem install node jekyll</code></p>
   </li>
   <li>
-    <p>This step is optional for some, but I needed syntax highlighting for code blocks. So install the Pygments package for Python: <code>sudo pip install Pygments</code></p>
+    <p>This step is optional for some, but I needed syntax highlighting for code blocks. So install the Pygments package for Python: <code class="highlighter-rouge">sudo pip install Pygments</code></p>
   </li>
 </ul>
 
@@ -181,10 +796,10 @@
 
 <ul>
   <li>
-    <p>Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front. Issue <code>mkdir _layouts _posts</code></p>
+    <p>Change into your repo directory in a terminal. Create two directories, _layouts and _posts. They must be named exactly that, including the underscore at the front. Issue <code class="highlighter-rouge">mkdir _layouts _posts</code></p>
   </li>
   <li>
-    <p>Let’s also touch a couple of files that we’ll use later on. Issue <code>touch _config.yml index.html</code></p>
+    <p>Let’s also touch a couple of files that we’ll use later on. Issue <code class="highlighter-rouge">touch _config.yml index.html</code></p>
   </li>
 </ul>
 
@@ -194,13 +809,13 @@
   <li>We could probably do this part much later in the tutorial, but let’s go ahead and put some basic info about our site in the _config.yml file. Feel free to edit these fields to your liking, with the exception of the ‘highlighter’ option. That is for our code highlighting.</li>
 </ul>
 
-<div class="highlight"><pre><code class="language-text" data-lang="text">name: &quot;Test Blog&quot;
+<figure class="highlight"><pre><code class="language-text" data-lang="text">name: "Test Blog"
 
-description: &quot;A snazzy new blog, just for me!&quot;
+description: "A snazzy new blog, just for me!"
 
-about: &quot;Here&#39;s a bit of text that we&#39;ll put in an about section later on in our tutorial. I&#39;m intentionally making it a little longer so that the section will look fuller later...&quot;
+about: "Here's a bit of text that we'll put in an about section later on in our tutorial. I'm intentionally making it a little longer so that the section will look fuller later..."
 
-highlighter: pygments</code></pre></div>
+highlighter: pygments</code></pre></figure>
 
 <h3 id="test-our-local-server"><strong>Test Our Local Server</strong></h3>
 
@@ -209,19 +824,19 @@ highlighter: pygments</code></pre></div>
     <p>Now, what’s a tutorial without a “Hello, World!” portion? Let’s go ahead and edit index.html to say that. The “Hello, World!” text should be the only thing in the file.</p>
   </li>
   <li>
-    <p>In the root of your repo, let’s tell Jekyll to server our pages so we can see if everything works. Issue <code>jekyll serve --watch</code>. The watch flag will monitor the repo for changed files and regenerate automatically, so you don’t have to start/stop the process. However, I’ve noticed that’s not the case for certain files, namely _config.yml. Your terminal should look something like this when you start the process:</p>
+    <p>In the root of your repo, let’s tell Jekyll to server our pages so we can see if everything works. Issue <code class="highlighter-rouge">jekyll serve --watch</code>. The watch flag will monitor the repo for changed files and regenerate automatically, so you don’t have to start/stop the process. However, I’ve noticed that’s not the case for certain files, namely _config.yml. Your terminal should look something like this when you start the process:</p>
   </li>
 </ul>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
             Source: /home/rsmitty/Desktop/rsmitty.github.io
        Destination: /home/rsmitty/Desktop/rsmitty.github.io/_site
       Generating...
                     <span class="k">done</span>.
- Auto-regeneration: enabled <span class="k">for</span> <span class="s1">&#39;/home/rsmitty/Desktop/rsmitty.github.io&#39;</span>
+ Auto-regeneration: enabled <span class="k">for</span> <span class="s1">'/home/rsmitty/Desktop/rsmitty.github.io'</span>
 Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
     Server address: http://0.0.0.0:4000/
-  Server running... press ctrl-c to stop.</code></pre></div>
+  Server running... press ctrl-c to stop.</code></pre></figure>
 
 <ul>
   <li>Open the address http://localhost:4000 in a browser and you should see your “Hello, World!” text. Neat!
@@ -236,13 +851,13 @@ Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
 
 <ul>
   <li>
-    <p>Add all of our files to be commited: <code>git add --all</code></p>
+    <p>Add all of our files to be commited: <code class="highlighter-rouge">git add --all</code></p>
   </li>
   <li>
-    <p>Commit them with a helpful message: <code>git commit -m "Committing basic folder structure and Hello World page."</code></p>
+    <p>Commit them with a helpful message: <code class="highlighter-rouge">git commit -m "Committing basic folder structure and Hello World page."</code></p>
   </li>
   <li>
-    <p>Push it to Github: <code>git push origin master</code></p>
+    <p>Push it to Github: <code class="highlighter-rouge">git push origin master</code></p>
   </li>
   <li>
     <p>Give it a few seconds, and you should see your new page at your USERNAME.github.io address:
@@ -258,362 +873,61 @@ Configuration file: /home/rsmitty/Desktop/rsmitty.github.io/_config.yml
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
 
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2014-09-06T00:00:00-04:00"><a href="/and-were-back/">September 06, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/and-were-back/" rel="bookmark" title="Aaaaand We're Back..." itemprop="url">Aaaaand We're Back...</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>Welp, after a long time away from anything blog related, I’ve decided to spin up a new site to start trying to keep better documentation of the stuff I do personally. A friend of mine asked about my old blog last week and, after telling me that he had liked to read it, I decided that maybe now was as good a time as any to get back into the swing of things. Life has changed quite a bit since the old entries I had made on my previous site, so the focus of my write-ups here will be pretty drastically different.</p>
-
-<p>I had originally stopped writing mainly because, as graduation neared at Clemson, I was short on time and frantically trying to find a job to transition to ASAP. I also didn’t want to pay yearly for a domain name and to host my site somewhere. So in getting back into this, I have made the transition to Github Pages as a free spot to host my stuff. Pages uses the Jekyll framework to host static sites, which sounded like a neat platform to try out. This has also given me a chance to use git in a different way and learn the markdown syntax. I hope that I’ll be able to expand on these skills more in the future.</p>
-
-<p>As for most of my new posts, they’ll probably center around the creation of this site (it took me a while to figure out the simplest path forward for Jekyll + Bootstrap), Linux system administration, OpenStack oddities and how-tos, and automation tools like Chef and Ansible. Finally, in regards to my older stuff, I was able to dig the old site out of the archive.org Wayback Machine (hooray for not keeping backups), so I’ve ported a few of the ones that were still somewhat interesting to this site.</p>
-
-<p>Hope you like it!</p>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2010-03-22T00:00:00-04:00"><a href="/greyscale-image-converter-in-python/">March 22, 2010</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~2 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/greyscale-image-converter-in-python/" rel="bookmark" title="Greyscale Image Converter in Python" itemprop="url">Greyscale Image Converter in Python</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>Back in CPSC 101, we did a lot of image editing. We only used PPM images in class and I was thinking the other day about how even though I hated the project at the time, it was pretty interesting. So, I decided to re-code some of it in Python. Basically, all I’ve done is written a script that will allow the conversion of any color PPM image into greyscale. I feel like this can be pretty handy, as it’s fast and seems to do a pretty good job.</p>
-
-<p><strong>Here’s the before image (Ironically, I had to convert to another image format before posting):</strong></p>
-
-<p><img src="/img/posts/2010-03-2-greyscale-image-converter-in-python/color-pic.jpg" alt="alt text" title="Color Nature Pic" /></p>
-
-<p><strong>And here’s the output:</strong></p>
-
-<p><img src="/img/posts/2010-03-2-greyscale-image-converter-in-python/bw-pic.jpg" alt="alt text" title="BW Nature Pic" /></p>
-
-<p>A few particulars about the files and scripts:</p>
-
-<ul>
-  <li>
-    <p>I used the P3 header, which is easier because it allows you just to write ASCII into the file.</p>
-  </li>
-  <li>
-    <p>Also, you must ensure that the header of the input photo must only have 3 lines. I’ve found that if you convert a JPEG from Gimp, it adds its on line in the header. It was easy to just do ‘nano in.ppm’ in terminal and remove the line they put in.</p>
-  </li>
-  <li>
-    <p>The script can be run using ‘python grey.py &lt;input filename&gt;’</p>
-  </li>
-  <li>
-    <p>This ONLY works on PPM images. Maybe someday I’ll look into another image format.</p>
-  </li>
-</ul>
-
-<p>And that’s it!</p>
-
-<p>Here’s the code, check it out:</p>
-
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c">#Greyscale Converter</span>
-<span class="c">#Spencer Smith</span>
-<span class="c">#Mar. 22, 2010</span>
-<span class="kn">import</span> <span class="nn">sys</span>
- 
-<span class="c">#Open file</span>
-<span class="n">FILE</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
- 
-<span class="c">#Read input file</span>
-<span class="n">indata</span> <span class="o">=</span> <span class="n">FILE</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
- 
-<span class="c">#Strip header</span>
-<span class="k">del</span> <span class="n">indata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">size</span> <span class="o">=</span> <span class="n">indata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="k">del</span> <span class="n">indata</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
- 
-<span class="c">#Open output image</span>
-<span class="n">GREY</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;out_grey.ppm&quot;</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
- 
-<span class="c">#Write header to output image</span>
-<span class="n">GREY</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;P3</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="n">GREY</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-<span class="n">GREY</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;255</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
- 
-<span class="c">#Calculate and write RGB values</span>
-<span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">indata</span><span class="p">:</span>
-  <span class="n">val</span> <span class="o">=</span> <span class="n">x</span>
-  <span class="k">if</span> <span class="n">counter</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="n">val1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">*.</span><span class="mi">3</span>
-  <span class="k">elif</span> <span class="n">counter</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="n">val2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">*.</span><span class="mi">59</span>
-  <span class="k">elif</span> <span class="n">counter</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-    <span class="n">val3</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">*.</span><span class="mi">11</span>
-  <span class="n">px</span> <span class="o">=</span> <span class="n">val1</span><span class="o">+</span><span class="n">val2</span><span class="o">+</span><span class="n">val3</span>
-  <span class="n">GREY</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="se">\n</span><span class="si">%d</span><span class="se">\n</span><span class="si">%d</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">px</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">px</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">px</span><span class="p">)))</span>
-  <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span>
- 
-<span class="c">#Close files</span>
-<span class="n">FILE</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="n">GREY</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></code></pre></div>
-
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2010-03-10T00:00:00-05:00"><a href="/warehouse-inventory-with-python/">March 10, 2010</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~4 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/warehouse-inventory-with-python/" rel="bookmark" title="Warehouse Inventory With Python" itemprop="url">Warehouse Inventory With Python</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>Hi all,</p>
-
-<p>So this week, I’ve been in a crunch to get some last minute cash for spring break. My Dad had a little opportunity for me to write a Python script for him to use at the office. The back story is basically that the warehouse where he works has to take inventory using some sort of hand-held scanning devices.</p>
-
-<p>He wanted me to write a script that, when placed in a directory with any given number of output files from the devices, generates a document stating each file and how many cartons are in each pallet. Sounds like a perfect job for Python, right? Exactly right. It literally took me about 45 minutes to 1 hour and I had the thing completely off the ground running. I’ve decided to post it not so much because this exact program is really useful to anyone else, but because I definitely learned some cool I/O stuff while doing it.</p>
-
-<p>First, I think it’s useful to get an idea of how the files looked coming in. They were basically Wordpad documents generated by Windows CE and didn’t have much format to them. Here’s a little example:</p>
-
-<div class="highlight"><pre><code class="language-text" data-lang="text">m464.pwd
-{\pwd2\ansi{\*\pwdcomment
-************************************************************************
-*
-* This is a Microsoft WordPad document.
-*
-* For further details visit the Microsoft Windows CE web site, at
-*         http://www.microsoft.com/windowsce
-* Or search MSDN for &#39;Microsoft WordPad&#39;
-*
-************************************************************************
-}\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
-{\colortbl ;}
-\viewkind4\uc1\pard\cf0\f0\fs22 008022376\par
-008022375\par
-008022379\par
-008022380\par
-008022381\par
-\par
-}
-^@</code></pre></div>
-
-<p>As you can see, It’s a little hard to decipher. Also, keep in mind that this is not a full file as I didn’t want to post 600 lines in there. Anywhere there is a ‘\par’, except for the lone one at the end, there is a carton in the warehouse. All I had to do was figure out a way to add.</p>
-
-<p>My program gave the following output:</p>
-
-<div class="highlight"><pre><code class="language-text" data-lang="text">Inventory Count
-Generated: 03/09/2010 21:45:37
-------------------------------------------------
-Filename           # of Cartons
-------------------------------------------------
-m468                602
-m466                286
-m461                144
-m465                245
-m464                199</code></pre></div>
-
-<p>So, as you can see, it seems to work pretty well. I can also imagine this is WAY easier than counting by hand. So, here is the code that converts one to the other. Be sure to notice the usefulness of the calls like getcwd(), which proved to be awesome for finding all the files in the directory.</p>
-
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c">#Spencer Smith</span>
-<span class="c">#Inventory Calculator</span>
-<span class="c">#Created 3/9/2010</span>
- 
-<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">strftime</span>
- 
-<span class="c">#Name of output file</span>
-<span class="n">filename2</span> <span class="o">=</span> <span class="s">&quot;inventory_count.txt&quot;</span>
- 
-<span class="c">#Get all files in current directory</span>
-<span class="n">total_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
-<span class="n">pwd_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
- 
-<span class="c">#Find all files with &#39;.pwd&#39; extension</span>
-<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">total_files</span><span class="p">:</span>
-   <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.pwd&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-     <span class="n">pwd_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
- 
-<span class="c">#Return error to &#39;error.log&#39; if there are no &#39;.pwd&#39; files in the directory</span>
-<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pwd_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-  <span class="n">FILE</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;error.log&quot;</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
-  <span class="n">FILE</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%m/</span><span class="si">%d</span><span class="s">/%Y %H:%M:%S&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; -- No files &#39;.pwd&#39; files in directory to read.&quot;</span><span class="p">)</span>
-  <span class="n">FILE</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-  <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
- 
-<span class="c">#Open output file for writing</span>
-<span class="n">OUT</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename2</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
- 
-<span class="c">#Create header</span>
-<span class="n">OUT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Inventory Count</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="n">OUT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Generated: &quot;</span><span class="o">+</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%m/</span><span class="si">%d</span><span class="s">/%Y %H:%M:%S&quot;</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="n">OUT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;------------------------------------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="n">OUT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Filename           # of Cartons</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="n">OUT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;------------------------------------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
- 
-<span class="c">#Iterate through available &#39;.pwd&#39; files</span>
-<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">pwd_files</span><span class="p">:</span>
- 
-<span class="c">#Open file for reading</span>
-   <span class="n">FILE</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
-   <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-   <span class="n">suffix</span> <span class="o">=</span> <span class="s">&quot;\par&quot;</span>
- 
-<span class="c">#Search each line for &quot;\par&quot;. &quot;\par&quot; on the line means that there is a carton on this line.</span>
-<span class="c">#Increment carton counter if found</span>
-   <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">FILE</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span>
-<span class="c">#After reading all lines in file, write filename and count to output file.</span>
-   <span class="n">OUT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">                </span><span class="si">%d</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">],</span><span class="n">counter</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-<span class="c">#Close current file and reset.</span>
-   <span class="n">FILE</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
- 
-<span class="c">#Close output file so that it can be read.</span>
-<span class="n">OUT</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></code></pre></div>
-
-<p>Enjoy! Hope someone finds it useful!</p>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2010-02-16T00:00:00-05:00"><a href="/MD5-password-cracker-in-python/">February 16, 2010</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Spencer Smith">Spencer Smith</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~2 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/MD5-password-cracker-in-python/" rel="bookmark" title="MD5 Password Cracker In Python" itemprop="url">MD5 Password Cracker In Python</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <p>I am in a Distributed Computing class this semester. We just had to write a brute-force password cracker using the Condor grid we have on-campus. It really took forever to generate an 8 character (a-z) code even though I ran it 676 different times. Total run-time was about 25 minutes. Anyways, we also had to create a password cracker using a dictionary file. I thought this was an awesome project and it was so much faster! I’ve decided to post the dictionary Python script. It should crack any word, given that it is in whatever dictionary you choose to use it against. My word for the project was “schnecke”, which is German for “snail”. Knowing that, I checked it against the Ubuntu New German dictionary. The run-time was ~.3 secs.</p>
-
-<p>Check it out!</p>
-
-<p>P.S. In order to get language dictionaries to check against in Ubuntu, it is as easy as “apt-get install ngerman” or whatever language package you need. I found a list of these packages with a quick Google search. If you’re doing more evil than good, you can also easily find a list of “common passwords” in text form.</p>
-
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c">#Spencer Smith</span>
-<span class="c">#dict_crack.py</span>
-<span class="c">#Usage: python dict_crack.py &lt;md5 encrypted password&gt; &lt;dictionary path&gt;</span>
-<span class="c">#Example: python dict_crack.py ...</span>
-<span class="c">#... 75d3d991f75c3bcbecbbcaa712baa678 /usr/shared/dict/ngerman</span>
- 
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">hashlib</span>
-<span class="kn">import</span> <span class="nn">sys</span>
- 
-<span class="c">#start runtime clock</span>
-<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
- 
-<span class="c">#set md5 encrypted password from command line we are looking for</span>
-<span class="n">solution</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">guess</span><span class="o">=</span><span class="s">&quot; &quot;</span>
-<span class="n">sol</span> <span class="o">=</span> <span class="s">&quot;no solution found&quot;</span>
- 
-<span class="c">#open dictionary file</span>
-<span class="n">filename</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
- 
-<span class="c">#for each entry, generate md5 encryption and check ...</span>
-<span class="c"># ... against desired solution</span>
- 
-<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
-  <span class="n">m</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
-  <span class="c">#cut off &#39;\n&#39; character</span>
-  <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">line</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-  <span class="n">guess</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
-  <span class="k">if</span> <span class="n">guess</span> <span class="o">==</span> <span class="n">solution</span><span class="p">:</span>
-    <span class="n">sol</span> <span class="o">=</span> <span class="n">line</span>
-    <span class="k">break</span>
- 
-<span class="c">#close dictionary file</span>
-<span class="n">filename</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="c">#stop time</span>
-<span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="c">#calculate rough estimate of run-time</span>
-<span class="n">t_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
-<span class="k">print</span> <span class="s">&quot;total runtime was -- &quot;</span><span class="p">,</span><span class="n">t_time</span><span class="p">,</span><span class="s">&quot; seconds and the answer was:&quot;</span><span class="p">,</span><span class="n">sol</span></code></pre></div>
-
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
 
 
 <div class="pagination">
-  
-    
-      <a href="/page2" class="btn">Previous</a>
-    
-  
   <ul class="inline-list">
-    <li>
-      
-        <a href="">1</a>
-      
-    </li>
     
-      <li>
-        
-          <a href="/page2">2</a>
-        
-      </li>
     
-      <li>
+      
+        <li><a href="/page2/" class="btn">Previous</a></li>
+      
+    
+
+    
+    
+      <li><a href="">1</a></li>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
         
-          <span class="current-page">3</span>
         
-      </li>
+        
+        <li><a href="/page2/">2</a></li>
+      
+    
+      
+        <li><strong class="current-page">3</strong></li>
+      
+    
+
+    
+    
+
+    
+      <li><a href="/page4/">4</a></li>
+    
+
+    
+    
+      <li><a href="/page4/" class="btn">Next</a></li>
     
   </ul>
-  
-    Next
-  
-</div><!-- /.pagination -->
+</div>
+
 </div><!-- /#main -->
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
   </footer>
 </div><!-- /.footer-wrapper -->
 
@@ -621,6 +935,18 @@ m464                199</code></pre></div>
 <script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 <script src="/assets/js/scripts.min.js"></script>
 
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
 
 
           

@@ -74,6 +74,7 @@
 					<h4>Spencer Smith</h4>
 					<p>Cloud Engineer working extensively with Linux, OpenStack, and various automation tools. Fan of OSS.</p>
 				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
 				<li>
 					<a href="mailto:robertspencersmith@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
 				</li>
@@ -81,10 +82,10 @@
 				
 				
 				<li>
-					<a href="http://linkedin.com/in/https://www.linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
+					<a href="https://linkedin.com/in/spencersmith23"><i class="fa fa-fw fa-linkedin"></i> LinkedIn</a>
 				</li>
 				<li>
-					<a href="http://github.com/https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
+					<a href="https://github.com/rsmitty"><i class="fa fa-fw fa-github"></i> GitHub</a>
 				</li>
 				
 				
@@ -100,6 +101,12 @@
 			</ul>
 		</li>
 		
+	    
+	    <li><a href="/theme-setup/" >Theme Setup</a></li>
+	  
+	    
+	    <li><a href="http://mademistakes.com" target="_blank">External Link</a></li>
+	  
 	</ul><!-- /.dl-menu -->
 </nav><!-- /.dl-menuwrapper -->
 
@@ -118,7 +125,7 @@
         <p class="entry-reading-time">
           <i class="fa fa-clock-o"></i>
           
-          Reading time ~2 minutes
+Reading time ~2 minutes
         </p><!-- /.entry-reading-time -->
         
       </div><!-- /.header-title-wrap -->
@@ -143,25 +150,25 @@ that will be fixed in the future.</p>
   </li>
   <li>
     <p>Open the /etc/hosts file for editing and add an entry for the private IP address to
-give it a hostname. The script below with fail if <code>hostname -f</code> doesn’t return
+give it a hostname. The script below with fail if <code class="highlighter-rouge">hostname -f</code> doesn’t return
 anything. I added this to my hosts file:
-<code>10.0.0.29 cfengine-server.localdomain</code>. You may also have to enter
-<code>sudo hostname cfengine-server.localdomain</code>.</p>
+<code class="highlighter-rouge">10.0.0.29 cfengine-server.localdomain</code>. You may also have to enter
+<code class="highlighter-rouge">sudo hostname cfengine-server.localdomain</code>.</p>
   </li>
   <li>
     <p>Grab the CFEngine install script with
-<code>wget http://s3.amazonaws.com/cfengine.packages/quick-install-cfengine-enterprise.sh</code>.</p>
+<code class="highlighter-rouge">wget http://s3.amazonaws.com/cfengine.packages/quick-install-cfengine-enterprise.sh</code>.</p>
   </li>
   <li>
-    <p>Make it executable with <code>chmod +x quick-install-cfengine-enterprise.sh</code>.</p>
+    <p>Make it executable with <code class="highlighter-rouge">chmod +x quick-install-cfengine-enterprise.sh</code>.</p>
   </li>
   <li>
     <p>Run the script with sudo rights and pass the hub argument to specify that this
 will be a central hub server:
-<code>sudo ./quick-install-cfengine-enterprise.sh hub</code></p>
+<code class="highlighter-rouge">sudo ./quick-install-cfengine-enterprise.sh hub</code></p>
   </li>
   <li>
-    <p>Bootstrap the CFEngine hub with <code>sudo /var/cfengine/bin/cf-agent --bootstrap 10.0.0.29</code></p>
+    <p>Bootstrap the CFEngine hub with <code class="highlighter-rouge">sudo /var/cfengine/bin/cf-agent --bootstrap 10.0.0.29</code></p>
   </li>
   <li>
     <p>We should now be able to login to the server’s web UI by going to the floating
@@ -178,7 +185,7 @@ with our snazzy new server. This process is almost exactly the same as the above
 with the exception of the argument passed to quick-install-cfengine-enterprise.sh.
 I won’t copy/paste everything from above, but just follow the same steps and when
 you get there, issue this command instead:
-<code>sudo ./quick-install-cfengine-enterprise.sh agent</code></p>
+<code class="highlighter-rouge">sudo ./quick-install-cfengine-enterprise.sh agent</code></p>
 
 <p>One last possible caveat here. I created a Ubuntu 12.04 image with the CFEngine
 client installed and it caused a kernel panic on boot. I’m not sure what was going on,
@@ -208,20 +215,20 @@ in the web UI.
       <a href="/Showing-dd-Progress-in-Terminal/" class="read-more-btn">Read More</a>
     </div><!-- /.read-more-header -->
     <div class="read-more-content">
-      <h3><a href="/Docker-Machine-and-Openstack/" title="Docker Machine And Openstack">Docker Machine And Openstack</a></h3>
-      <p>layout: postcomments: falseinstall docker machine major version via brew install docker-machinedocker-machine upgradedocker-machine creat...&hellip; <a href="/Docker-Machine-and-Openstack/">Continue reading</a></p>
+      <h3><a href="/Terraform-Ansible-Kubernetes/" title="Deploy Kubernetes w/ Ansible & Terraform">Deploy Kubernetes w/ Ansible & Terraform</a></h3>
+      <p>Back after a pretty lengthy intermission! Today I want to talk about Kubernetes. I've recently had some clients that have been interested...&hellip; <a href="/Terraform-Ansible-Kubernetes/">Continue reading</a></p>
     </div><!-- /.read-more-content -->
   
   <div class="read-more-list">
     
       <div class="list-item">
-        <h4><a href="/Installing-Docker/" title="Installing Docker">Installing Docker</a></h4>
-        <span>Published on March 29, 2015</span>
+        <h4><a href="/Containerizing-The-Grid/" title="Containerizing The Grid - BOINC on Docker">Containerizing The Grid - BOINC on Docker</a></h4>
+        <span>Published on August 29, 2015</span>
       </div><!-- /.list-item -->
     
       <div class="list-item">
-        <h4><a href="/Using-Git-with-CFEngine/" title="Using Git Repos with CFEngine">Using Git Repos with CFEngine</a></h4>
-        <span>Published on March 27, 2015</span>
+        <h4><a href="/Creating-A-RancherOS-QCOW/" title="Creating RancherOS Image for OpenStack">Creating RancherOS Image for OpenStack</a></h4>
+        <span>Published on July 15, 2015</span>
       </div><!-- /.list-item -->
     
   </div><!-- /.read-more-list -->
@@ -231,7 +238,7 @@ in the web UI.
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/" rel="notfollow">HPSTR Theme</a>.</span>
+    <span>&copy; 2016 Spencer Smith. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
   </footer>
 </div><!-- /.footer-wrapper -->
 
@@ -239,6 +246,18 @@ in the web UI.
 <script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 <script src="/assets/js/scripts.min.js"></script>
 
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61400214-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
 
 
 	        
