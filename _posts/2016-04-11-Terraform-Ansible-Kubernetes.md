@@ -161,7 +161,7 @@ kube-master
 
 You may have noticed in the Terraform section that we attached a `k8s-cluster` security group in our variables file. You will need to set this security group up to allow for the necessary ports used by Kubernetes. Follow [this](https://coreos.com/kubernetes/docs/latest/kubernetes-networking.html#port-allocation){:target="_blank"} list and enter them into Horizon.
 
-##**Hold On To Ya Butts!**##
+## **Hold On To Ya Butts!** ##
 
 Now that Terraform is setup, we _should_ be able to launch our cluster and have it provision using the Kargo playbooks we checked out. But first, one small BASH script to ensure things run in the proper order.
 
