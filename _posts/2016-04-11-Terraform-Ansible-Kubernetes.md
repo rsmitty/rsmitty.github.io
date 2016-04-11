@@ -17,6 +17,7 @@ This is totally a valid question. And the answer here is that you don't... if yo
 Alas, here we are and we'll search for a way to get it done!
 
 ##**What Pieces are in Play?**##
+
 For the purposes of this walkthrough, there will be four pieces that you'll need to understand:
 
 - **OpenStack** - An infrastructure as a service cloud platform. I'll be using this in lieu of Amazon.
@@ -25,6 +26,7 @@ For the purposes of this walkthrough, there will be four pieces that you'll need
 - **Kubernetes** - And finally we get to K8s! All of the tools above will come together to give us a fully functioning cluster.
 
 ##**Clone KubeSpray's Kargo**##
+
 First we'll want to pull down the Ansible playbooks we want to use.
 
 - If you've never installed Ansible, it's quite easy on a Mac with `brew install ansible`. Other instructions [can be found here](http://docs.ansible.com/ansible/intro_installation.html){:target="_blank"}.
@@ -45,6 +47,7 @@ drwxr-xr-x  15 spencer  staff   510B Apr  5 16:55 kargo
 - Note that there are a plethora of different options available with Kargo. I highly recommend spending some time reading up on the project and the different playbooks out there in order to deploy the specific cluster type you may need.
 
 ##**Create Terraform Templates**##
+
 We want to create two terraform templates, the first will create our OpenStack infrastructure, while the second will create an Ansible inventory file for kargo to use. Additionally, we will create a variable file where we can populate our desired OpenStack variables as needed. The Terraform syntax can look a bit daunting at first, but it starts to make sense as we look at it more and see it in action.
 
 - Create all files with `touch 00-create-k8s-nodes.tf 01-create-inv.tf terraform.tfvars` The `.tf` and `.tfvars` extension are terraform specific extensions.
