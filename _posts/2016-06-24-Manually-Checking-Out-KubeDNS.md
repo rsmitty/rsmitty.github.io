@@ -44,4 +44,4 @@ Here's how to look at the records in the etcd container:
 
 
 ## **Other Notes** ##
-If you want to also test that things are working as expected inside the cluster, follow the great "How Do I Test If It's Working?" section in the DNS addon repo: https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/addons/dns/README.md
+If you want to also test that things are working as expected inside the cluster, follow the great "How Do I Test If It's Working?" section in the DNS addon repo [here](https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/addons/dns/README.md)
