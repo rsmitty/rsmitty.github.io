@@ -6,7 +6,7 @@ title: Extending Our Slack Bot with Image Search
 tags: docker slack go golang
 ---
 
-As a follow-up to yesterday's post, I wanted to talk about how I built "baconator" at Solinea. This is a goofy Slack bot that we run internally. He responds to requests by querying Google Images for pictures of bacon and then posts them in the channel. Here's how I did it:
+As a follow-up to [yesterday's post](https://rsmitty.github.io/Slack-Bot/), I wanted to talk about how I built "baconator" at Solinea. This is a goofy Slack bot that we run internally. He responds to requests by querying Google Images for pictures of bacon and then posts them in the channel. Here's how I did it:
 
 ## **Get the Proper Googly Bits** ##
 
