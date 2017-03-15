@@ -6,7 +6,7 @@ title: Multi-Cloud Docker Swarm with Terraform and Ansible
 tags: docker containers aws gce cloud terraform ansible
 ---
 
-Since the release of Docker 1.12, there's a new Swarm mode that is baked into the Docker engine. I wanted to spend some time, after months of Kubernetes-only work, to check out how Swarm was doing things and to see how easy it was to get started. Building a quick cluster on your laptop or on a single provider seemed to be straight forward, but I couldn't readily find a no nonsense way to spin one up. So, you know, I went ahead and built one.
+Since the release of Docker 1.12, there's a new Swarm mode that is baked into the Docker engine. I wanted to spend some time, after months of Kubernetes-only work, to check out how Swarm was doing things and to see how easy it was to get started. Building a quick cluster on your laptop or on a single provider seemed to be straight forward, but I couldn’t readily find a no nonsense way to spin one up across multiple clouds. So, you know, I went ahead and built one.
 
 Today, we'll walk through how you can create a multi-cloud Swarm on AWS and GCE. We will use Terraform and Ansible to complete the bootstrap process, which is surprisingly straightforward. You can go directly to the Github repo where I stashed the code by clicking [here](https://github.com/rsmitty/cross-cloud-swarm).
 
