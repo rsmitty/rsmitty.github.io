@@ -20,7 +20,7 @@ The flow is basically this:
 
 ## **Logging** ##
 
-So, while all of the above seemed to be working, it was just slow. The first thing I tried to do was see if queries were making it to the dnsmasq container in a timely fashion. I dumped the logs with `kubectl logs -f -tail 100 -c dnsmasq -n kube-system kubedns-xxxyy`. I noticed quickly that there weren't any logs of interest here:
+So, while all of the above seemed to be working, it was just slow. The first thing I tried to do was see if queries were making it to the dnsmasq container in a timely fashion. I dumped the logs with `kubectl logs -f --tail 100 -c dnsmasq -n kube-system kubedns-xxxyy`. I noticed quickly that there weren't any logs of interest here:
 {% highlight bash %}
 dnsmasq[1]: started, version 2.76 cachesize 1000
 dnsmasq[1]: compile time options: IPv6 GNU-getopt no-DBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack ipset auth no-DNSSEC loop-detect inotify
