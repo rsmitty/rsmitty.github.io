@@ -6,6 +6,8 @@ title: A Noob's Guide to Custom Prometheus Exporters
 tags: kubernetes golang prometheus
 ---
 
+**##NOTE:** This post is outdated and shows an incorrect way of creating exporters. You'd be better served to view [this post](https://rsmitty.github.io/Prometheus-Exporters-Revamp/) instead.
+
 Recently I've been using prometheus at work to monitor and alert on the status of our Kubernetes clusters, as well as services we have running in the cluster. One really nice thing about using prometheus is that Kubernetes already exposes a `/metrics` endpoint and it's pretty simple to configure prometheus to scrape it. For other services, prometheus can even look for annotations on your pod definitions and begin scraping them automatically. However, not all software comes with snazzy prometheus endpoints built-in. As such, this post will go through the process of exposing your own endpoint and writing metrics out to it using golang.
 
 ## **The Basics** ##
@@ -144,6 +146,7 @@ import (
   "net/http"
 
   log "github.com/Sirupsen/logrus"
+  "github.com/prometheus/client_golang/prometheus"
   "github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
